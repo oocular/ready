@@ -1,0 +1,30 @@
+# openEDS
+> OpenEDS (Open Eye Dataset) is a large scale data set of eye-images captured using a virtual-reality (VR) head mounted display mounted with two synchronized eyefacing cameras at a frame rate of 200 Hz under controlled illumination.
+> This dataset is compiled from video capture of the eye-region collected from 152 individual participants and is divided into four subsets: 
+	(i) 12,759 images with pixel-level annotations for key eye-regions: iris, pupil and sclera 
+	(ii) 252,690 unlabelled eye-images, 
+	(iii) 91,200 frames from randomly selected video sequence of 1.5 seconds in duration and 
+	(iv) 143 pairs of left and right point cloud data compiled from corneal topography of eye regions collected from a subset, 143 out of 152, participants in the study.
+
+https://www.kaggle.com/datasets/soumicksarker/openeds-dataset/data
+
+## Model
+### Transfer 
+model is saved at `$HOME/datasets/openEDS`
+* Copying model to local machine
+```
+scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/model.pth ~/temp
+#100%  112MB   4.4MB/s   00:25
+```
+
+### Preparations
+
+* Conversion
+```
+python convert_to_onnx.py --model_path $HOME/... --input_model_name *.pth --output_model_name *.onnx
+```
+
+https://netron.app/
+
+https://convertmodel.com/#input=onnx&output=onnx
+
