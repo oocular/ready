@@ -3,6 +3,7 @@ https://www.kaggle.com/code/edventy/segiris
 """
 
 import os
+import time
 from datetime import datetime
 
 import matplotlib.pyplot as plt
@@ -19,6 +20,7 @@ from torchvision.io import read_image
 from torchvision.transforms import ToTensor
 
 from src.ready.utils.utils import get_working_directory, set_data_directory
+from src.ready.utils.convert_to_onnx import export_model
 
 torch.cuda.empty_cache()
 # import gc
@@ -238,66 +240,35 @@ def norm_image(hot_img):
     return torch.argmax(hot_img, 0)
 
 
-def probe(trainloader, net):
+def sanity_check(trainloader, neural_network, cuda_available):
     """
-    Probe trainloader
+    Sanity check of trainloader
     """
-    f, axarr = plt.subplots(1, 3)
+    #f, axarr = plt.subplots(1, 3)
 
-    cuda_available = torch.cuda.is_available()
     for images, labels in trainloader:
         if cuda_available:
             images = images.cuda()
             labels = labels.cuda()
 
-        outputs = net(images[0].unsqueeze(0))
+        #print(images[0].unsqueeze(0).size()) #torch.Size([1, 1, 400, 640])
+        outputs = neural_network(images[0].unsqueeze(0))
         # print("nl", labels[0], "no", outputs[0])
-        print(images[0].shape, labels[0].shape, outputs.shape)
+        print(f'   CHECK images[0].shape: {images[0].shape}, labels[0].shape: {labels[0].shape}, outputs.shape: {outputs.shape}')
         # nl = norm_image(labels[0].reshape([400, 640, 4]).
         # swapaxes(0, 2).swapaxes(1, 2)).cpu().squeeze(0)
         no = norm_image(outputs[0]).cpu().squeeze(0)
+        print(f'   CHECK no[no == 0].size(): {no[no == 0].size()}, no[no == 1].size(): {no[no == 1].size()}, no[no == 2].size(): {no[no == 2].size()}, no[no == 3].size(): {no[no == 3].size()}')
 
-        axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
-        #         print("NLLLL", nl.shape)
-        axarr[1].imshow(labels[0].squeeze(0).cpu())
-        axarr[2].imshow(no)
+        #TOSAVE_PLOTS_TEMPORALY?
+        #axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
+        #print("NLLLL", nl.shape)
+        #axarr[1].imshow(labels[0].squeeze(0).cpu())
+        #axarr[2].imshow(no)
 
-        print(
-            no[no == 0].size(),
-            no[no == 1].size(),
-            no[no == 2].size(),
-            no[no == 3].size(),
-        )
-
-        plt.show()
+        #plt.show()
 
         break
-
-
-def export_model(model, device):
-    """
-    # Input to the model
-    # size = (512, 512)
-    """
-    # x = torch.randn(1, 3, 512, 512, requires_grad=False).to(device)
-    x = torch.randn(64, 1, 3, 3, requires_grad=False).to(device)
-    torch_out = model(x)
-
-    # Export the model
-    torch.onnx.export(
-        model,  # model being run
-        x,  # model input (or a tuple for multiple inputs)
-        "weights/ADD_NAME.onnx",  # where to save the model (can be a file or file-like object)
-        export_params=True,  # store the trained parameter weights inside the model file
-        opset_version=10,  # the ONNX version to export the model to
-        do_constant_folding=True,  # whether to execute constant folding for optimization
-        input_names=["input"],  # the model's input names
-        output_names=["output"],  # the model's output names
-        dynamic_axes={
-            "input": {0: "batch_size"},  # variable length axes
-            "output": {0: "batch_size"},
-        },
-    )
 
 
 def main():
@@ -310,6 +281,9 @@ def main():
     #TODO add execution time
     #TODO save loss
     """
+
+
+    starttime = time.time() #print(f'Starting training loop at {startt}')
 
     # print(get_working_directory())
     set_data_directory("datasets/openEDS")
@@ -327,6 +301,7 @@ def main():
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=8, shuffle=True, num_workers=4
     )
+    print(f"trainloader.batch_size {trainloader.batch_size}")
 
     model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
     optimizer = optim.Adam(model.parameters(), lr=0.003)
@@ -358,23 +333,19 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
 
-            # print(images.shape) #torch.Size([8, 1, 400, 640])
-            # print(labels.shape) #torch.Size([8, 400, 640])
+            #print(images.shape) #torch.Size([8, 1, 400, 640])
+            #print(labels.shape) #torch.Size([8, 400, 640])
 
             optimizer.zero_grad()
-            output = model(images)
+            output = model(images) #torch.Size([8, 4, 400, 640])
             loss = loss_fn(output, labels)
             loss.backward()
             optimizer.step()
 
             sum_loss += loss.item()
             if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
-                print(
-                    "Loss at {} mini-batch: {}".format(
-                        j, loss.item() / trainloader.batch_size
-                    )
-                )
-                # TO_TEST probe(trainloader, model)
+                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
+                sanity_check(trainloader, model, cuda_available)
                 save_checkpoint(
                     {
                         "epoch": run_epoch,
@@ -386,17 +357,18 @@ def main():
 
             if j == 200:
                 break
-        print(
-            "Average loss @ epoch: {}".format((sum_loss / (j * trainloader.batch_size)))
-        )
+        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
     torch.save(model.state_dict(), "weights/model.pth")
 
-    # export_model(model, device)
-    # TORESOLVE: RuntimeError: Given input size: (128x1x1).
-    # Calculated output size: (128x0x0). Output size is too small
     print("Saved PyTorch Model State to model.pth")
+    
+    export_model(model, device)
+
+    endtime = time.time()
+    elapsedtime = endtime - starttime
+    print(f'Elapsed time for the training loop: {elapsedtime} (s)')
 
 
 if __name__ == "__main__":

@@ -8,23 +8,7 @@
 
 https://www.kaggle.com/datasets/soumicksarker/openeds-dataset/data
 
-## Model
-### Transfer 
-model is saved at `$HOME/datasets/openEDS`
-* Copying model to local machine
-```
-scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/model.pth ~/temp
-#100%  112MB   4.4MB/s   00:25
-```
 
-### Preparations
-
-* Conversion
-```
-python convert_to_onnx.py --model_path $HOME/... --input_model_name *.pth --output_model_name *.onnx
-```
-
-https://netron.app/
-
-https://convertmodel.com/#input=onnx&output=onnx
+## Local datasets path
+cd $HOME/datasets/openEDS
 
