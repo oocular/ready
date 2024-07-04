@@ -14,6 +14,7 @@ $ tree -h
 ```
 scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/weights/model.pth ~/Desktop/nystagmus-tracking/weights/trained_models_in_cricket
 #100%  112MB   4.4MB/s   00:25
+#100%  337MB   4.0MB/s   01:23 
 ```
 
 ## Preparations

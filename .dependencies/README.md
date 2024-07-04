@@ -3,7 +3,7 @@
 ## Creating virtual environment for python
 * Using conda
 ```
-conda create -n "*VE" python=3.12 pip -c conda-forge
+conda create -n "readyVE" python=3.12 pip -c conda-forge
 conda activate *VE
 conda list -n *VE #to check installed packages
 conda remove -n *VE --all #in case you want to remove it
