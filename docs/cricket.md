@@ -11,13 +11,14 @@
 2. connect to the server
 ```
 ssh ccxxxxx@cricket.rc.ucl.ac.uk
+xterm -rv & # open as many terminals you want
 ```
 
 ## Copying dataset
 scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0G ETA 1h at 2MB/s
 
 
-## /opt/nvidia/containers
+## /opt/nvidia/containers (first time)
 ```
 mkdir -p containers && cd containers
 #cd containers
@@ -29,4 +30,6 @@ torch.cuda.is_available()
 
 watch -n 2 nvidia-smi #in another terminal to see activity every 2secs
 ```
+
+
 

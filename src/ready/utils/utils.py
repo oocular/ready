@@ -3,7 +3,7 @@ utils modules
 """
 
 import os
-
+import torch
 
 def get_working_directory():
     """
@@ -47,15 +47,15 @@ def export_model(model, device):
     # input size of data to the model [batch, channel, height, width]
     dummy_input = torch.randn(1, 1, 400, 640, requires_grad=False).to(device)
     torch_out = model(dummy_input)  #torch.Size([1, 4, 400, 640])
-    print(os.getcwd())
+    #print(os.getcwd())
 
     # Export the model
     torch.onnx.export(
         model,  # model being run
         dummy_input,  # model input (or a tuple for multiple inputs)
-        "weights/ADD_NAME.onnx",  # where to save the model (can be a file or file-like object)
+        "weights/ADD_MODEL_NAME_VAR.onnx",  # where to save the model (can be a file or file-like object)
         export_params=True,  # store the trained parameter weights inside the model file
-        opset_version=11,  # the ONNX version to export the model to
+        opset_version=16,  # the ONNX version to export the model to
         do_constant_folding=True,  # whether to execute constant folding for optimization
         input_names=["input"],  # the model's input names
         output_names=["output"],  # the model's output names
@@ -64,3 +64,8 @@ def export_model(model, device):
              "output": {0: "batch_size"},
          },
      )
+  
+
+    print(f"Saved ONNX model at {os.getcwd()}")
+
+ 

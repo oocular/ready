@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ready"
 dynamic = ["version", "readme"]
-requires-python = ">=3.12"
+requires-python = ">=3.12" #python=3.12 local  #python3.10 apptainer
 keywords = ["AI"]
 authors = [
   {name = "Miguel Xochicale", email = "add@email.com"},
@@ -35,7 +35,7 @@ test = [
     "pre-commit"
 ]
 learning = [
-    "torch", #2.3.1 local
+    "torch", #2.3.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
     "torchvision", #0.18.1 local
     "onnx", #1.16.1  local
 ]
