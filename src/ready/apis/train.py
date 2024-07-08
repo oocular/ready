@@ -1,7 +1,6 @@
 """
 https://www.kaggle.com/code/edventy/segiris
 """
-
 import os
 import time
 from datetime import datetime
@@ -17,7 +16,6 @@ import torch.optim as optim
 from torch.utils.data import Dataset
 from torch.autograd import Function
 from torchvision import datasets
-from torchvision.io import read_image
 from torchvision.transforms import ToTensor
 
 from segnet import SegNet
@@ -25,46 +23,11 @@ from unet import UNet
 
 from src.ready.utils.utils import get_working_directory, set_data_directory
 from src.ready.utils.utils import export_model
+from src.ready.utils.datasets import EyeDataset
 
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
-
-
-class EyeDataset(Dataset):
-    """
-    EyeDataset
-    """
-
-    def __init__(self, f_dir, transform=None, target_transform=None):
-        self.transform = transform
-        self.target_transform = target_transform
-        self.f_dir = f_dir
-
-        self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
-        self.labels_path = [i.replace(".png", ".npy") for i in self.img_path]
-
-    def __len__(self):
-        return len(self.img_path)
-
-    def __getitem__(self, idx):
-        img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
-        # print(img_path)
-        image = read_image(img_path).type(torch.float) / 255
-        # print (image)
-        label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
-        label = torch.tensor(label, dtype=torch.long)  # .unsqueeze(0)
-
-        #         label = F.one_hot(label, 4).type(torch.float)
-        #         print(label)
-        #         label = label.reshape([4, 400, 640])
-        #         print(label)
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            label = self.target_transform(label)
-        #         print(image.shape, label.shape)
-        return image, label
 
 
 def save_checkpoint(state, path):
@@ -115,8 +78,6 @@ def sanity_check(trainloader, neural_network, cuda_available):
 
 def main():
     """
-    EyeDataset
-
     #TODO epoch = None
     #TODO if weight_fn is not None:
     #TODO add checkpoint
@@ -129,7 +90,6 @@ def main():
 
     # print(get_working_directory())
     set_data_directory("datasets/openEDS")
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if not os.path.exists("weights"):
@@ -216,7 +176,11 @@ def main():
 
     print("Saved PyTorch Model State to model.pth")
     
-    export_model(model, device)
+    #TOCHECK
+    #path_name="weights/ADD_MODEL_NAME_VAR.onnx"
+    #batch_size = 1    # just a random number
+    #dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)  
+    #export_model(model, device, path_name, dummy_input):
 
     endtime = time.time()
     elapsedtime = endtime - starttime
