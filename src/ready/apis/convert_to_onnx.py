@@ -9,9 +9,11 @@ import torch
 import torch.nn as nn
 import torch.onnx
 import torchvision
+
 from src.ready.models.segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.utils import export_model
+
 
 def main(model_path, input_model_name):
     """
@@ -20,16 +22,16 @@ def main(model_path, input_model_name):
 
     """
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #DEVICE = torch.device("cpu") #"cuda"
+    # DEVICE = torch.device("cpu") #"cuda"
 
-    model_name=input_model_name[:-4]
+    model_name = input_model_name[:-4]
     models_path_input_name = model_path + "/" + input_model_name
     models_path_output_name = model_path + "/" + model_name + ".onnx"
 
-    #model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
+    # model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
     model = UNet(nch_in=1, nch_out=4)
     model = model.to(DEVICE)
-    #model = model.to(torch.device(DEVICE))
+    # model = model.to(torch.device(DEVICE))
 
     model.load_state_dict(
         torch.load(models_path_input_name, map_location=torch.device(DEVICE))
@@ -37,10 +39,10 @@ def main(model_path, input_model_name):
 
     model = model.eval().to(DEVICE)
 
-    batch_size = 1    # just a random number
-    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)  
-    #input size of data to the model [batch, channel, height, width]
-    #torch_out = model(dump_input)
+    batch_size = 1  # just a random number
+    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
+    # input size of data to the model [batch, channel, height, width]
+    # torch_out = model(dump_input)
 
     export_model(model, DEVICE, models_path_output_name, dummy_input)
 

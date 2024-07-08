@@ -9,6 +9,7 @@ https://github.com/say4n/pytorch-segnet/blob/master/src/model.py
 REF to potentially solve 'aten::max_unpool2d' to ONNX opset version
 https://github.com/pytorch/pytorch/issues/25088
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -72,7 +73,7 @@ class SegNet(nn.Module):
         # Each stage corresponds to their respective counterparts in ENCODING
 
         # General Max Pool 2D/Upsampling for DECODING layers
-        self.MaxDe = nn.MaxUnpool2d(2, stride=2) #torch
+        self.MaxDe = nn.MaxUnpool2d(2, stride=2)  # torch
 
         self.ConvDe53 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
         self.BNDe53 = nn.BatchNorm2d(512, momentum=BN_momentum)
@@ -109,7 +110,7 @@ class SegNet(nn.Module):
         """
         Forward method
         """
-        #print(f'input x.size(){x.size()}')
+        # print(f'input x.size(){x.size()}')
         # ENCODE LAYERS
         # Stage 1
         x = F.relu(self.BNEn11(self.ConvEn11(x)))
@@ -164,24 +165,22 @@ class SegNet(nn.Module):
         x = F.relu(self.BNDe31(self.ConvDe31(x)))
 
         # Stage 2
-        #print(f'  > 2before x.shape {x.shape}')
-        #print(f'  > 2before ind2.shape {ind2.shape}')
-        #print(f'  > 2before size1 {size1}')
+        # print(f'  > 2before x.shape {x.shape}')
+        # print(f'  > 2before ind2.shape {ind2.shape}')
+        # print(f'  > 2before size1 {size1}')
         x = self.MaxDe(x, ind2, output_size=size1)
-        #print(f'  > 2after {x.shape}')
+        # print(f'  > 2after {x.shape}')
         x = F.relu(self.BNDe22(self.ConvDe22(x)))
         x = F.relu(self.BNDe21(self.ConvDe21(x)))
 
         # Stage 1
-        #print(f'  > 1before {x.shape}')
+        # print(f'  > 1before {x.shape}')
         x = self.MaxDe(x, ind1)
-        #print(f'  > 1after {x.shape}')
+        # print(f'  > 1after {x.shape}')
         x = F.relu(self.BNDe12(self.ConvDe12(x)))
         x = self.ConvDe11(x)
 
         x = F.softmax(x, dim=1)
 
-        #print(f'output x.size() {x.size()}')
+        # print(f'output x.size() {x.size()}')
         return x
-
-

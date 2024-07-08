@@ -3,10 +3,12 @@ datasets
 """
 
 import os
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from torchvision.io import read_image
+
 
 class EyeDataset(Dataset):
     """
@@ -42,5 +44,3 @@ class EyeDataset(Dataset):
             label = self.target_transform(label)
         #         print(image.shape, label.shape)
         return image, label
-
-

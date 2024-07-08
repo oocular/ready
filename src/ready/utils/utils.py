@@ -3,7 +3,9 @@ utils
 """
 
 import os
+
 import torch
+
 
 def get_working_directory():
     """
@@ -15,7 +17,7 @@ def get_working_directory():
         os.chdir("../../../../")  # for models
     else:
         os.chdir("../")  # for tests
-    get_pwd = os.getcwd()  #get_pwd = os.path.abspath(os.getcwd())
+    get_pwd = os.getcwd()  # get_pwd = os.path.abspath(os.getcwd())
     return get_pwd
 
 
@@ -26,24 +28,25 @@ def set_data_directory(global_data_path: str):
     """
     os.chdir(os.path.join(get_working_directory(), global_data_path))
 
+
 def export_model(model, device, path_name, dummy_input):
     """
     # Input to the model
     # size = (512, 512)
- 
+
     # input size of data to the model [batch, channel, height, width]
     #dummy_input = torch.randn(1, 1, 400, 640, requires_grad=False).to(device)
     #torch_out = model(dummy_input)  #torch.Size([1, 4, 400, 640])
     #print(os.getcwd())
 
     #ISSUES
-    torch.onnx.errors.UnsupportedOperatorError: 
-    Exporting the operator 'aten::max_unpool2d' to ONNX opset version 14 is not supported. 
+    torch.onnx.errors.UnsupportedOperatorError:
+    Exporting the operator 'aten::max_unpool2d' to ONNX opset version 14 is not supported.
 
     """
-    #TOADD_validate_method?
-    #print(model)
-    #for name, param in model.named_parameters():
+    # TOADD_validate_method?
+    # print(model)
+    # for name, param in model.named_parameters():
     #    if param.requires_grad:
     #        print(name, param.data)
 
@@ -58,11 +61,9 @@ def export_model(model, device, path_name, dummy_input):
         input_names=["input"],  # the model's input names
         output_names=["output"],  # the model's output names
         dynamic_axes={
-             "input": {0: "batch_size"},  # variable length axes
-             "output": {0: "batch_size"},
-         },
-     )
-  
-    print(f"Saved ONNX model: {path_name}")
+            "input": {0: "batch_size"},  # variable length axes
+            "output": {0: "batch_size"},
+        },
+    )
 
- 
+    print(f"Saved ONNX model: {path_name}")
