@@ -45,7 +45,8 @@ def test_np_load():
     """
     set_data_directory("datasets/openEDS")
     t = np.load("openEDS/openEDS/S_0/0.npy")
-    plt.imshow(t)
+    plt.imshow(t) #, cmap = 'rainbow')
+    plt.colorbar()
     plt.show()
     print(t.shape)
     print(t)

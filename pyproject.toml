@@ -38,6 +38,8 @@ learning = [
     "torch", #2.3.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
     "torchvision", #0.18.1 local
     "onnx", #1.16.1  local
+    "onnxruntime",#1.18.1 local
+    "onnxsim",#0.4.36 local
 ]
 
 [tool.setuptools.dynamic]
