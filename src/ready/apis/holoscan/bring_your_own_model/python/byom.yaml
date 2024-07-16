@@ -1,0 +1,55 @@
+%YAML 1.2
+# SPDX-FileCopyrightText: Copyright (c) 2022-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+replayer:  # VideoStreamReplayer
+  basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height"
+  frame_rate: 0 # as specified in timestamps
+  repeat: true # default: false
+  realtime: true # default: true
+  count: 0 # default: 0 (no frame count restriction)
+
+preprocessor:  # FormatConverter
+  out_tensor_name: source_video
+  out_dtype: "float32"
+  resize_width: 512
+  resize_height: 512
+
+inference:  # Inference
+  backend: "trt"
+  pre_processor_map:
+    "byom_model": ["source_video"]
+  inference_map:
+    "byom_model": ["output"]
+  enable_fp16: True
+  parallel_inference: true # optional param, default to true
+  infer_on_cpu: false # optional param, default to false
+  input_on_cuda: true # optional param, default to true
+  output_on_cuda: true # optional param, default to true
+  transmit_on_cuda: true # optional param, default to true
+  is_engine_path: false # optional param, default to false
+
+
+postprocessor:  # SegmentationPostprocessor
+  in_tensor_name: output
+  # network_output_type: None
+  data_format: nchw
+
+viz:  # Holoviz
+  width: 640
+  height: 400
+  color_lut: [
+    [0.65, 0.81, 0.89, 0.1],
+    ]
