@@ -8,6 +8,7 @@
 ```
 conda activate retaisVE #In local machine
 bash frames_to_mp4_to_gxf.bash sample-frames png 30 validation-026580-640widthx400height 640 400 3
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 train-008068-640widthx400height 640 400 3
 ```
 
 ### (3) Moving video files to shared workspace in clara-agx and removing files from local path

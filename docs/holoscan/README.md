@@ -9,20 +9,9 @@ git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
 
 ## Launch 
 ```
-cd $HOME/repositories/holohub
-./dev_container launch --add-volume $HOME/Desktop/nystagmus-tracking/ready
+bash launch_dev_container.bash
 ```
 
-## Debugging
-### v4l2_camera
-```
-cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
-python v4l2_camera.py
-```
+## Run and debug
 
-### bring your own model
-```
-cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
-python byom.py --data /workspace/volumes/ready/data/openEDS/videos
-```
-
+See [apis](apis.md)
