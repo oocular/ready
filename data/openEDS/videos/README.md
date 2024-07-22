@@ -1,14 +1,21 @@
 # Videos
 
 ## Converting image to mp4 video to `gxf_entities`
-### (1) Frame image of `1280x720`
-![fig](../figures/image_1280x720.jpg)
+### (1) Frame image of `640wX400h`
+![fig](../sample-frames/val-000160-640wX400h.png)
+
 
 ### (2) Workflow for different frames in `docker images of clara-agx` or `local machine`
+WARNING WITH WIDTH, HEIGHT AND CHANNELS!!!
 ```
-conda activate retaisVE #In local machine
+conda activate readyVE #In local machine
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 <image> 640 400 3
 bash frames_to_mp4_to_gxf.bash sample-frames png 30 validation-026580-640widthx400height 640 400 3
 bash frames_to_mp4_to_gxf.bash sample-frames png 30 train-008068-640widthx400height 640 400 3
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000160-640wX400h 640 400 3
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000170-640wX400h 640 400 3
+#bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 3
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 1
 ```
 
 ### (3) Moving video files to shared workspace in clara-agx and removing files from local path

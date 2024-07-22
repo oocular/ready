@@ -32,4 +32,13 @@ watch -n 2 nvidia-smi #in another terminal to see activity every 2secs
 ```
 
 
+## lauch container
+```
+bash docs/launch_container.bash
+##inside adapter>
+cd $HOME/ready
+export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+#type `exit` in the terminal to exit
+
+```
 

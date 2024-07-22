@@ -26,6 +26,9 @@ def test_png():
     """
     set_data_directory("datasets/openEDS")
     im = Image.open("openEDS/openEDS/S_0/0.png")
+    print(f'Shape {im.size}')
+    print(f'Mode {im.mode}')
+    print(f'Channels: {len(im.split())}')
     im.show()
 
 

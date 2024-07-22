@@ -55,8 +55,37 @@ tensor: float32[batch_size,4,400,640]
 
 ![figs](../../../docs/figs/identity_model_onnx_netronapp.png)
 
+## Rebinding model to new nodes (NCHW to NHWC)
 
 
 
 
+```
+conda activate readyVE
+pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
+python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py model-5jul2024-sim.onnx model-5jul2024-sim-BHWC.onnx 1 400 640
+```
+
+
+
+* `model-5jul2024-sim.onnx`
+
+
+name: input
+tensor: float32[batch_size,1,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+
+
+
+* `model-5jul2024-sim-BHWC.onnx`
+```
+INPUT__0
+name: INPUT__0
+tensor: float32[1,400,640,1]
+output_old
+name: output_old
+tensor: float32[batch_size,4,400,640]
+```
 

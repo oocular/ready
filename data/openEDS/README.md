@@ -32,5 +32,5 @@ validation/
 The following images is created using [inference.py](../../src/ready/apis/inference.py)
 ![figs](../../docs/figs/openEDS-dataset-models.svg)
 
-
-
+* Inference for three frames
+![figs](../../docs/figs/inference-val3frames.svg)

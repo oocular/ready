@@ -1,15 +1,5 @@
 # Documentation
 
-## lauch container
-```
-bash docs/launch_container.bash
-##inside adapter>
-cd $HOME/ready
-export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
-#type `exit` in the terminal to exit
-
-```
-
 ## installing package in local machine (not need if you are using container)
 ```
 conda create -n "readyVE" python=3.12 pip -c conda-forge
@@ -35,18 +25,12 @@ python -m pytest -v -s tests/test_data_paths.py::test_txt
 python -m pytest -v -s tests/test_data_paths.py::test_masks
 ```
 
-## Learning pipeline
-```
-cd $HOME/ready/src/ready/models #change path
-vim $HOME/ready/src/ready/models/unet.py #edit
-python src/ready/models/train.py
-python src/ready/apis/inference.py
-```
 
 ## Pre-commit
 ```
 pre-commit run -a
 ```
+
 
 ## References
 

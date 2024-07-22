@@ -3,7 +3,6 @@
 ### USAGE
 #conda activate readyVE (in local machine)
 #bash frames_to_mp4_to_gxf.bash sample-frames png 30 validation-026580-640widthx400height 640 400 3
-#bash frames_to_mp4_to_gxf.bash FRAMES_PATH=$1 IMAGE_EXTENSION=$2 NNframes=$3 FRAMEFILENAMEID=$4
 
 ### INPUT ARGUMENTS
 FRAMES_PATH=$1

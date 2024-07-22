@@ -26,7 +26,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-    trainset = EyeDataset("openEDS/openEDS/validation/")  # train #est #validation
+    trainset = EyeDataset("openEDS/openEDS/val3frames")  # train #test #validation #val3frames
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original

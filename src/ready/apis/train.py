@@ -110,14 +110,14 @@ def main():
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
     # model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
-    model = UNet(nch_in=1, nch_out=4)
+    model = UNet(nch_in=1, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
     # loss_fn = nn.CrossEntropyLoss()
 
-    # TOTEST
+    # TODO TESTS
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
     # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
     # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
