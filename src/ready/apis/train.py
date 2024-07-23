@@ -136,7 +136,10 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    run_epoch = 2
+    run_epoch = 10
+    #02epochs: Elapsed time for the training loop: 1.53 (s) 
+    #10epochs: Elapsed time for the training loop: 7.76 (s)
+
     epoch = None
 
     if weight_fn is not None:
@@ -185,6 +188,7 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
+    #TODO add arg to name train model
     torch.save(model.state_dict(), "weights/model.pth")
 
     print("Saved PyTorch Model State to model.pth")
@@ -197,7 +201,7 @@ def main():
 
     endtime = time.time()
     elapsedtime = endtime - starttime
-    print(f"Elapsed time for the training loop: {elapsedtime} (s)")
+    print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
 
 
 if __name__ == "__main__":
