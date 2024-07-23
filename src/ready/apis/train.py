@@ -14,13 +14,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.onnx
 import torch.optim as optim
-from segnet import SegNet
 from torch.autograd import Function
 from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision.transforms import ToTensor
-from unet import UNet
 
+#from segnet import SegNet
+from src.ready.models.unet import UNet
 from src.ready.utils.datasets import EyeDataset
 from src.ready.utils.utils import (export_model, get_working_directory,
                                    set_data_directory)
@@ -109,12 +109,22 @@ def main():
     )
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
-    # model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
-    model = UNet(nch_in=1, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    #model = UNet(nch_in=1, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    #input_image shape torch.Size([1, 400, 640])
+    #outpu_image shape torch.Size([4, 400, 640])
+
+
+    model = UNet(nch_in=3, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    #input_image shape torch.Size([3, 400, 640])
+    #outpu_image shape torch.Size([4, 400, 640])
+
+
+
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+
     # loss_fn = nn.CrossEntropyLoss()
 
     # TODO TESTS

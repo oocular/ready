@@ -12,17 +12,17 @@ https://www.kaggle.com/datasets/soumicksarker/openeds-dataset/data
 cd $HOME/datasets/openEDS
 
 ```
-train/
+train/ #[11.1GB]
 	images #27,431 #640 x 400 pixels #153.3 kB #PNG image
 	labels #27,431 #(400, 640) #*npy
 	masks  #27,431 #640 x 400 pixels #1.6 kB #PNG image
 
-test/
+test/ #[1.1GB]
 	images #2,744
 	labels #2,744
 	masks #2,744
 
-validation/
+validation/ #[1.1GB]
 	images #2,744
 	labels #2,744
 	masks #2,744

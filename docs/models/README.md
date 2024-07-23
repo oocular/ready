@@ -1,17 +1,18 @@
 # Models
 
-
 ## Training models
 ```
 #debug models
-cd $HOME/ready/src/ready/models #change path
-vim $HOME/ready/src/ready/models/unet.py #edit
+conda activate readyVE
+export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 
 #train
-python src/ready/models/train.py
+python src/ready/apis/train.py
 
+#debug model
+cd src/ready
+vim -O apis/train.py utils/datasets.py
 ```
-
 
 ## Inference in local device
 ```

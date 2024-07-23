@@ -4,7 +4,12 @@ replayer:  # VideoStreamReplayer
   #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height"
   #basename: "video_30_duplicated_frames_of_train-008068-640widthx400height"
   #basename: "video_30_duplicated_frames_of_val-000160-640wX400h"
-  basename: "video_30_duplicated_frames_of_val-000170-640wX400h"
+  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h_channels1"
+  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h_channels3"
+  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels1"
+  basename: "video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels3"
+
+
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h"
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
@@ -25,7 +30,7 @@ preprocessor:  # FormatConverter
   #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use
                 #when converting from RGB to RGBA. Optional (default: `255`).
   #in_dtype: "rgba8888" for four channles
-  #in_dtype: "float32"
+  #in_dtype: "float32" ?
   resize_width: 640 #320
   resize_height: 400 #200
   out_dtype: "float32"
