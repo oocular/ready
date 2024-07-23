@@ -29,8 +29,5 @@ validation/ #[1.1GB]
 ```
 
 ## Previewing data
-The following images is created using [inference.py](../../src/ready/apis/inference.py)
-![figs](../../docs/figs/openEDS-dataset-models.svg)
+![figs](../../docs/figs/openEDS-dataset.svg)
 
-* Inference for three frames
-![figs](../../docs/figs/inference-val3frames.svg)
