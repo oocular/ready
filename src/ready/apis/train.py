@@ -14,13 +14,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.onnx
 import torch.optim as optim
-from segnet import SegNet
 from torch.autograd import Function
 from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision.transforms import ToTensor
-from unet import UNet
 
+#from segnet import SegNet
+from src.ready.models.unet import UNet
 from src.ready.utils.datasets import EyeDataset
 from src.ready.utils.utils import (export_model, get_working_directory,
                                    set_data_directory)
@@ -109,15 +109,25 @@ def main():
     )
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
-    # model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
-    model = UNet(nch_in=1, nch_out=4)
+    #model = UNet(nch_in=1, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    #input_image shape torch.Size([1, 400, 640])
+    #outpu_image shape torch.Size([4, 400, 640])
+
+
+    model = UNet(nch_in=3, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    #input_image shape torch.Size([3, 400, 640])
+    #outpu_image shape torch.Size([4, 400, 640])
+
+
+
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+
     # loss_fn = nn.CrossEntropyLoss()
 
-    # TOTEST
+    # TODO TESTS
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
     # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
     # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
@@ -126,7 +136,10 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    run_epoch = 2
+    run_epoch = 10
+    #02epochs: Elapsed time for the training loop: 1.53 (s) 
+    #10epochs: Elapsed time for the training loop: 7.76 (s)
+
     epoch = None
 
     if weight_fn is not None:
@@ -175,6 +188,7 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
+    #TODO add arg to name train model
     torch.save(model.state_dict(), "weights/model.pth")
 
     print("Saved PyTorch Model State to model.pth")
@@ -187,7 +201,7 @@ def main():
 
     endtime = time.time()
     elapsedtime = endtime - starttime
-    print(f"Elapsed time for the training loop: {elapsedtime} (s)")
+    print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
 
 
 if __name__ == "__main__":

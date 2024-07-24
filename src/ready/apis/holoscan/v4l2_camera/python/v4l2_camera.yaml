@@ -1,0 +1,61 @@
+%YAML 1.2
+# SPDX-FileCopyrightText: Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+source:  # V4L2VideoCaptureOp
+  # | Input device. On Clara AGX or NVIDIA IGX devkits, /dev/video0 is generally the HDMI IN
+  device: "/dev/video0"
+
+  # | App will auto-select default width and height if not provided
+  # | For performance, you may want to specify these parameters yourself.
+  # | See this app's readme file for details.
+  width: 640
+  height: 480
+
+  # | App will auto-select the default "pixel_format" for your device if not provided.
+  # | See this app's readme file for details.
+  pixel_format: "YUYV"
+
+  # | These properties might not be supported for all v4l2 nodes.
+  # | The app will attempt to do auto exposure and gain if not provided. If auto is not supported,
+  # | it will use the defaults defined by your device.
+  # | See this app's readme file for details.
+  # exposure_time: 500
+  # gain: 100
+
+drop_alpha_channel:  # FormatConverter
+  out_tensor_name: source_video
+  in_dtype: "rgba8888"
+  out_dtype: "float32"
+  resize_width: 250
+  resize_height: 250
+  scale_min: 0.0
+  scale_max: 1.0
+
+info_op:  #Info Operator
+
+visualizer:  # Holoviz
+  window_title: "v4l2: vizualizer"
+  #width: 50
+  #height: 50
+  fullscreen: False
+  tensors:
+    - name: ""
+      type: color
+      opacity: 1.0
+      priority: 0
+
+
+

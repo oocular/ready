@@ -28,9 +28,16 @@ class EyeDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
-        # print(img_path)
         image = read_image(img_path).type(torch.float) / 255
-        # print (image)
+
+        #TODO add if for grayscale or rgb input image
+        #grayscale to rgb 
+        #https://discuss.pytorch.org/t/grayscale-to-rgb-transform/18315
+        #print(f'grayscale to rgb')
+        image = torch.stack([image,image,image],1)
+        image = torch.squeeze(image)
+        #print(f"{type(image) = }, {image.dtype = }, {image.shape = }")
+
         label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
         label = torch.tensor(label, dtype=torch.long)  # .unsqueeze(0)
 
@@ -42,5 +49,6 @@ class EyeDataset(Dataset):
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
-        #         print(image.shape, label.shape)
+        
+        #print(image.shape, label.shape)
         return image, label
