@@ -112,7 +112,7 @@ class FormatInferenceInputOp(Operator):
         print(f"tensor_1Ch.mean {cp.mean(tensor_1Ch)}")
 	
         out_message = Entity(context)
-        out_message.add(hs.as_tensor(tensor), "out_preprocessor")
+        out_message.add(hs.as_tensor(tensor_), "out_preprocessor")
         #out_message.add(hs.as_tensor(tensor_1Ch), "out_preprocessor")
         op_output.emit(out_message, "out")
 

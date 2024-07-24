@@ -10,6 +10,12 @@ This repository contains documentation and code for `REal-time Ai Diagnosis for 
 ## Getting started
 See [docs/README.md](docs/README.md).
 
+## Demos
+`READY` demo aplication ([ready.py](/src/ready/apis/holoscan/ready/python/ready.py)) with local-built holoscan-sdk deployed in NVIDIARTXA20008GBLaptopGPU. [UNet](src/ready/models/unet.py) was trained in cricket A100-40GB with [12K of 1 channel images](data/openEDS/README.md). 
+
+![fig](docs/figs/ready-demo-2024-07-24_07.52.36-ezgif.com-video-to-gif-converter.gif)
+
+
 ## :octocat: Cloning repository
 * Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 * Clone the repository by typing (or copying) the following lines in a terminal

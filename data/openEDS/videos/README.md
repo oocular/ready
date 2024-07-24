@@ -14,8 +14,12 @@ bash frames_to_mp4_to_gxf.bash sample-frames png 30 validation-026580-640widthx4
 bash frames_to_mp4_to_gxf.bash sample-frames png 30 train-008068-640widthx400height 640 400 3
 bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000160-640wX400h 640 400 3
 bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000170-640wX400h 640 400 3
-#bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 3
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 1
+#
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 1 #1channels
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 3 #3channels
+#
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h_rgb 640 400 1 #1channels
+bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h_rgb 640 400 3 #3channels
 ```
 
 ### (3) Moving video files to shared workspace in clara-agx and removing files from local path

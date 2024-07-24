@@ -1,26 +1,16 @@
 %YAML 1.2
 ---
 replayer:  # VideoStreamReplayer
-  #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height"
-  #basename: "video_30_duplicated_frames_of_train-008068-640widthx400height"
-  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h"
-  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h_channels1"
-  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h_channels3"
-  #basename: "video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels1"
-  basename: "video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels3"
+  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" #'preprocessor' - Failed to resize image.
+  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" #'preprocessor' - Failed to resize image.
+  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
+  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
+  basename: "video_frames"
 
-
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h"
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
   realtime: true # default: true
   count: 0 # default: 0 (no frame count restriction)
-
-
-pre_info_op:  #Pre Info Operator
-format_input:  #FormatInferenceInputOp
-post_inference_op:  #Info Operator
-
 
 preprocessor:  # FormatConverter
   #in_tensor_name: #- **in_tensor_name**: The name of the input tensor. Optional (default: `""`).
@@ -41,6 +31,11 @@ preprocessor:  # FormatConverter
   #out_channel_order: [2, 0, 1]
   #out_channel_order: [1, 0, 2]
   #out_channel_order: [1, 2, 0]
+
+
+pre_info_op:  #Pre Info Operator
+format_input:  #FormatInferenceInputOp
+post_inference_op:  #Info Operator
 
 
 inference:  # Inference
@@ -66,6 +61,7 @@ segpostprocessor:  # SegmentationPostprocessor
   data_format: nchw
   #data_format: nhwc
 
+
 viz:  # Holoviz
   window_title: "READY demo"
   width: 640
@@ -76,10 +72,9 @@ viz:  # Holoviz
       opacity: 1.0
       priority: 0
   color_lut: [
-    [0.65, 0.81, 0.89, 0.1], #RGB for light blue & alpha=0.1
-    [0.3, 0.3, 0.9, 0.7], #RGB for blue & alpha=0.7
-    [0.9, 0.9, 0.3, 0.7], #RGB for yellow & alpha=0.7 #https://rgbcolorpicker.com/0-1
-    [0.9, 0.3, 0.3, 0.7], #RGB for red & alpha=0.7 #https://rgbcolorpicker.com/0-1
-    [0.1, 0.1, 0.9, 0.7], #RGB for blue & alpha=0.7 #https://rgbcolorpicker.com/0-1
-    [0.5, 0.5, 0.5, 0.7], #RGB for blue & alpha=0.7 #https://rgbcolorpicker.com/0-1
+    [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+    [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+    [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+    [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8 
+    #https://rgbcolorpicker.com/0-1
     ]
