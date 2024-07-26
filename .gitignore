@@ -15,6 +15,9 @@ log_parser.py
 app_perf_graph.py
 
 ## videos, models, and files
+**.gxf_entities
+**.gxf_index
+**.mp4
 **/*_duplicated_frames*
 video_frames**
 video_30_duplicated_frames_of_validation-026580**

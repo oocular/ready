@@ -1,5 +1,5 @@
 #USAGE
-#bash conver-grayscale-to-rgb.bash val-000160-640wX400h
+#bash conver_grayscale_to_rgb.bash val-000160-640wX400h
 
 IN=$1
 #OUT=$2

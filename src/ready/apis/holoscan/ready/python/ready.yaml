@@ -6,6 +6,11 @@ replayer:  # VideoStreamReplayer
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
   basename: "video_frames"
+  #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
+  #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
+  #basename: "cut_video_640x400"
+  #basename: "cut_video_640x400_grayscale"
+
 
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
