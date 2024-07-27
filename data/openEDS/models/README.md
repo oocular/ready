@@ -22,9 +22,6 @@ scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/weights/* ~/Desktop/nystagmu
 * Inference for three frames
 ![figs](../../../docs/figs/inference-val3frames.svg)
 
-* Holocan-sdk api (val-000160-640wX400h)
-![figs](../../../docs/figs/holoscan-api-video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels3.png)
-
 
 ## Preparations
 * Conversion to ONNX
@@ -124,3 +121,19 @@ output_old
 name: output_old
 tensor: float32[batch_size,4,400,640]
 ```
+
+## Real-time Inference with holoscan-sdk
+
+* Holocan-sdk api (val-000160-640wX400h)
+
+![figs](../../../docs/figs/holoscan-api-video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels3.png)
+
+
+* Four images scaled to 640wX400h
+
+![fig](../../../docs/figs/holoscan-sdk-four-frames-in-one.png)
+
+* Fractal images in a scaled resolution of 640wX400h
+
+![fig](../../../docs/figs/holoscan-sdk-fractal-frames-in-one.png)
+
