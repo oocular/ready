@@ -11,7 +11,6 @@ replayer:  # VideoStreamReplayer
   #basename: "cut_video_640x400"
   #basename: "cut_video_640x400_grayscale"
 
-
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
   realtime: true # default: true

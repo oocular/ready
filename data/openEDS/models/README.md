@@ -137,4 +137,3 @@ tensor: float32[batch_size,4,400,640]
 
 ![fig](../../../docs/figs/holoscan-sdk-fractal-frames-in-one.png)
 
-
