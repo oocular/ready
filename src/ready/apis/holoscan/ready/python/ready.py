@@ -139,11 +139,18 @@ class PostInferenceOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"---------- InfoOp  ------------")
+        print(f"---------- PostInferenceOperator  ------------")
         in_message = op_input.receive("in")
         #print(f"in_message={in_message}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
         print(f"unet_out tensor.shape={tensor.shape}") #tensor.shape=(1, 4, 400, 640)
+        #tensor_1ch_background =  tensor[:,0,:,:]
+        #tensor_1ch_sclera =  tensor[:,1,:,:]
+        #tensor_1ch_iris =  tensor[:,2,:,:]
+        tensor_1ch_pupil =  tensor[:,3,:,:]
+        mask_pupil = tensor_1ch_pupil > 1
+        print(f"tensor_1ch_pupil {mask_pupil}") #tensor.shape=(1, 4, 400, 640)
+
 
         out_message = Entity(context)
 
