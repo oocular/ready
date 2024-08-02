@@ -1,13 +1,12 @@
 #!/bin/bash
 
 ### USAGE
-#cd ~/ready/data/openEDS/videos
+#cd ~/ready/data/bash-scripts
 #conda activate readyVE #(in local machine)
 
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 val-000180-640wX400h 640 400 3
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 four-frames-in-one 640 400 3
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 fractal-frames-in-one 640 400 3
-
 
 ### INPUT ARGUMENTS
 VIDEOPATH=$1
@@ -30,6 +29,9 @@ rm -rf ${VIDEOPATH}/${NNframes}_duplicated_frames_of_${FRAMEFILENAMEID} #remove 
 
 ### (2) Converting mp4 to gxf (Graph Execution Framework) using `ffmeg` and `convert_video_to_gxf_entities.py` in local host device
 #### run #bash download-holohub-utils.bash at /src/ready/apis/holoscan/utils
+cd ../../src/ready/apis/holoscan/utils/
+bash download-holohub-utils.bash
+cd ../../../../../data/bash-scripts/
 ffmpeg -y -i ${VIDEOPATH}/video_${NNframes}_duplicated_frames_of_${FRAMEFILENAMEID}_channels${CHANNELS}.mp4 -pix_fmt rgb24 -f rawvideo pipe:1 | python ../../src/ready/apis/holoscan/utils/convert_video_to_gxf_entities.py --width ${WIDTH} --height ${HEIGHT} --channels ${CHANNELS} --framerate ${NNframes} --basename ${VIDEOPATH}/video_${NNframes}_duplicated_frames_of_${FRAMEFILENAMEID}_channels${CHANNELS}
 
 

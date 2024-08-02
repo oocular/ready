@@ -36,7 +36,7 @@ vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 
 
 ## Real-time AI segmentation
-* Run app using your own repository in dev_container of clara-agx
+* Run app using your own repository in `dev_container` of clara-agx
 ```
 cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
 clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m model-5jul2024.onnx -l logger.log -df TRUE
