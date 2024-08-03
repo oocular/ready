@@ -1,5 +1,6 @@
 import os
 import cupy as cp
+import cv2
 import holoscan as hs
 
 from argparse import ArgumentParser
@@ -150,7 +151,6 @@ class PostInferenceOp(Operator):
         tensor_1ch_pupil =  tensor[:,3,:,:]
         mask_pupil = tensor_1ch_pupil > 1
         print(f"tensor_1ch_pupil {mask_pupil}") #tensor.shape=(1, 4, 400, 640)
-
 
         out_message = Entity(context)
 
