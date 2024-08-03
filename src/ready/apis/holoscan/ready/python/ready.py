@@ -117,6 +117,38 @@ class FormatInferenceInputOp(Operator):
         #out_message.add(hs.as_tensor(tensor_1Ch), "out_preprocessor")
         op_output.emit(out_message, "out")
 
+def cv_cuda_gpumat_from_cp_array(arr: cp.ndarray) -> cv2.cuda.GpuMat:
+    print("::: cv_cuda_gpumat_from_cp_array :::")
+    print(arr.__cuda_array_interface__['shape'])
+    print(arr.__cuda_array_interface__['data'][0])
+    type_map = {
+        cp.dtype('uint8'): cv2.CV_8U,
+        cp.dtype('int8'): cv2.CV_8S,
+        cp.dtype('uint16'): cv2.CV_16U,
+        cp.dtype('int16'): cv2.CV_16S,
+        cp.dtype('int32'): cv2.CV_32S,
+        cp.dtype('float32'): cv2.CV_32F,
+        cp.dtype('float64'): cv2.CV_64F
+    }
+    print(f'arr.dtype: {arr.dtype}') #float32
+    depth = type_map.get(arr.dtype)
+    assert depth is not None, "Unsupported CuPy array dtype"
+    print(f' depth: {depth}')
+    channels = 1 if len(arr.shape) == 2 else arr.shape[1]
+    mat_type = depth + ((channels - 1) << 3)
+    print(mat_type)
+
+    mat = cv2.cuda.createGpuMatFromCudaMemory(
+        arr.__cuda_array_interface__["shape"],
+        mat_type,
+        arr.__cuda_array_interface__["data"][0],
+    )
+    #print(type(mat)) #<class 'cv2.cuda.GpuMat'>
+    print(mat.size()) #(400, 640)
+    print(mat.channels()) #1
+    print("::: cv_cuda_gpumat_from_cp_array :::")
+    return mat
+
 
 class PostInferenceOp(Operator):
     """
@@ -145,12 +177,54 @@ class PostInferenceOp(Operator):
         #print(f"in_message={in_message}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
         print(f"unet_out tensor.shape={tensor.shape}") #tensor.shape=(1, 4, 400, 640)
+
         #tensor_1ch_background =  tensor[:,0,:,:]
         #tensor_1ch_sclera =  tensor[:,1,:,:]
         #tensor_1ch_iris =  tensor[:,2,:,:]
         tensor_1ch_pupil =  tensor[:,3,:,:]
-        mask_pupil = tensor_1ch_pupil > 1
-        print(f"tensor_1ch_pupil {mask_pupil}") #tensor.shape=(1, 4, 400, 640)
+        print(f"tensor_1ch_pupil.shape={tensor_1ch_pupil.shape}") #tensor.shape=(1, 400, 640)
+        tensor_1ch_pupil_sq = cp.squeeze(tensor_1ch_pupil, axis=None)
+        print(f"tensor_1ch_pupil_sq.shape={tensor_1ch_pupil_sq.shape}") #tensor.shape=(400, 640)
+        tensor_1ch_pupil_sq_uint8 = tensor_1ch_pupil_sq.astype(cp.uint8)
+        print(tensor_1ch_pupil_sq_uint8.dtype) #uint8
+
+        mask_pupil_bool = tensor_1ch_pupil_sq_uint8 > 1
+        print(f"mask_pupil_bool.shape {mask_pupil_bool.shape}") #tensor.shape=(1, 4, 400, 640)
+        print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}") #bool
+
+        ### CENTROID OF PUPIL MASK
+        #https://www.geeksforgeeks.org/python-opencv-find-center-of-contour/
+        frameUMat = cv2.UMat(tensor_1ch_pupil_sq_uint8.shape[0], tensor_1ch_pupil_sq_uint8.shape[1], cv2.CV_8U)
+        mask_gray = cv2.normalize(src=frameUMat, dst=None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U) 
+        #print(mask_gray.get())
+        blur = cv2.GaussianBlur(mask_gray, (5, 5), 0)
+        ret,thresh = cv2.threshold(blur,127,255,cv2.THRESH_BINARY)
+        # calculate x,y coordinate of center
+        M = cv2.moments(thresh)
+        #M = cv2.cuda.moments(thresh)
+        #mulitple objects
+        #contours, hierarchies = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        #M = cv2.moments(contours)
+        print(f"Moments from threshold")
+        print(M["m00"])
+        print(M["m01"])
+        print(M["m10"])
+        if M["m00"]!=0:
+           cX = int(M["m10"] / M["m00"])
+           cY = int(M["m01"] / M["m00"])
+           print(f'cX: {cX} cY: {cY}')
+
+	#seems this works
+	#40035.0
+	#7968495.0
+	#13535655.0
+	#cX: 338 cY: 199
+
+
+        #USING GPUMat with opencv
+        #cv_gpumat = cv_cuda_gpumat_from_cp_array(tensor_1ch_pupil_sq_uint8)
+        #print(type(cv_gpumat)) #<class 'cv2.cuda.GpuMat'>
+
 
         out_message = Entity(context)
 
