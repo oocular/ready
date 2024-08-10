@@ -57,3 +57,4 @@ vim -O ready.py ready.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ## References
 * Visit the [SDK User Guide](https://docs.nvidia.com/holoscan/sdk-user-guide/examples/byom.html) for step-by-step documentation of this example.
 * https://github.com/nvidia-holoscan/holoscan-sdk/tree/main/examples/bring_your_own_model 
+* https://github.com/nvidia-holoscan/holohub/tree/e1453b36a652682865d6d9d807d565435ca4f16f/applications/ssd_detection_endoscopy_tools

@@ -3,13 +3,13 @@
 replayer:  # VideoStreamReplayer
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" #'preprocessor' - Failed to resize image.
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" #'preprocessor' - Failed to resize image.
-  basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
+  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
-  #basename: "video_frames"
   #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
   #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
   #basename: "cut_video_640x400"
   #basename: "cut_video_640x400_grayscale"
+  basename: "video_3frames"
 
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
@@ -73,6 +73,23 @@ viz:  # Holoviz
   tensors:
     - name: ""
       type: color
+      opacity: 1.0
+      priority: 0
+    - name: "pupil_cXcY"
+      type: crosses
+      opacity: 0.85
+      color: [0.6, 0.1, 0.6, 0.8] #RGB for purple with alpha 0.8
+      line_width: 5.0 #for crosses only
+      point_size: 10.0 #for points only
+      priority: 2
+    - name: "point_coords"
+      type: points
+      opacity: 0.85
+      color: [0.9, 0.9, 0.9, 0.8] #RGB for purple with alpha 0.8
+      point_size: 3.0 #for points only
+      priority: 2
+    - name: "out_tensor"
+      type: color_lut
       opacity: 1.0
       priority: 0
   color_lut: [

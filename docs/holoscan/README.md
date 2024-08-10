@@ -1,7 +1,9 @@
 # Holoscan
 
+
 ## Build
 ```
+#TODO: Update https://github.com/nvidia-holoscan/holoscan-sdk/releases/tag/v2.3.0
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
 ./run clear_cache
