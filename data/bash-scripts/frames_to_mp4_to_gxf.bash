@@ -5,6 +5,7 @@
 #conda activate readyVE #(in local machine)
 
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 val-000180-640wX400h 640 400 3
+#bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 validation-026580-640widthx400height 640 400 3
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 four-frames-in-one 640 400 3
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 fractal-frames-in-one 640 400 3
 
