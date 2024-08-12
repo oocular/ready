@@ -8,18 +8,9 @@
 ### (2) Workflow for different frames in `docker images of clara-agx` or `local machine`
 WARNING WITH WIDTH, HEIGHT AND CHANNELS!!!
 ```
-conda activate readyVE #In local machine
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 <image> 640 400 3
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 validation-026580-640widthx400height 640 400 3
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 train-008068-640widthx400height 640 400 3
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000160-640wX400h 640 400 3
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000170-640wX400h 640 400 3
-#
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 1 #1channels
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h 640 400 3 #3channels
-#
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h_rgb 640 400 1 #1channels
-bash frames_to_mp4_to_gxf.bash sample-frames png 30 val-000180-640wX400h_rgb 640 400 3 #3channels
+cd ~/ready/data/bash-scripts
+conda activate readyVE #(in local machine)
+bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 fractal-frames-in-one 640 400 3
 ```
 
 ### (3) Moving video files to shared workspace in clara-agx and removing files from local path
