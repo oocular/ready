@@ -24,6 +24,7 @@ python -m pytest -v -s tests
 python -m pytest -v -s tests/test_data_paths.py::test_txt
 python -m pytest -v -s tests/test_data_paths.py::test_png
 python -m pytest -v -s tests/test_data_paths.py::test_masks
+python -m pytest -v -s tests/test_data_paths.py::test_tif_with_matplotlib
 ```
 
 

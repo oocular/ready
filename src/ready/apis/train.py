@@ -47,7 +47,8 @@ def norm_image(hot_img):
 
 def sanity_check(trainloader, neural_network, cuda_available):
     """
-    Sanity check of trainloader
+    Sanity check of trainloader for openEDS
+    #TODO Sanity check for RTI-eyes datasets?
     """
     # f, axarr = plt.subplots(1, 3)
 
@@ -82,17 +83,24 @@ def sanity_check(trainloader, neural_network, cuda_available):
 
 def main():
     """
-    #TODO epoch = None
-    #TODO if weight_fn is not None:
-    #TODO add checkpoint
-    #TODO add execution time
-    #TODO save loss
+    #CHECK epoch = None
+    #CHECK if weight_fn is not None:
+    #CHECK add checkpoint
+    #CHECK add execution time
+    #CHECK save loss
     """
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
     # print(get_working_directory())
     set_data_directory("datasets/openEDS")
+
+    #####
+    #TODO
+    #set_data_directory("datasets/RIT-eyes")
+    #Split data into train, test and val (currently data is just in folders synthethic and mask-withskin)
+    #RetrainUNET 
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if not os.path.exists("weights"):
@@ -109,25 +117,21 @@ def main():
     )
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
-    #model = UNet(nch_in=1, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    #model = UNet(nch_in=1, nch_out=4) # for openEDS with one channel and four mask
     #input_image shape torch.Size([1, 400, 640])
     #outpu_image shape torch.Size([4, 400, 640])
 
-
-    model = UNet(nch_in=3, nch_out=4) #TODO TRAIN WITH A DATASTE WITH 3 CHANNELS?
+    model = UNet(nch_in=3, nch_out=4) # for openEDS with 3 channels and four mask
     #input_image shape torch.Size([3, 400, 640])
     #outpu_image shape torch.Size([4, 400, 640])
-
-
 
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
-    # loss_fn = nn.CrossEntropyLoss()
-
-    # TODO TESTS
+    # TOCHECK TESTS
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
     # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
     # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
@@ -188,9 +192,8 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
-    #TODO add arg to name train model
+    #TODO add arg to name train model > "checkpoint_{}.pth.tar".format(datetime.now().strftime("%Y%m%d_%H%M%S")),
     torch.save(model.state_dict(), "weights/model.pth")
-
     print("Saved PyTorch Model State to model.pth")
 
     # TOCHECK
