@@ -95,3 +95,60 @@ def test_txt():
         text = file_handle.read().split("\n")
         print(type(text))
         print(text)
+
+
+
+def test_data_path_rit_eyes():
+    """
+    Test data path
+    python -m pytest -v -s tests/test_data_paths.py::test_data_path_rit_eyes
+    """
+    set_data_directory("datasets/RIT-eyes")
+    print(os.getcwd())
+
+def test_tif_with_Image():
+    """
+    test png image with Image open
+    """
+    set_data_directory("datasets/RIT-eyes")
+    im = Image.open("12/synthetic/0000.tif")
+    print(f'Shape {im.size}')
+    print(f'Mode {im.mode}')
+    print(f'Channels: {len(im.split())}')
+    im.show()
+
+    m = mimg.imread("12/synthetic/0000.tif")
+    plt.imshow(m)
+    plt.show()
+
+def test_tif_with_matplotlib():
+    """
+    test png image with Image open
+    python -m pytest -v -s tests/test_data_paths.py::test_tif_with_matplotlib
+    """
+    set_data_directory("datasets/RIT-eyes")
+    image = mimg.imread("12/synthetic/0000.tif")
+    plt.imshow(image)
+    plt.show()
+
+    mask = mimg.imread("12/mask-withskin/0000.tif")
+    plt.imshow(mask)
+    plt.show()
+
+
+def test_load_pickle_file():
+    """
+    # TODO:
+    test pickle data
+    import pickle
+    python -m pytest -v -s tests/test_data_paths.py::test_load_pickle_file
+    """
+    set_data_directory("datasets/RIT-eyes")
+    #t = np.load("12/12-natural.p", allow_pickle=False)
+    #plt.imshow(t) #, cmap = 'rainbow')
+    #plt.colorbar()
+    #plt.show()
+    #print(t.shape)
+    #print(t)
+
+
