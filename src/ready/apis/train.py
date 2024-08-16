@@ -1,5 +1,5 @@
 """
-https://www.kaggle.com/code/edventy/segiris
+Train pipeline for UNET 
 """
 
 import os
@@ -97,7 +97,8 @@ def main():
 
     #####
     #TODO
-    #set_data_directory("datasets/RIT-eyes")
+    # add general path for $DATASETPATH
+    #set_data_directory("datasets/DATASETPATH")
     #Split data into train, test and val (currently data is just in folders synthethic and mask-withskin)
     #RetrainUNET 
     
@@ -109,6 +110,7 @@ def main():
     cuda_available = torch.cuda.is_available()
     # print(cuda_available)
     trainset = EyeDataset("openEDS/openEDS/train/")
+    #TODO trainset = RITeye_dataset("RIT-eyes/")
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
@@ -192,9 +194,9 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
-    #TODO add arg to name train model > "checkpoint_{}.pth.tar".format(datetime.now().strftime("%Y%m%d_%H%M%S")),
-    torch.save(model.state_dict(), "weights/model.pth")
-    print("Saved PyTorch Model State to model.pth")
+    modelname = datetime.now().strftime('%d-%m-%y-%H_%M__weights.pth')
+    torch.save(model.state_dict(), modelname)
+    print(f"Saved PyTorch Model State to {modelname}")
 
     # TOCHECK
     # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
