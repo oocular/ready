@@ -18,30 +18,29 @@ replayer:  # VideoStreamReplayer
   realtime: true # default: true
   count: 0 # default: 0 (no frame count restriction)
 
-preprocessor:  # FormatConverter
-  #in_tensor_name: #- **in_tensor_name**: The name of the input tensor. Optional (default: `""`).
-  out_tensor_name: "out_preprocessor"
-  scale_min: 0.0
-  scale_max: 1.0
-  #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use
-                #when converting from RGB to RGBA. Optional (default: `255`).
-  #in_dtype: "rgba8888" for four channles
-  #in_dtype: "float32" ?
-  resize_width: 640 #320
-  resize_height: 400 #200
-  out_dtype: "float32"
-  #out_channel_order: [0, 1, 2, 3]
-  #out_channel_order: [0, 1, 2]
-  #out_channel_order: [0, 2, 1]
-  #out_channel_order: [2, 1, 0]
-  #out_channel_order: [2, 0, 1]
-  #out_channel_order: [1, 0, 2]
-  #out_channel_order: [1, 2, 0]
+source:  # V4L2VideoCaptureOp
+  # | Input device. /dev/video0 is generally the defautl input
+  device: "/dev/video0"
+  # device: "/dev/video4"
 
+  # | App will auto-select default width and height if not provided
+  # | For performance, you may want to specify these parameters yourself.
+  # | See this app's readme file for details.
+  width: 640
+  height: 480
+  # width: 640
+  # height: 360
 
-pre_info_op:  #Pre Info Operator
-format_input:  #FormatInferenceInputOp
-post_inference_op:  #Info Operator
+  # | App will auto-select the default "pixel_format" for your device if not provided.
+  # | See this app's readme file for details.
+  pixel_format: "YUYV"
+
+  # | These properties might not be supported for all v4l2 nodes.
+  # | The app will attempt to do auto exposure and gain if not provided. If auto is not supported,
+  # | it will use the defaults defined by your device.
+  # | See this app's readme file for details.
+  # exposure_time: 500
+  # gain: 100
 
 
 inference:  # Inference
@@ -58,6 +57,46 @@ inference:  # Inference
   transmit_on_cuda: true # optional param, default to true
   is_engine_path: false # optional param, default to false
 
+
+preprocessor_replayer:  # FormatConverter
+  #in_tensor_name: #- **in_tensor_name**: The name of the input tensor. Optional (default: `""`).
+  out_tensor_name: "out_preprocessor"
+  scale_min: 0.0
+  scale_max: 1.0
+  #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use
+                #when converting from RGB to RGBA. Optional (default: `255`).
+  #in_dtype: "rgba8888" #for four channles
+  #in_dtype: "float32" ?
+  resize_width: 640 #320
+  resize_height: 400 #200
+  out_dtype: "float32"
+  #out_channel_order: [0, 1, 2, 3]
+  #out_channel_order: [0, 1, 2]
+  #out_channel_order: [0, 2, 1]
+  #out_channel_order: [2, 1, 0]
+  #out_channel_order: [2, 0, 1]
+  #out_channel_order: [1, 0, 2]
+  #out_channel_order: [1, 2, 0]
+
+preprocessor_v4l2:
+  #
+  #
+  # Preprocessor FormatConverterOp() for v4l2
+  # DROP ALPHA CHANNEL
+  #
+  #
+  out_tensor_name: out_preprocessor
+  in_dtype: "rgba8888" #for four channles
+  out_dtype: "float32"
+  resize_width: 640
+  resize_height: 400
+  scale_min: 0.0
+  scale_max: 1.0
+
+pre_info_op:  #Pre Info Operator
+format_input:  #FormatInferenceInputOp
+post_inference_op:  #Info Operator
+info_op:  #Info Operator
 
 segpostprocessor:  # SegmentationPostprocessor
   in_tensor_name: unet_out

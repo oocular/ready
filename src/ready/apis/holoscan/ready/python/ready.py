@@ -13,6 +13,7 @@ from holoscan.operators import (
     InferenceOp,
     SegmentationPostprocessorOp,
     VideoStreamReplayerOp,
+    V4L2VideoCaptureOp,
 )
 from holoscan.resources import BlockMemoryPool, CudaStreamPool, UnboundedAllocator
 
@@ -35,7 +36,7 @@ class PreInfoOp(Operator):
         """Setting up specifications of Operator"""
         spec.input("source_video")
         spec.output("out")
-        spec.output("output_specs")
+        # spec.output("output_specs")
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
@@ -48,6 +49,7 @@ class PreInfoOp(Operator):
 	
         out_message = Entity(context)
         out_message.add(hs.as_tensor(tensor_1ch), "tensor1ch")
+        # out_message.add(hs.as_tensor(tensor), "tensor")
         op_output.emit(in_message, "out")
 
 
@@ -208,9 +210,9 @@ class PostInferenceOp(Operator):
         print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}") #bool
 
         centroid = cp.mean(cp.argwhere(mask_pupil_bool),axis=0)
-        print(centroid)
+        centroid = cp.nan_to_num(centroid) #convert float NaN to integer
+        print(f"centroid: {centroid}")
         centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
-        print(f"centroid {centroid}")
         #https://stackoverflow.com/questions/73131778/
 
 #	#EXPERIMENTAL (to be removed or checked for multiple mask)
@@ -329,7 +331,7 @@ class PostInferenceOp(Operator):
 
 
 class READYApp(Application):
-    def __init__(self, data=None, model_name=None, debug_print_flag=None, **kwargs):
+    def __init__(self, source=None, data=None, model_name=None, debug_print_flag=None, **kwargs):
         """Initialize the application
 
         Parameters
@@ -341,6 +343,7 @@ class READYApp(Application):
         super().__init__(**kwargs)
 
         self.name = "READY App"
+        self.source = source
         self.debug_print_flag = debug_print_flag
         self.data_path = data
 
@@ -363,21 +366,57 @@ class READYApp(Application):
     def compose(self):
         host_allocator = UnboundedAllocator(self, name="host_allocator")
 
-        width = 640 #TODO source_args["width"]
-        height = 400 #TODO source_args["height"]
-        #n_channels = 4  # RGBA
-        n_channels = 1
-        bpp = 4  # bytes per pixel
-        block_size = width * height * n_channels
-        drop_alpha_block_size = width * height * n_channels * bpp
-        drop_alpha_num_blocks = 2
-        allocator = BlockMemoryPool(
+        source_args = self.kwargs("source")
+
+        if self.source.lower() == "replayer":
+            width = 640 #TODO source_args["width"]
+            height = 400 #TODO source_args["height"]
+            #n_channels = 4  # RGBA
+            n_channels = 1
+            bpp = 4  # bytes per pixel
+            block_size = width * height * n_channels
+            drop_alpha_block_size = width * height * n_channels * bpp
+            drop_alpha_num_blocks = 2
+            allocator = BlockMemoryPool(
+                self,
+                name="pool",
+                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
+                block_size=drop_alpha_block_size,
+                num_blocks=drop_alpha_num_blocks,
+            )
+            source = VideoStreamReplayerOp(
             self,
-            name="pool",
-            storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
-            block_size=drop_alpha_block_size,
-            num_blocks=drop_alpha_num_blocks,
-        )
+            name="replayer",
+            directory=self.video_dir,
+            **self.kwargs("replayer"),
+            )
+
+
+        elif self.source.lower() == "v4l2":
+            width = source_args["width"]
+            height = source_args["height"]
+            n_channels = 4  # RGBA
+            bpp = 4  # bytes per pixel
+            block_size = width * height * n_channels
+            drop_alpha_block_size = width * height * n_channels * bpp
+            drop_alpha_num_blocks = 2
+            allocator = BlockMemoryPool(
+                self,
+                name="pool",
+                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
+                block_size=drop_alpha_block_size,
+                num_blocks=drop_alpha_num_blocks,
+            )
+            source = V4L2VideoCaptureOp(
+                self,
+                name="source",
+                allocator=allocator,
+                **source_args,
+            )
+
+        else:
+            print(f"plesea either choose v4l2 or replayer")
+
 
         cuda_stream_pool = CudaStreamPool(
             self,
@@ -389,19 +428,27 @@ class READYApp(Application):
             max_size=5,
         )
 
-        source = VideoStreamReplayerOp(
-            self, 
-            name="replayer", 
-            directory=self.video_dir, 
-            **self.kwargs("replayer"),
+        pre_info_op_replayer = PreInfoOp(
+            self,
+            name="pre_info_op",
+            allocator=host_allocator,
+            **self.kwargs("pre_info_op"),
         )
 
-        preprocessor = FormatConverterOp(
+        preprocessor_replayer = FormatConverterOp(
             self, name="preprocessor", 
             pool=host_allocator, 
             #pool=allocator, 
             cuda_stream_pool=cuda_stream_pool,
-            **self.kwargs("preprocessor"),
+            **self.kwargs("preprocessor_replayer"),
+        )
+
+        preprocessor_v4l2 = FormatConverterOp(
+            self,
+            name="preprocessor_v4l2",
+            pool=host_allocator,
+            cuda_stream_pool=cuda_stream_pool,
+            **self.kwargs("preprocessor_v4l2"),
         )
 
         format_input = FormatInferenceInputOp(
@@ -411,11 +458,12 @@ class READYApp(Application):
             **self.kwargs("format_input"),
         )
 
-        pre_info_op = PreInfoOp(
+        inference = InferenceOp(
             self,
-            name="pre_info_op",
+            name="inference",
             allocator=host_allocator,
-            **self.kwargs("pre_info_op"),
+            model_path_map=self.models_path_map,
+            **self.kwargs("inference"),
         )
 
         post_inference_op = PostInferenceOp(
@@ -427,18 +475,10 @@ class READYApp(Application):
             **self.kwargs("post_inference_op"),
         )
 
-        inference = InferenceOp(
-            self,
-            name="inference",
-            allocator=host_allocator,
-            model_path_map=self.models_path_map,
-            **self.kwargs("inference"),
-        )
-
         segpostprocessor = SegmentationPostprocessorOp(
             self, 
             name="segpostprocessor", 
-	    allocator=host_allocator, 
+	        allocator=host_allocator, 
             **self.kwargs("segpostprocessor"),
         )
 
@@ -449,43 +489,50 @@ class READYApp(Application):
             **self.kwargs("viz"),
         )
 
-        if self.debug_print_flag:
-           # Testing Workflow #-df TRUE
-           self.add_flow(source, viz, {("", "receivers")})
+        if self.source.lower() == "replayer":
+            self.add_flow(source, viz, {("", "receivers")})
 
-           self.add_flow(source, preprocessor, {("output", "source_video")})
+            self.add_flow(source, pre_info_op_replayer, {("output", "source_video")})
+            self.add_flow(pre_info_op_replayer, preprocessor_replayer, {("", "")})
 
-	   #ADDING INFO_OPS
-           #self.add_flow(source, pre_info_op, {("output", "source_video")})
-           #self.add_flow(pre_info_op, preprocessor, {("", "")})
+            self.add_flow(preprocessor_replayer, format_input)
+            self.add_flow(format_input, inference, {("", "receivers")})
 
-           self.add_flow(preprocessor, format_input)
-           self.add_flow(format_input, inference, {("", "receivers")})
+            self.add_flow(inference, segpostprocessor, {("transmitter", "")})
+            self.add_flow(segpostprocessor, viz, {("", "receivers")})
 
-           self.add_flow(inference, segpostprocessor, {("transmitter", "")})
-           self.add_flow(segpostprocessor, viz, {("", "receivers")})
+            self.add_flow(inference, post_inference_op, {("", "in")})
+            self.add_flow(post_inference_op, viz, {("out", "receivers")})
+            self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
-           self.add_flow(inference, post_inference_op, {("", "in")})
-           self.add_flow(post_inference_op, viz, {("out", "receivers")})
-           self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+
+        elif self.source.lower() == "v4l2":
+            self.add_flow(source, viz, {("signal", "receivers")})
+
+            self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})  
+            self.add_flow(preprocessor_v4l2, inference, {("tensor", "receivers")})
+
+            self.add_flow(inference, segpostprocessor, {("transmitter", "")})
+            self.add_flow(segpostprocessor, viz, {("", "receivers")})
+
+            self.add_flow(inference, post_inference_op, {("", "in")})
+            self.add_flow(post_inference_op, viz, {("out", "receivers")})
+            self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
         else:
-	   # Working workflow -df FALSE
-           self.add_flow(source, viz, {("", "receivers")})
-           self.add_flow(source, preprocessor, {("output", "source_video")})
-           self.add_flow(preprocessor, inference, {("", "receivers")}) #"tensor" "receivers"
-
-           self.add_flow(inference, segpostprocessor, {("transmitter", "")})
-           self.add_flow(segpostprocessor, viz, {("", "receivers")})
-
-           self.add_flow(inference, post_inference_op, {("", "in")})
-           self.add_flow(post_inference_op, viz, {("out", "receivers")})
-           self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+            print(f"plesea either choose v4l2 or replayer")
 
 
 if __name__ == "__main__":
     # Parse args
     parser = ArgumentParser(description="READY demo application.")
+    parser.add_argument(
+        "-s",
+        "--source",
+        choices=["replayer", "v4l2"],
+        default="replayer",
+        help=("If 'replayer', replay a prerecorded video. If 'v4l2' use an v4l2"),
+    )
     parser.add_argument(
         "-d",
         "--data",
@@ -518,6 +565,7 @@ if __name__ == "__main__":
     config_file = os.path.join(os.path.dirname(__file__), "ready.yaml")
 
     app = READYApp(
+        source=args.source,
         data=args.data, 
         model_name=args.model_name,
         debug_print_flag=args.debug_print_flag,
@@ -525,4 +573,3 @@ if __name__ == "__main__":
     with Tracker(app, filename=args.logger_filename) as tracker:
        app.config(config_file)
        app.run()
-
