@@ -115,7 +115,8 @@ def main():
     cuda_available = torch.cuda.is_available()
 
 
-    trainset = MobiousDataset("test")
+    #trainset = MobiousDataset("test")
+    trainset = MobiousDataset("test640x400")
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 3
@@ -165,16 +166,19 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
 
-            print(images.shape) #torch.Size([8, 3, 1700, 3000])
-            print(labels.shape) #torch.Size([8, 3, 1700, 3000])
+            print(f"images.shape: {images.shape}") #torch.Size([8, 3, 1700, 3000])
+            print(f"labels.shape: {labels.shape}") #torch.Size([8, 3, 1700, 3000])
 
             optimizer.zero_grad()
             output = model(images)
-            print(output.shape) #?
-#            loss = loss_fn(output, labels)
+            print(f"output.shape: {output.shape}") #torch.Size([3, 4, 400, 640])
+
+            #loss = loss_fn(output, labels)
+            #TORESOLVE: RuntimeError: only batches of spatial targets supported (3D tensors) but got targets of size: : [3, 3, 400, 640]
+
 #            loss.backward()
 #            optimizer.step()
-#
+
 #            sum_loss += loss.item()
 #            if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
 #                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
@@ -196,7 +200,7 @@ def main():
 #    modelname = datetime.now().strftime('%d-%m-%y-%H_%M__weights.pth')
 #    torch.save(model.state_dict(), modelname)
 #    print(f"Saved PyTorch Model State to {modelname}")
-#
+
 #    # TOCHECK
 #    # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
 #    # batch_size = 1    # just a random number
