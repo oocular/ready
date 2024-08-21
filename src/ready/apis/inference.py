@@ -1,5 +1,6 @@
 """
 Inference
+See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
 """
 
 import os

@@ -15,8 +15,12 @@ xterm -rv & # open as many terminals you want
 ```
 
 ## Copying dataset
-scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0G ETA 1h at 2MB/s
-
+```
+# openEDS.zip
+scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0GB ETA 1h at 2MB/s
+# MOBIUS.zip
+scp MOBIUS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #MOBIUS.zip #3.3GB ETA  26mins at 2MB/s
+```
 
 ## /opt/nvidia/containers (first time)
 ```

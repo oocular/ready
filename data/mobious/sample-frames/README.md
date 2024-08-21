@@ -5,15 +5,18 @@
 ├── [137K]  1_1i_Ll_1.jpg
 ├── [ 24K]  1_1i_Ll_1.png
 ```
+* 1_1i_Ll_1
+![fig](test/images/1_1i_Ll_1.jpg)
+![fig](test/masks/1_1i_Ll_1.png)
 
-![fig](1_1i_Ll_1.jpg)
-![fig](1_1i_Ll_1.png)
+* 1_1i_Ll_2
+![fig](test/images/1_1i_Ll_2.jpg)
+![fig](test/masks/1_1i_Ll_2.png)
 
-* `35_2i_Ll_1`
-```
-├── [235K]  35_2i_Ll_1.jpg
-├── [ 21K]  35_2i_Ll_1.png
-```
-![fig](35_2i_Ll_1.jpg)
-![fig](35_2i_Ll_1.png)
+* 1_1i_Lr_2
+![fig](test/images/1_1i_Lr_2.jpg)
+![fig](test/masks/1_1i_Lr_2.png)
 
+* 1_1i_Ls_1
+![fig](test/images/1_1i_Ls_1.jpg)
+![fig](test/masks/1_1i_Ls_1.png)

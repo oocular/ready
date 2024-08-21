@@ -151,4 +151,26 @@ def test_load_pickle_file():
     #print(t.shape)
     #print(t)
 
+def test_mobious_dataset():
+    """
+    Test mobious dataset
+    python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset
+    """
+    print("mobious")
+    set_data_directory("datasets/mobius/MOBIOUS")
+    raw = mimg.imread("Images/1/1_1i_Ll_1.jpg")
+    mask = mimg.imread("Masks/1/1_1i_Ll_1.png")
 
+    plt.subplot(1, 3, 1)
+    plt.imshow(raw)
+    plt.title("Raw image")
+
+    plt.subplot(1, 3, 2)
+    plt.imshow(mask)
+    plt.title("Mask")
+
+    plt.subplot(1, 3, 3)
+    plt.imshow(raw, interpolation="none")
+    plt.imshow(mask, "jet", interpolation="none", alpha=0.2)
+    plt.title("raw/mask")
+    plt.show()
