@@ -93,7 +93,7 @@ def main():
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
     #set_data_directory("datasets/openEDS")
-    set_data_directory("datasets/mobius/MOBIOUS")
+    set_data_directory("datasets/mobious/MOBIOUS")
     #print(get_working_directory())
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
