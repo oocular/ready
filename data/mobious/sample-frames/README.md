@@ -1,5 +1,6 @@
 # Sample frames
 
+## 3000 x 1700 pixels, 
 * `1_1i_Ll_1`: 3000 x 1700 pixels, 
 ```
 ├── [137K]  1_1i_Ll_1.jpg
@@ -20,3 +21,8 @@
 * 1_1i_Ls_1
 ![fig](test/images/1_1i_Ls_1.jpg)
 ![fig](test/masks/1_1i_Ls_1.png)
+
+## 640 x 400 pixels
+```
+mogrify -resize 640x400! *.jpg 
+```
