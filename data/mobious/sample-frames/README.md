@@ -24,5 +24,7 @@
 
 ## 640 x 400 pixels
 ```
-mogrify -resize 640x400! *.jpg 
+cd ~/data/bash-scripts
+bash resize_images.bash ~/datasets/mobious/MOBIOUS
+#mogrify -resize 640x400! *.jpg 
 ```

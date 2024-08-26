@@ -9,7 +9,7 @@
 1. Connect to `vpn.ucl.ac.uk` using cisco https://www.ucl.ac.uk/isd/services/get-connected/ucl-virtual-private-network-vpn
 2. Connect to the server
 ```
-ssh ccxxxxx@cricket.rc.ucl.ac.uk
+ssh -X ccxxxxx@cricket.rc.ucl.ac.uk
 xterm -rv & # open as many terminals you want
 ```
 
@@ -19,6 +19,7 @@ xterm -rv & # open as many terminals you want
 scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0GB ETA 1h at 2MB/s
 # MOBIUS.zip
 scp MOBIUS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #MOBIUS.zip #3.3GB ETA  26mins at 2MB/s
+scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   1.9MB/s   00:17
 ```
 
 ## Container
