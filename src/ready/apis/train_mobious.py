@@ -92,9 +92,8 @@ def main():
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    #set_data_directory("datasets/openEDS")
-    set_data_directory("datasets/mobious/MOBIOUS")
-    #print(get_working_directory())
+    # set_data_directory("datasets/mobious/MOBIOUS")
+    set_data_directory("ready/data/mobious/sample-frames")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -127,10 +126,10 @@ def main():
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
     ##################
-    #sanity_check
-    #image, label = next(iter(trainloader))
-    #print(image.shape, label.shape)
-    #(8, 3, 1700, 3000) for image/label data
+    #TODO create a sanity_check module
+    # image, label = next(iter(trainloader))
+    # print(f"image.shape: {image.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
+    # print(f"label.shape: {label.shape}") #torch.Size([batch_size_, 4, 1700, 3000])
     ################
 
     model = UNet(nch_in=3, nch_out=4) # for openEDS with 3 channels and four mask
@@ -138,6 +137,7 @@ def main():
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+    # loss_fn = nn.CrossEntropyLoss()
 #    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
 #    # TOCHECK TESTS
@@ -166,18 +166,16 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
 
-            print(f"images.shape: {images.shape}") #torch.Size([8, 3, 1700, 3000])
-            print(f"labels.shape: {labels.shape}") #torch.Size([8, 3, 1700, 3000])
+            # print(f"images.shape: {images.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
+            # print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
 
             optimizer.zero_grad()
             output = model(images)
-            print(f"output.shape: {output.shape}") #torch.Size([3, 4, 400, 640])
+            # print(f"output.shape: {output.shape}") #torch.Size([3, 4, 400, 640])
 
-            #loss = loss_fn(output, labels)
-            #TORESOLVE: RuntimeError: only batches of spatial targets supported (3D tensors) but got targets of size: : [3, 3, 400, 640]
-
-#            loss.backward()
-#            optimizer.step()
+            loss = loss_fn(output, labels)
+            loss.backward()
+            optimizer.step()
 
 #            sum_loss += loss.item()
 #            if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
@@ -196,17 +194,17 @@ def main():
 #                break
 #        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 #
-#    print("Training complete. Saving checkpoint...")
-#    modelname = datetime.now().strftime('%d-%m-%y-%H_%M__weights.pth')
-#    torch.save(model.state_dict(), modelname)
-#    print(f"Saved PyTorch Model State to {modelname}")
+    print("Training complete. Saving checkpoint...")
+    modelname = datetime.now().strftime('weights_%d-%m-%y-%H_%M.pth')
+    torch.save(model.state_dict(), modelname)
+    print(f"Saved PyTorch Model State to {modelname}")
 
-#    # TOCHECK
-#    # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
-#    # batch_size = 1    # just a random number
-#    # dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
-#    # export_model(model, device, path_name, dummy_input):
-#
+   # TOCHECK
+   # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
+   # batch_size = 1    # just a random number
+   # dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
+   # export_model(model, device, path_name, dummy_input):
+
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")

@@ -3,6 +3,7 @@ __pycache__
 .pytest_cache
 **/tests/data
 model.pth
+**.pth
 build
 **/ready.egg-info/
 

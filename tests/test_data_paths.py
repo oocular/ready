@@ -63,6 +63,7 @@ def test_masks():
     m = mimg.imread("openEDS/openEDS/S_0/0.png")
     t = np.load("openEDS/openEDS/S_0/0.npy")
     print(type(t))
+    print(t.shape)
     mask_sclera = t > 0  # sclera
     print(type(mask_sclera))
     mask_iris = t > 1  # iris
@@ -70,17 +71,17 @@ def test_masks():
 
     plt.subplot(1, 3, 1)
     plt.imshow(m, "gray", interpolation="none")
-    plt.imshow(mask_sclera, "jet", interpolation="none", alpha=0.7)
+    plt.imshow(mask_sclera, "jet", interpolation="none", alpha=0.5)
     plt.title("Sclera")
 
     plt.subplot(1, 3, 2)
     plt.imshow(m, "gray", interpolation="none")
-    plt.imshow(mask_iris, "jet", interpolation="none", alpha=0.7)
+    plt.imshow(mask_iris, "jet", interpolation="none", alpha=0.5)
     plt.title("Iris")
 
     plt.subplot(1, 3, 3)
     plt.imshow(m, "gray", interpolation="none")
-    plt.imshow(mask_pupil, "jet", interpolation="none", alpha=0.7)
+    plt.imshow(mask_pupil, "jet", interpolation="none", alpha=0.5)
     plt.title("Pupil")
 
     plt.show()
@@ -157,20 +158,36 @@ def test_mobious_dataset():
     python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset
     """
     print("mobious")
-    set_data_directory("datasets/mobius/MOBIOUS")
-    raw = mimg.imread("Images/1/1_1i_Ll_1.jpg")
-    mask = mimg.imread("Masks/1/1_1i_Ll_1.png")
+    #set_data_directory("datasets/mobious/MOBIOUS")
+    set_data_directory("ready/data/mobious/sample-frames/test640x400")
+    raw = mimg.imread("images/1_1i_Ll_1.jpg")
+    mask = mimg.imread("masks/1_1i_Ll_1.png")
+    lnp = np.asarray(Image.open("masks/1_1i_Ll_1.png").convert("RGBA"))
+    sclera = lnp[:,:,0]
+    iris = lnp[:,:,1]
+    pupil = lnp[:,:,2]
+    bck = lnp[:,:,3]
+    print(lnp.shape) #(400, 640, 4)
+    #print(pupil)
 
-    plt.subplot(1, 3, 1)
+    plt.subplot(2, 3, 1)
     plt.imshow(raw)
-    plt.title("Raw image")
+    plt.title("Raw image (.jpg)")
 
-    plt.subplot(1, 3, 2)
+    plt.subplot(2, 3, 2)
     plt.imshow(mask)
-    plt.title("Mask")
+    plt.title("Mask (.png)")
 
-    plt.subplot(1, 3, 3)
-    plt.imshow(raw, interpolation="none")
-    plt.imshow(mask, "jet", interpolation="none", alpha=0.2)
-    plt.title("raw/mask")
+    plt.subplot(2, 3, 4)
+    plt.imshow(sclera, cmap="Reds")
+    plt.title("Sclera")
+
+    plt.subplot(2, 3, 5)
+    plt.imshow(iris, cmap="Greens")
+    plt.title("Iris")
+
+    plt.subplot(2, 3, 6)
+    plt.imshow(pupil, cmap="Blues")
+    plt.title("Pupil")
+
     plt.show()
