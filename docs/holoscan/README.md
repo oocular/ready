@@ -6,9 +6,12 @@
 #TODO: Update https://github.com/nvidia-holoscan/holoscan-sdk/releases/tag/v2.3.0
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
+git pull
+git checkout 1a67c53 #holoscan-sdk-2.0.0
 ./run clear_cache
 #./dev_container build --verbose
-./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3470.5s (9/9) FINISHE
+#TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3470.5s #~1h (9/9) FINISHED
+./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3470.5s #~1h (9/9) FINISHED
 ```
 
 ## Launch 
@@ -31,6 +34,39 @@ docker stop <ID>
 docker rename keen_einstein mycontainer
 docker rmi --force <ID>
 ```
+
+### Issue
+* issue
+```
+docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error running hook #0: error running hook: exit status 1, stdout: , stderr: Auto-detected mode as 'legacy'
+nvidia-container-cli: initialization error: nvml error: driver not loaded: unknown.
+```
+
+* Remove all non-related images and stop IDs (don't work)
+```
+docker images
+REPOSITORY   TAG               IMAGE ID       CREATED       SIZE
+holohub      ngc-v2.2.0-dgpu   44a333fcfd9f   3 weeks ago   15.6GB
+
+docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
+* Update and upgrate and reboot (dont' work)
+```
+sudo apt update
+sudo apt upgrade
+```
+
+* remove and build docker image
+```
+git checkout 1a67c53 #holoscan-sdk-2.0.0
+```
+
+* open an issue
+
+https://github.com/nvidia-holoscan/holohub/issues/479 
+
+
 
 
 ## v4l2
