@@ -32,6 +32,7 @@ def main():
  
     https://github.com/nvidia-holoscan/holohub/blob/main/applications/ssd_detection_endoscopy_tools/scripts/graph_surgeon_ssd.py
     """
+    #TODO use only path and input model, instead of input model and output model
     graph = gs.import_onnx(onnx.load(sys.argv[1]))
 
     # Update graph input/output names

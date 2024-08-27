@@ -66,10 +66,6 @@ tensor: float32[batch_size,4,400,640]
 ![figs](../../../docs/figs/identity_model_onnx_netronapp.png)
 
 ## Rebinding model to new nodes (NCHW to NHWC)
-
-
-
-
 ```
 conda activate readyVE
 cd ~/ready/data/openEDS/models
@@ -79,9 +75,7 @@ python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py model-5jul2024-si
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py model3ch-23jul2024t0716-sim.onnx model3ch-23jul2024t0716-sim-BHWC.onnx 3 400 640
 ```
 
-
 * `model-5jul2024-sim.onnx` 
-
 
 name: input
 tensor: float32[batch_size,1,400,640]
