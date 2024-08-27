@@ -9,6 +9,8 @@
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 four-frames-in-one 640 400 3
 #bash frames_to_mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/videos $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/sample-frames png 30 fractal-frames-in-one 640 400 3
 
+##TODO create a config file to pass all arguments in one go!
+
 ### INPUT ARGUMENTS
 VIDEOPATH=$1
 FRAMES_PATH=$2
