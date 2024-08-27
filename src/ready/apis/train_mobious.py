@@ -93,7 +93,9 @@ def main():
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
     # set_data_directory("datasets/mobious/MOBIOUS")
-    set_data_directory("ready/data/mobious/sample-frames")
+    #set_data_directory("ready/data/mobious/sample-frames")
+    set_data_directory("datasets/mobious/MOBIOUS")
+    #TODO train with 1700x3000
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -114,12 +116,13 @@ def main():
     cuda_available = torch.cuda.is_available()
 
 
-    #trainset = MobiousDataset("test")
-    trainset = MobiousDataset("test640x400")
+    #trainset = MobiousDataset("test") #for  set_data_directory("datasets/mobious/MOBIOUS")
+    #trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
+    trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
     print("Length of trainset:", len(trainset))
 
-    batch_size_ = 3
-    #batch_size_ = 8  # 8 original
+    #batch_size_ = 3 #to_test
+    batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
@@ -149,10 +152,10 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    run_epoch = 1
-#    run_epoch = 10
-#    #02epochs: Elapsed time for the training loop: 1.53 (s) 
-#    #10epochs: Elapsed time for the training loop: 7.76 (s)
+    #run_epoch = 1 #to_test
+    run_epoch = 10
+    #10epochs: Elapsed time for the training loop: 7.76 (s) #for openEDS
+    #10epochs: Elapsed time for the training loop: 4.5 (m) #for mobious
 
     epoch = None
 
@@ -166,8 +169,8 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
 
-            # print(f"images.shape: {images.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
-            # print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
+            #print(f"images.shape: {images.shape}") #torch.Size([batch_size_, 3, 400, 680])
+            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 4, 400, 680])
 
             optimizer.zero_grad()
             output = model(images)
@@ -195,7 +198,7 @@ def main():
 #        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 #
     print("Training complete. Saving checkpoint...")
-    modelname = datetime.now().strftime('weights_%d-%m-%y-%H_%M.pth')
+    modelname = datetime.now().strftime('_weights_%d-%m-%y_%H-%M.pth')
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
 

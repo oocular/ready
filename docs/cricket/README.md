@@ -13,7 +13,7 @@ ssh -X ccxxxxx@cricket.rc.ucl.ac.uk
 xterm -rv & # open as many terminals you want
 ```
 
-## Copying dataset
+## Copying dataset from local device to server
 ```
 # openEDS.zip
 scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0GB ETA 1h at 2MB/s
