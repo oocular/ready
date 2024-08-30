@@ -92,7 +92,6 @@ def main():
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    # set_data_directory("datasets/mobious/MOBIOUS")
     #set_data_directory("ready/data/mobious/sample-frames")
     set_data_directory("datasets/mobious/MOBIOUS")
     #TODO train with 1700x3000

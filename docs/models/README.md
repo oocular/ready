@@ -46,8 +46,7 @@ cd $HOME_REPO
 conda activate readyVE
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 
-#inference
+#inference openEDS
 python src/ready/apis/inference.py
 vim src/ready/apis/inference.py
 ```
-

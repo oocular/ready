@@ -38,14 +38,19 @@ if __name__ == "__main__":
 
 
     ### PTH model
-    checkpoint_path = "weights/trained_models_in_cricket/model-5jul2024.pth"
-    model = UNet(nch_in=1, nch_out=4)
+    # checkpoint_path = "weights/trained_models_in_cricket/model-5jul2024.pth"
+    checkpoint_path = "weights/trained_models_in_cricket/model3ch-23jul2024t0716.pth"
+    
+    # model = UNet(nch_in=1, nch_out=4)
+    model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
     ### ONNX model
-    ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/model-5jul2024.onnx", providers=["CPUExecutionProvider"]) 
+    # ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/model-5jul2024.onnx", providers=["CPUExecutionProvider"]) 
+    ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/model3ch-23jul2024t0716.onnx", providers=["CPUExecutionProvider"]) 
+
     #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
     def to_numpy(tensor):
         return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
@@ -59,30 +64,37 @@ if __name__ == "__main__":
         images, labels = data
         if cuda_available:
             images = images.cuda()
+            image=images[0].unsqueeze(0)
             labels = labels.cuda()
+            label=labels[0].unsqueeze(0)
 
-        #print(images[0].unsqueeze(0).size()) #torch.Size([1, 1, 400, 640])
-        #print(labels[0].unsqueeze(0).size()) #torch.Size([1, 400, 640])
+        # print(image.size()) #torch.Size([1, 3, 400, 640])
+        # print(label.size()) #torch.Size([1, 400, 640])
 
 
         ##PTH model
-        outputs = model(images[0].unsqueeze(0))  # torch.Size([1, 4, 400, 640])
-        outputs = torch.argmax(outputs[0], 0)  # torch.Size([400, 640])
-        #print(outputs.size())
-        pred = torch.sigmoid(model(images[0].unsqueeze(0)))
-        #print(pred.size(), pred[0].size()) #torch.Size([1, 4, 400, 640]) torch.Size([4, 400, 640])
+        outputs = model(image)
+        # print(outputs.size()) #torch.Size([1, 4, 400, 640])
+        outputs = torch.argmax(outputs[0], 0)
+        # print(outputs.size()) #torch.Size([400, 640])
+        pred = torch.sigmoid(model(image))
+        # print(pred.size(), pred[0].size()) #torch.Size([1, 4, 400, 640]) torch.Size([4, 400, 640])
 
 
-	##ONNX model
+	    ##ONNX model
         ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(images[0].unsqueeze(0))}
         ort_outs = np.asarray(ort_session.run(None, ort_inputs))
         ort_outs = torch.tensor(ort_outs)
-        ort_outs = ort_outs.squeeze(0).squeeze(0) #torch.Size([4, 400, 640])
-        ort_outs = torch.argmax(ort_outs,0) #torch.Size([400, 640])
+        ort_outs = ort_outs.squeeze(0).squeeze(0)
+        print(ort_outs.size()) #torch.Size([4, 400, 640])
+        ort_outs = torch.argmax(ort_outs,0) 
+        print(ort_outs.size()) #torch.Size([400, 640])
 
-
-        # plt.figure()
-        ax[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
+        # print(image.size()) #torch.Size([1, 3, 400, 640])
+        image = torch.permute(image, (0, 2, 3, 1))
+        # print(image.size()) #torch.Size([1, 400, 640, 3])
+        plt.figure()
+        ax[0].imshow((image[0] * 255).to(torch.long).squeeze(0).cpu())
         ax[1].imshow(labels[0].squeeze(0).cpu())
         ax[2].imshow(outputs.squeeze(0).cpu())
         ax[3].imshow(ort_outs.cpu())
@@ -90,8 +102,3 @@ if __name__ == "__main__":
 
         if j == 2:
             break
-
-
-
-
-
