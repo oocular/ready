@@ -97,6 +97,9 @@ def main():
     #TODO train with 1700x3000
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cuda_available = torch.cuda.is_available()
+    #print(device)
+    #print(cuda_available)
 
     if not os.path.exists("weights"):
         os.mkdir("weights")
@@ -112,7 +115,6 @@ def main():
         )
 
 
-    cuda_available = torch.cuda.is_available()
 
 
     #trainset = MobiousDataset("test") #for  set_data_directory("datasets/mobious/MOBIOUS")
@@ -139,20 +141,20 @@ def main():
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-    # loss_fn = nn.CrossEntropyLoss()
-#    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
+    #loss_fn = nn.CrossEntropyLoss()
+    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
-#    # TOCHECK TESTS
-#    # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
-#    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
-#    # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
-#
+    # TOCHECK TESTS
+    # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
+    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
+    # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
+
     if cuda_available:
         model.cuda()
         loss_fn.cuda()
 
-    #run_epoch = 1 #to_test
-    run_epoch = 10
+    run_epoch = 1 #to_test
+    #run_epoch = 10
     #10epochs: Elapsed time for the training loop: 7.76 (s) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (m) #for mobious
 
@@ -167,15 +169,24 @@ def main():
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
+                #images=images.type(torch.LongTensor).cuda()
+                #labels=labels.type(torch.LongTensor).cuda()
 
             #print(f"images.shape: {images.shape}") #torch.Size([batch_size_, 3, 400, 680])
-            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 4, 400, 680])
+            #print(images.type()) #torch.cuda.FloatTesnor
+            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 400, 680])
+            #print(labels.type()) #torch.cuda.FloatTesnor
 
             optimizer.zero_grad()
             output = model(images)
-            # print(f"output.shape: {output.shape}") #torch.Size([3, 4, 400, 640])
+            #print(f"output.shape: {output.shape}") #torch.Size([batch_size, 4, 400, 640])
+            #print(output.type()) #torch.cuda.FloatTesnor
+            #output=torch.tensor(output, dtype=torch.long)
+            labels=torch.tensor(labels, dtype=torch.long)
 
             loss = loss_fn(output, labels)
+            #/opt/pytorch/pytorch/aten/src/ATen/native/cuda/NLLLoss2d.cu:106: nll_loss2d_forward_kernel: block: [6,0,0], thread: [192,0,0] Assertion `t >= 0 && t < n_classes` failed.
+
             loss.backward()
             optimizer.step()
 
@@ -195,7 +206,7 @@ def main():
 #            if j == 200:
 #                break
 #        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
-#
+
     print("Training complete. Saving checkpoint...")
     modelname = datetime.now().strftime('_weights_%d-%m-%y_%H-%M.pth')
     torch.save(model.state_dict(), modelname)

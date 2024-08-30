@@ -76,9 +76,11 @@ class MobiousDataset(Dataset):
         # image = np.asarray(Image.open( img_path ).convert("RGB")) #torch.Size([1, 400, 640, 3])
 
         # label = read_image(label_path).type(torch.float) #/ 255
-        label = np.asarray(Image.open( label_path ).convert("L"))
         # label = np.asarray(Image.open( label_path ).convert("RGBA"))
         # label = torch.tensor(label, dtype=torch.long).permute(2, 0, 1).to(torch.float)
+        label = np.asarray(Image.open( label_path ).convert("L"))
+        label = torch.from_numpy(label).to(torch.float)
+        #label = torch.tensor(label, dtype=torch.long).permute(2, 0, 1).to(torch.float)
 
         # label =label.clone().detach()?
         # TO_TEST/TO_REMOVE
