@@ -21,12 +21,14 @@ from src.ready.utils.utils import get_working_directory, set_data_directory
 
 
 if __name__ == "__main__":
-    set_data_directory("datasets/mobious")
+    #set_data_directory("datasets/mobious")
+    set_data_directory("ready/data/mobious/sample-frames")
     print(os.getcwd())
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    trainset = MobiousDataset("MOBIOUS/train") #for  set_data_directory("datasets/mobious/MOBIOUS")
+    #trainset = MobiousDataset("MOBIOUS/train") #for  set_data_directory("datasets/mobious/MOBIOUS")
+    trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
@@ -38,18 +40,19 @@ if __name__ == "__main__":
 
     ### PTH model
     checkpoint_path = "weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth"
-    model = UNet(nch_in=3, nch_out=4)
+    checkpoint_path = "weights/_weights_02-09-24_00-08.pth"
+    model = UNet(nch_in=3, nch_out=3)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    # ### ONNX model
-    ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx", providers=["CPUExecutionProvider"]) 
-    #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
-    def to_numpy(tensor):
-        return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-
-
+#    # ### ONNX model
+#    ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx", providers=["CPUExecutionProvider"]) 
+#    #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
+#    def to_numpy(tensor):
+#        return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
+#
+#
     ### MAIN LOOP
     f, ax = plt.subplots(1, 4)
     cuda_available = torch.cuda.is_available()
@@ -62,40 +65,36 @@ if __name__ == "__main__":
             labels = labels.cuda()
             label=labels[0].unsqueeze(0)
 
-            # print(image.size()) #torch.Size([1, 3, 400, 640])
-            # print(label.size()) #torch.Size([1, 400, 640])
+            #print(image.size()) #torch.Size([1, 3, 400, 640])
+            #print(label.size()) #torch.Size([1, 3, 400, 640])
 
         ##PTH model
         outputs = model(image)
-        # print(outputs.size()) #torch.Size([1, 4, 400, 640])
+        print(outputs.size()) #torch.Size([1, 4, 400, 640])
         outputs = torch.argmax(outputs[0], 0)
-        # print(outputs.size()) #torch.Size([400, 640])
+        print(outputs.size()) #torch.Size([400, 640])
         pred = torch.sigmoid(model(images[0].unsqueeze(0)))
-        # print(pred.size(), pred[0].size()) #torch.Size([1, 4, 400, 640]) torch.Size([4, 400, 640])
+        print(pred.size(), pred[0].size()) #torch.Size([1, 3, 400, 640]) torch.Size([3, 400, 640])
 
 
-        ##ONNX model
-        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(images[0].unsqueeze(0))}
-        ort_outs = np.asarray(ort_session.run(None, ort_inputs))
-        ort_outs = torch.tensor(ort_outs)
-        ort_outs = ort_outs.squeeze(0).squeeze(0)
-        # print(ort_outs.size()) #torch.Size([4, 400, 640])
-        ort_outs = torch.argmax(ort_outs,0)
-        # print(ort_outs.size())#torch.Size([400, 640])
+#        ##ONNX model
+#        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(images[0].unsqueeze(0))}
+#        ort_outs = np.asarray(ort_session.run(None, ort_inputs))
+#        ort_outs = torch.tensor(ort_outs)
+#        ort_outs = ort_outs.squeeze(0).squeeze(0)
+#        # print(ort_outs.size()) #torch.Size([4, 400, 640])
+#        ort_outs = torch.argmax(ort_outs,0)
+#        # print(ort_outs.size())#torch.Size([400, 640])
 
-        
+        #TO TEST
         plt.figure()
         image = torch.permute(image, (0, 2, 3, 1))
         ax[0].imshow((image[0]).to(torch.long).squeeze(0).cpu())
-        ax[1].imshow(labels[0].squeeze(0).cpu())
-        ax[2].imshow(outputs.squeeze(0).cpu())
-        ax[3].imshow(ort_outs.cpu())
+        #ax[1].imshow(labels[0].squeeze(0).cpu())
+        #ax[2].imshow(outputs.squeeze(0).cpu())
+        #ax[3].imshow(ort_outs.cpu())
         plt.show()
 
         if j == 2:
             break
-
-
-
-
 

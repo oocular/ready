@@ -49,4 +49,8 @@ export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 #inference openEDS
 python src/ready/apis/inference.py
 vim src/ready/apis/inference.py
+
+#inference mobious
+python src/ready/apis/inference_mobious.py
+vim src/ready/apis/inference_mobiouos.py
 ```

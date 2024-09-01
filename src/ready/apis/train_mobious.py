@@ -150,8 +150,8 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    run_epoch = 1 #to_test
-    #run_epoch = 10
+    #run_epoch = 1 #to_test
+    run_epoch = 10
     #10epochs: Elapsed time for the training loop: 7.76 (s) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (m) #for mobious
 
