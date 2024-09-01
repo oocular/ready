@@ -191,3 +191,48 @@ def test_mobious_dataset():
     plt.title("Pupil")
 
     plt.show()
+
+
+def test_mobious_dataset_labels():
+    """
+    Test mobious dataset
+    python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset_labels
+    """
+    print("mobious")
+    #set_data_directory("datasets/mobious/MOBIOUS")
+    set_data_directory("ready/data/mobious/sample-frames/test640x400")
+
+    #imagename="1_1i_Ll_1"
+    imagename="1_1i_Ll_2"
+    #imagename="1_1i_Lr_1"
+    #imagename="1_1i_Lr_2"
+    #imagename="1_1i_Ls_1"
+
+    raw = mimg.imread("images/"+imagename+".jpg")
+    l = np.load("labels/"+imagename+".npy")
+    print(type(l))
+    print(l.shape)
+    mask_sclera = l[:,:,0]  # sclera
+    mask_iris = l[:,:,1] # iris
+    mask_pupil = l[:,:,2] # pupil
+
+    plt.subplot(1, 3, 1)
+    #plt.imshow(raw, "gray", interpolation="none")
+    plt.imshow(raw)
+    plt.imshow(mask_sclera, "jet", interpolation="none", alpha=0.5)
+    plt.title("Sclera")
+    
+    plt.subplot(1, 3, 2)
+    #plt.imshow(m, "gray", interpolation="none")
+    plt.imshow(raw)
+    plt.imshow(mask_iris, "jet", interpolation="none", alpha=0.5)
+    plt.title("Iris")
+
+    plt.subplot(1, 3, 3)
+    #plt.imshow(m, "gray", interpolation="none")
+    plt.imshow(raw)
+    plt.imshow(mask_pupil, "jet", interpolation="none", alpha=0.5)
+    plt.title("Pupil")
+
+    plt.show()
+
