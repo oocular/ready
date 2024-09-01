@@ -92,8 +92,8 @@ def main():
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    #set_data_directory("ready/data/mobious/sample-frames")
-    set_data_directory("datasets/mobious/MOBIOUS")
+    #set_data_directory("datasets/mobious/MOBIOUS")
+    set_data_directory("ready/data/mobious/sample-frames")
     #TODO train with 1700x3000
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -115,9 +115,8 @@ def main():
     cuda_available = torch.cuda.is_available()
 
 
-    #trainset = MobiousDataset("test") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    #trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
-    trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
+    #trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
+    trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
     print("Length of trainset:", len(trainset))
 
     #batch_size_ = 3 #to_test
