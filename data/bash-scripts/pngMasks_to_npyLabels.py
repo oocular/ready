@@ -4,11 +4,11 @@ from PIL import Image
 import numpy as np
  
 path ="/home/mxochicale/Desktop/nystagmus-tracking/ready/data/mobious/sample-frames/test640x400"
-#imagename="1_1i_Ll_1"
+imagename="1_1i_Ll_1"
 #imagename="1_1i_Ll_2"
 #imagename="1_1i_Lr_1"
 #imagename="1_1i_Lr_2"
-imagename="1_1i_Ls_1"
+#imagename="1_1i_Ls_1"
 
 #img = np.asarray( Image.open(path+"/masks/"+imagename+".png").convert("L") ) #(400, 640)
 #img = np.asarray( Image.open(path+"/masks/"+imagename+".png").convert("LA") ) #(400, 640, 2)

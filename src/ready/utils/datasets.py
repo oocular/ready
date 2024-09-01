@@ -64,21 +64,27 @@ class MobiousDataset(Dataset):
         self.f_dir = f_dir
 
         self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
-        self.labels_path = [i.replace(".jpg", ".png") for i in self.img_path]
+        #self.labels_path = [i.replace(".jpg", ".png") for i in self.img_path]
+        self.labels_path = [i.replace(".jpg", ".npy") for i in self.img_path]
 
     def __len__(self):
         return len(self.img_path)
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
-        label_path = os.path.join(self.f_dir, "masks", self.labels_path[idx])
+        #label_path = os.path.join(self.f_dir, "masks", self.labels_path[idx])
         image = read_image(img_path).type(torch.float) #/ 255 #torch.Size([1, 3, 400, 640])
         # image = np.asarray(Image.open( img_path ).convert("RGB")) #torch.Size([1, 400, 640, 3])
 
         # label = read_image(label_path).type(torch.float) #/ 255
-        label = np.asarray(Image.open( label_path ).convert("L"))
+        #label = np.asarray(Image.open( label_path ).convert("L"))
         # label = np.asarray(Image.open( label_path ).convert("RGBA"))
         # label = torch.tensor(label, dtype=torch.long).permute(2, 0, 1).to(torch.float)
+
+
+        label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
+        label = torch.tensor(label, dtype=torch.float).permute(2,0,1) #.unsqueeze(0)
+ 
 
         # label =label.clone().detach()?
         # TO_TEST/TO_REMOVE
@@ -94,5 +100,6 @@ class MobiousDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
 
-        return image, torch.tensor(label)
+        return image, label
+        #return image, torch.tensor(label)
 

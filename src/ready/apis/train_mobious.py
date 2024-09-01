@@ -133,12 +133,12 @@ def main():
     # print(f"label.shape: {label.shape}") #torch.Size([batch_size_, 4, 1700, 3000])
     ################
 
-    model = UNet(nch_in=3, nch_out=4) # for openEDS with 3 channels and four mask
+    model = UNet(nch_in=3, nch_out=3) # nch_out =3 maks
     #model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
-    loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-    # loss_fn = nn.CrossEntropyLoss()
+    #loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float()) #weight for 4classes
+    loss_fn = nn.CrossEntropyLoss()
 #    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
 #    # TOCHECK TESTS
@@ -150,8 +150,8 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    #run_epoch = 1 #to_test
-    run_epoch = 10
+    run_epoch = 1 #to_test
+    #run_epoch = 10
     #10epochs: Elapsed time for the training loop: 7.76 (s) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (m) #for mobious
 
@@ -168,11 +168,12 @@ def main():
                 labels = labels.cuda()
 
             #print(f"images.shape: {images.shape}") #torch.Size([batch_size_, 3, 400, 680])
-            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 4, 400, 680])
+            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 3, 400, 680])
 
             optimizer.zero_grad()
             output = model(images)
-            # print(f"output.shape: {output.shape}") #torch.Size([3, 4, 400, 640])
+            #print(f"output.shape: {output.shape}") #torch.Size([batch_size_, 3, 400, 640])
+            #print(f"{output.type()}, {labels.type()}")
 
             loss = loss_fn(output, labels)
             loss.backward()
@@ -196,7 +197,7 @@ def main():
 #        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 #
     print("Training complete. Saving checkpoint...")
-    modelname = datetime.now().strftime('_weights_%d-%m-%y_%H-%M.pth')
+    modelname = datetime.now().strftime('weights/_weights_%d-%m-%y_%H-%M.pth')
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
 
