@@ -40,7 +40,8 @@ class PreInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"---------- PreInfoOp  ------------")
+        print(f" \/ \/ \/ \/ \/ \/ ")
+        print(f"   PreInfoOp  ")
         in_message = op_input.receive("source_video")
         tensor = cp.asarray(in_message.get(""), dtype=cp.float32)
         tensor_1ch =  tensor[:,:,0]
@@ -75,7 +76,8 @@ class FormatInferenceInputOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"********** FormatInferenceInputOp  ************")
+        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        print(f"   FormatInferenceInputOp  ")
         in_message = op_input.receive("in")
         #print(in_message)
         tensor = cp.asarray(in_message.get("out_preprocessor"), dtype=cp.float32)
@@ -182,8 +184,8 @@ class PostInferenceOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"----------------------------------------------")
-        print(f"---------- PostInferenceOperator  ------------")
+        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        print(f"   PostInferenceOperator  ")
         in_message = op_input.receive("in")
         #print(f"in_message={in_message}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
@@ -430,9 +432,9 @@ class READYApp(Application):
 
         pre_info_op_replayer = PreInfoOp(
             self,
-            name="pre_info_op",
+            name="pre_info_op_replayer",
             allocator=host_allocator,
-            **self.kwargs("pre_info_op"),
+            **self.kwargs("pre_info_op_replayer"),
         )
 
         preprocessor_replayer = FormatConverterOp(

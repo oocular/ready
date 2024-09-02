@@ -94,7 +94,7 @@ preprocessor_v4l2:
   scale_min: 0.0
   scale_max: 1.0
 
-pre_info_op:  #Pre Info Operator
+pre_info_op_replayer:  #Pre Info Operator
 format_input:  #FormatInferenceInputOp
 post_inference_op:  #Info Operator
 info_op:  #Info Operator
