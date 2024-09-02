@@ -203,10 +203,10 @@ def test_mobious_dataset_labels():
     set_data_directory("ready/data/mobious/sample-frames/test640x400")
 
     #imagename="1_1i_Ll_1"
-    imagename="1_1i_Ll_2"
+    #imagename="1_1i_Ll_2"
     #imagename="1_1i_Lr_1"
     #imagename="1_1i_Lr_2"
-    #imagename="1_1i_Ls_1"
+    imagename="1_1i_Ls_1"
 
     raw = mimg.imread("images/"+imagename+".jpg")
     l = np.load("labels/"+imagename+".npy")
@@ -215,6 +215,7 @@ def test_mobious_dataset_labels():
     mask_sclera = l[:,:,0]  # sclera
     mask_iris = l[:,:,1] # iris
     mask_pupil = l[:,:,2] # pupil
+    mask_bck = l[:,:,3] # pupil
 
     plt.subplot(1, 3, 1)
     #plt.imshow(raw, "gray", interpolation="none")

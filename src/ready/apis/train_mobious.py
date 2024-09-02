@@ -133,7 +133,7 @@ def main():
     # print(f"label.shape: {label.shape}") #torch.Size([batch_size_, 4, 1700, 3000])
     ################
 
-    model = UNet(nch_in=3, nch_out=3) # nch_out =3 maks
+    model = UNet(nch_in=3, nch_out=4)
     #model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
@@ -141,19 +141,24 @@ def main():
     loss_fn = nn.CrossEntropyLoss()
 #    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
-#    # TOCHECK TESTS
+#TODO
 #    # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
 #    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
 #    # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
-#
+
     if cuda_available:
         model.cuda()
         loss_fn.cuda()
 
     #run_epoch = 1 #to_test
-    run_epoch = 10
-    #10epochs: Elapsed time for the training loop: 7.76 (s) #for openEDS
-    #10epochs: Elapsed time for the training loop: 4.5 (m) #for mobious
+    #run_epoch = 10
+    run_epoch = 300
+    #10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
+    #10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
+    #250epochs: Eliapsed time for the training loop: 5.3 (mins) #for mobious (5length trainset)
+               #Average loss @ epoch: 10.314186096191406
+    #300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
+               #Average loss @ epoch: 10.223912239074707
 
     epoch = None
 
@@ -168,21 +173,23 @@ def main():
                 labels = labels.cuda()
 
             #print(f"images.shape: {images.shape}") #torch.Size([batch_size_, 3, 400, 680])
-            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 3, 400, 680])
+            #print(f"labels.shape: {labels.shape}") #torch.Size([batch_size_, 4, 400, 680])
 
             optimizer.zero_grad()
             output = model(images)
-            #print(f"output.shape: {output.shape}") #torch.Size([batch_size_, 3, 400, 640])
+            #print(f"output.shape: {output.shape}") #torch.Size([batch_size_, 4, 400, 640])
             #print(f"{output.type()}, {labels.type()}")
 
             loss = loss_fn(output, labels)
             loss.backward()
             optimizer.step()
 
-#            sum_loss += loss.item()
-#            if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
-#                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
-#                # sanity_check(trainloader, model, cuda_available)
+            sum_loss += loss.item()
+	    #Log every X batches
+            if j % 50 == 0 or j == 1:
+                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
+#TODO
+#                sanity_check(trainloader, model, cuda_available)
 #                save_checkpoint(
 #                    {
 #                        "epoch": run_epoch,
@@ -192,20 +199,20 @@ def main():
 #                    "weights/o.pth",
 #                )
 #
-#            if j == 200:
-#                break
-#        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
-#
+            if j == 200:
+                break
+        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
+
     print("Training complete. Saving checkpoint...")
     modelname = datetime.now().strftime('weights/_weights_%d-%m-%y_%H-%M.pth')
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
 
-   # TOCHECK
-   # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
-   # batch_size = 1    # just a random number
-   # dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
-   # export_model(model, device, path_name, dummy_input):
+#TODO  
+#    path_name="weights/ADD_MODEL_NAME_VAR.onnx"
+#    batch_size = 1    # just a random number
+#    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
+#    export_model(model, device, path_name, dummy_input):
 
     endtime = time.time()
     elapsedtime = endtime - starttime

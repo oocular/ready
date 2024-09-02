@@ -52,5 +52,5 @@ vim src/ready/apis/inference.py
 
 #inference mobious
 python src/ready/apis/inference_mobious.py
-vim src/ready/apis/inference_mobiouos.py
+vim src/ready/apis/inference_mobious.py
 ```

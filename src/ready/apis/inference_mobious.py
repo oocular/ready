@@ -37,11 +37,10 @@ if __name__ == "__main__":
     )
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
-
     ### PTH model
-    checkpoint_path = "weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth"
-    checkpoint_path = "weights/_weights_02-09-24_00-08.pth"
-    model = UNet(nch_in=3, nch_out=3)
+    #checkpoint_path = "weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth"
+    checkpoint_path = "weights/_weights_02-09-24_21-02.pth"
+    model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
@@ -64,18 +63,18 @@ if __name__ == "__main__":
             image=images[0].unsqueeze(0)
             labels = labels.cuda()
             label=labels[0].unsqueeze(0)
-
             #print(image.size()) #torch.Size([1, 3, 400, 640])
-            #print(label.size()) #torch.Size([1, 3, 400, 640])
+            #print(images.size()) #torch.Size([5, 3, 400, 640])
+            #print(label.size()) #torch.Size([1, 4, 400, 640])
+            #print(labels.size()) #torch.Size([5, 4, 400, 640])
 
         ##PTH model
         outputs = model(image)
-        print(outputs.size()) #torch.Size([1, 4, 400, 640])
+        #print(outputs.size()) #torch.Size([1, 4, 400, 640])
         outputs = torch.argmax(outputs[0], 0)
-        print(outputs.size()) #torch.Size([400, 640])
+        #print(outputs.size()) #torch.Size([400, 640])
         pred = torch.sigmoid(model(images[0].unsqueeze(0)))
-        print(pred.size(), pred[0].size()) #torch.Size([1, 3, 400, 640]) torch.Size([3, 400, 640])
-
+        #print(pred.size(), pred[0].size()) #torch.Size([1, 4, 400, 640]) torch.Size([4, 400, 640])
 
 #        ##ONNX model
 #        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(images[0].unsqueeze(0))}
@@ -86,15 +85,15 @@ if __name__ == "__main__":
 #        ort_outs = torch.argmax(ort_outs,0)
 #        # print(ort_outs.size())#torch.Size([400, 640])
 
-        #TO TEST
-        plt.figure()
+        #plt.figure()
         image = torch.permute(image, (0, 2, 3, 1))
         ax[0].imshow((image[0]).to(torch.long).squeeze(0).cpu())
-        #ax[1].imshow(labels[0].squeeze(0).cpu())
-        #ax[2].imshow(outputs.squeeze(0).cpu())
+        ax[1].imshow(label.permute(0,2,3,1).squeeze(0).cpu())
+        ax[2].imshow(outputs.squeeze(0).cpu())
         #ax[3].imshow(ort_outs.cpu())
-        plt.show()
+        #plt.show()
 
         if j == 2:
             break
 
+    plt.show()
