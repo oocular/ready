@@ -92,8 +92,8 @@ def main():
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    #set_data_directory("datasets/mobious/MOBIOUS")
-    set_data_directory("ready/data/mobious/sample-frames")
+    set_data_directory("datasets/mobious/MOBIOUS")
+    #set_data_directory("ready/data/mobious/sample-frames")
     #TODO train with 1700x3000
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -115,8 +115,8 @@ def main():
     cuda_available = torch.cuda.is_available()
 
 
-    #trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
+    trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
+    #trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
     print("Length of trainset:", len(trainset))
 
     #batch_size_ = 3 #to_test
@@ -152,13 +152,18 @@ def main():
 
     #run_epoch = 1 #to_test
     #run_epoch = 10
-    run_epoch = 300
+    run_epoch = 10
+    #run_epoch = 300
     #10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
     #250epochs: Eliapsed time for the training loop: 5.3 (mins) #for mobious (5length trainset)
-               #Average loss @ epoch: 10.314186096191406
+               #Average loss @ epoch: 10.31 in local
     #300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
-               #Average loss @ epoch: 10.223912239074707
+               #Average loss @ epoch: 10.22 in local 
+    #300epochs: Eliapsed time for the training loop: 1.3 (mins) #for mobious (5length trainset)
+               #Average loss @ epoch: 10.23 in cricket
+    #10epochs: Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
+               #Average loss @ epoch: 12.10 in cricket
 
     epoch = None
 

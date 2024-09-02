@@ -49,5 +49,6 @@ bash docs/cricket/launch_container_in_cricket.bash
 #inside adapter>
 cd $HOME/ready
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+## GOTO models/README.md for instructions to train model in cricket
 #type `exit` in the terminal to exit
 ```

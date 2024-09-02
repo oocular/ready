@@ -65,7 +65,7 @@ class MobiousDataset(Dataset):
 
         self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
         self.masks_path = [i.replace(".jpg", ".png") for i in self.img_path]
-        self.labels_path = [i.replace(".jpg", ".npy") for i in self.img_path]
+        #self.labels_path = [i.replace(".jpg", ".npy") for i in self.img_path]
 
     def __len__(self):
         return len(self.img_path)
@@ -73,13 +73,14 @@ class MobiousDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
         masks_path = os.path.join(self.f_dir, "masks", self.masks_path[idx])
-        labels_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
+        #TODO check when there is no numpy lalbels
+        #labels_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
 
         image = read_image(img_path).type(torch.float) #/ 255 #torch.Size([1, 3, 400, 640])
         # image = np.asarray(Image.open( img_path ).convert("RGB")) #torch.Size([1, 400, 640, 3])
 
-        label = np.load(labels_path)
-        label = torch.tensor(label, dtype=torch.float).permute(2,0,1) #.unsqueeze(0)
+        #label = np.load(labels_path)
+        #label = torch.tensor(label, dtype=torch.float).permute(2,0,1) #.unsqueeze(0)
  
         #mask = np.asarray(Image.open( masks_path ).convert("L"))
         mask = np.asarray(Image.open( masks_path ).convert("RGBA"))
