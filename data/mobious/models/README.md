@@ -12,19 +12,21 @@ tree -h
 ## Inference TODO!!
 
 ## Preparations
-### Conversion to ONNX
+### Conversion to ONNX (using .pth models)
 ```
 conda activate readyVE
-#cd $HOME/src
+#cd $HOME/ready
 export PYTHONPATH=.
 #python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth
-python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_02-09-24_21-02.pth
+#python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_02-09-24_21-02.pth
+python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_02-09-24_22-24_trained10e_8batch_1143trainset.pth
 ```
 
-### ONNX symplification
+### ONNX symplification (using .onnx models)
 ```
 #python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx
-python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_02-09-24_21-02.onnx
+#python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_02-09-24_21-02.onnx
+python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_02-09-24_22-24_trained10e_8batch_1143trainset.onnx
 ```
 
 ## Rebinding model to new nodes (NCHW to NHWC)
@@ -37,13 +39,14 @@ cp $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_c
 ##TODO add bash to install onnx_graphsurgeon
 ##pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 ##TODO user one single name
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim.onnx _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim-BHWC.onnx 3 400 640
+python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim.onnx _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim-BHWC.onnx 3 400 640
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_21-02-sim.onnx _weights_02-09-24_21-02-sim-BHWC.onnx 3 400 640
+python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim-BHWC.onnx 3 400 640
 ```
 
 
 ## Properties with https://netron.app/
-### 27-08-24
+### 27-08-24_05-23
 * `_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx`
 
 ```
@@ -85,7 +88,7 @@ tensor: float32[batch_size,4,400,640]
 
 
 
-### 02-09-24
+### 02-09-24_21-02
 * `_weights_02-09-24_21-02.onnx`
 ```
 input
@@ -107,6 +110,38 @@ tensor: float32[batch_size,4,400,640]
 ```
 
 * `_weights_02-09-24_21-02-sim-BHWC.onnx`
+```
+INPUT__0
+name: INPUT__0
+tensor: float32[1,400,640,3]
+output_old
+name: output_old
+tensor: float32[batch_size,4,400,640]
+```
+
+### 02-09-24_22-24
+
+* `_weights_02-09-24_22-24_trained10e_8batch_1143trainset.onnx`
+```
+input
+name: input
+tensor: float32[batch_size,3,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+```
+* `_weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx`
+```
+input
+name: input
+tensor: float32[batch_size,3,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+```
+
+* `_weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim-BHWC.onnx`
+
 ```
 INPUT__0
 name: INPUT__0
