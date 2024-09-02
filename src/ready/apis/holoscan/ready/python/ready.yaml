@@ -21,8 +21,8 @@ replayer:  # VideoStreamReplayer
 
 source:  # V4L2VideoCaptureOp
   # | Input device. /dev/video0 is generally the defautl input
-  device: "/dev/video0"
-  # device: "/dev/video4"
+  #device: "/dev/video0"
+  device: "/dev/video4"
 
   # | App will auto-select default width and height if not provided
   # | For performance, you may want to specify these parameters yourself.

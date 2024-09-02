@@ -115,3 +115,24 @@ ioctl: VIDIOC_ENUM_FMT
 			Interval: Discrete 0.200s (5.000 fps)
 
 ```
+
+
+* USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
+```
+v4l2-ctl -d /dev/video4 --list-formats-ext
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Capture
+
+	[0]: 'YUYV' (YUYV 4:2:2)
+		Size: Discrete 640x480
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 352x288
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 320x240
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 176x144
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 160x120
+			Interval: Discrete 0.033s (30.000 fps)
+
+```
