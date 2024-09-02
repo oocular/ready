@@ -48,6 +48,7 @@ clear && python ready.py -d /workspace/volumes/ready/data/novel -m model3ch-23ju
 clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m model3ch-23jul2024t0716-sim-BHWC.onnx -l logger.log -df TRUE -s v4l2
 clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m model3ch-23jul2024t0716-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
+clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_02-09-24_21-02-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 ```
 
 * Debug application in local host device

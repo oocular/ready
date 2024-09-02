@@ -45,13 +45,15 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-#    # ### ONNX model
-#    ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx", providers=["CPUExecutionProvider"]) 
-#    #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
-#    def to_numpy(tensor):
-#        return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-#
-#
+    # ### ONNX model
+    #ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx", providers=["CPUExecutionProvider"]) 
+    #ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02.onnx", providers=["CPUExecutionProvider"]) 
+    ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02-sim.onnx", providers=["CPUExecutionProvider"]) 
+    #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
+    def to_numpy(tensor):
+        return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
+
+
     ### MAIN LOOP
     f, ax = plt.subplots(1, 4)
     cuda_available = torch.cuda.is_available()
@@ -76,21 +78,21 @@ if __name__ == "__main__":
         pred = torch.sigmoid(model(images[0].unsqueeze(0)))
         #print(pred.size(), pred[0].size()) #torch.Size([1, 4, 400, 640]) torch.Size([4, 400, 640])
 
-#        ##ONNX model
-#        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(images[0].unsqueeze(0))}
-#        ort_outs = np.asarray(ort_session.run(None, ort_inputs))
-#        ort_outs = torch.tensor(ort_outs)
-#        ort_outs = ort_outs.squeeze(0).squeeze(0)
-#        # print(ort_outs.size()) #torch.Size([4, 400, 640])
-#        ort_outs = torch.argmax(ort_outs,0)
-#        # print(ort_outs.size())#torch.Size([400, 640])
+        ##ONNX model
+        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(images[0].unsqueeze(0))}
+        ort_outs = np.asarray(ort_session.run(None, ort_inputs))
+        ort_outs = torch.tensor(ort_outs)
+        ort_outs = ort_outs.squeeze(0).squeeze(0)
+        #print(ort_outs.size()) #torch.Size([4, 400, 640])
+        ort_outs = torch.argmax(ort_outs,0)
+        #print(ort_outs.size())#torch.Size([400, 640])
 
         #plt.figure()
         image = torch.permute(image, (0, 2, 3, 1))
         ax[0].imshow((image[0]).to(torch.long).squeeze(0).cpu())
         ax[1].imshow(label.permute(0,2,3,1).squeeze(0).cpu())
         ax[2].imshow(outputs.squeeze(0).cpu())
-        #ax[3].imshow(ort_outs.cpu())
+        ax[3].imshow(ort_outs.cpu())
         #plt.show()
 
         if j == 2:
