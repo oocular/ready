@@ -1,9 +1,10 @@
 # Documentation
 
-## installing package in local machine (not need if you are using container)
+## Installing package in local machine (not need if you are using container)
 ```
 conda create -n "readyVE" python=3.12 pip -c conda-forge
 conda activate readyVE
+#cd to home repository path (`cd ../`)
 pip install --editable . # Install the package in editable mode
 pip install .[test]
 pip install .[learning]
@@ -73,8 +74,4 @@ Duvieusart, Benjamin, Terence S. Leung, Nehzat Koohi, and Diego Kaski. "Digital 
 	* https://zenodo.org/records/10035093
 	* https://www.sciencedirect.com/science/article/pii/S2666914523000325 
 	* https://github.com/DM2LL/JustRAIGS-IEEE-ISBI-2024
-
-
-
-
 
