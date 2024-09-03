@@ -19,6 +19,8 @@ from src.ready.utils.utils import get_working_directory, set_data_directory
 #from sklearn.metrics import (
 #    jaccard_score, f1_score, recall_score, precision_score, accuracy_score, fbeta_score)
 
+#TODO
+#Add argument to put path of data and name of model
 
 if __name__ == "__main__":
     #set_data_directory("datasets/mobious")
@@ -39,7 +41,8 @@ if __name__ == "__main__":
 
     ### PTH model
     #checkpoint_path = "weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth"
-    checkpoint_path = "weights/_weights_02-09-24_21-02.pth"
+    #checkpoint_path = "weights/_weights_02-09-24_21-02.pth"
+    checkpoint_path = "weights/_weights_02-09-24_22-24_trained10e_8batch_1143trainset.pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
@@ -48,7 +51,8 @@ if __name__ == "__main__":
     # ### ONNX model
     #ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx", providers=["CPUExecutionProvider"]) 
     #ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02.onnx", providers=["CPUExecutionProvider"]) 
-    ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02-sim.onnx", providers=["CPUExecutionProvider"]) 
+    #ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02-sim.onnx", providers=["CPUExecutionProvider"]) 
+    ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx", providers=["CPUExecutionProvider"]) 
     #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
     def to_numpy(tensor):
         return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()

@@ -137,8 +137,8 @@ def main():
     #model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
-    #loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float()) #weight for 4classes
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+    #loss_fn = nn.CrossEntropyLoss()
 #    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
 #TODO
@@ -152,7 +152,9 @@ def main():
 
     #run_epoch = 1 #to_test
     #run_epoch = 10
-    run_epoch = 10
+    #run_epoch = 10
+    run_epoch = 20
+    #run_epoch = 100
     #run_epoch = 300
     #10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
@@ -164,6 +166,9 @@ def main():
                #Average loss @ epoch: 10.23 in cricket
     #10epochs: Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
                #Average loss @ epoch: 12.10 in cricket
+    #Epoch 100: Elapsed time for the training loop: 48.18073609670003 (mins)
+              #Average loss @ epoch: 9.622711725168294
+              #Saved PyTorch Model State to weights/_weights_03-09-24_19-16.pth
 
     epoch = None
 
