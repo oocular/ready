@@ -27,13 +27,13 @@ from src.ready.utils.utils import get_working_directory, set_data_directory
 
 if __name__ == "__main__":
     #set_data_directory("datasets/mobious")
-    set_data_directory("ready/data/mobious/sample-frames")
+    set_data_directory("ready/data/mobious")
     print(os.getcwd())
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     #trainset = MobiousDataset("MOBIOUS/train") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    trainset = MobiousDataset("test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
+    trainset = MobiousDataset("sample-frames/test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
@@ -46,8 +46,7 @@ if __name__ == "__main__":
     #model_name = "_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset"
     #model_name = "_weights_02-09-24_21-02"
     #model_name = "weights_02-09-24_22-24_trained10e_8batch_1143trainset"
-    model_name="_weights_03-09-24_19-16"
-
+    #model_name="_weights_03-09-24_19-16"
     #Epoch 100: 
               #Average loss @ epoch: 9.622711725168294
               #Saved PyTorch Model State to weights/_weights_03-09-24_19-16.pth
@@ -62,15 +61,20 @@ if __name__ == "__main__":
               #Average loss @ epoch: 14.233737432039701
               #Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
               #Elapsed time for the training loop: 9.664288135369619 (mins)
+    model_name="_weights_04-09-24_16-31"
+    #Epoch 200:
+              #Average loss @ epoch: 9.453074308542105
+              #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
+              #Elapsed time for the training loop: 96.35676774978637 (mins)
 
-    checkpoint_path = "weights/"+str(model_name)+".pth"
+    checkpoint_path = "models/"+str(model_name)+".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
     #### ONNX model
-    onnx_checkpoint_path = "weights/"+str(model_name)+"-sim.onnx"
+    onnx_checkpoint_path = "models/"+str(model_name)+"-sim.onnx"
     ort_session = onnxruntime.InferenceSession(onnx_checkpoint_path, providers=["CPUExecutionProvider"]) 
     #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
     def to_numpy(tensor):

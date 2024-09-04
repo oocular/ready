@@ -19,7 +19,18 @@ scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/weights/* ~/Desktop/nystagmu
 ```
 
 ## Inference 
-* Inference for three frames
+Inference for three frames
+
+```
+cd $HOME_REPO
+conda activate readyVE
+export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+
+#inference openEDS
+python src/ready/apis/inference.py
+vim src/ready/apis/inference.py
+```
+
 ![figs](../../../docs/figs/inference-val3frames.svg)
 
 

@@ -9,7 +9,19 @@ tree -h
 ├── [ 89M]  _weights_02-09-24_21-02.pth
 ```
 
-## Inference TODO!!
+## Inference in local device (NVIDIARTXA20008GBLaptopGPU)
+```
+cd $HOME_REPO
+conda activate readyVE
+export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+
+# copy models to ready/data/mobious/sample-frames
+cp $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket/_weights_04-09-24_16-31.pth $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models
+
+#inference mobious
+python src/ready/apis/inference_mobious.py
+vim src/ready/apis/inference_mobious.py
+```
 
 ## Preparations
 ### Conversion to ONNX (using .pth models)
@@ -20,7 +32,8 @@ export PYTHONPATH=.
 #python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth
 #python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_02-09-24_21-02.pth
 #python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_02-09-24_22-24_trained10e_8batch_1143trainset.pth
-python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_03-09-24_19-16.pth
+#python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -i _weights_03-09-24_19-16.pth
+python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -i _weights_04-09-24_16-31.pth
 ```
 
 ### ONNX symplification (using .onnx models)
@@ -28,7 +41,8 @@ python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/dat
 #python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx
 #python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_02-09-24_21-02.onnx
 #python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_02-09-24_22-24_trained10e_8batch_1143trainset.onnx
-python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_03-09-24_19-16.onnx
+#python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket -m _weights_03-09-24_19-16.onnx
+python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -m _weights_04-09-24_16-31.onnx
 ```
 
 ## Rebinding model to new nodes (NCHW to NHWC)
@@ -38,14 +52,17 @@ cd ~/ready/data/mobious/models
 ##copy simplified models to  ~/ready/data/openEDS/models
 #cp $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim.onnx .
 #cp $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket/_weights_02-09-24_21-02-sim.onnx .
-cp $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket/_weights_03-09-24_19-16-sim.onnx .
+#cp $HOME/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket/_weights_03-09-24_19-16-sim.onnx .
+
 ##TODO add bash to install onnx_graphsurgeon
 ##pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 ##TODO user one single name
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim.onnx _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim-BHWC.onnx 3 400 640
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_21-02-sim.onnx _weights_02-09-24_21-02-sim-BHWC.onnx 3 400 640
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim-BHWC.onnx 3 400 640
-python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_03-09-24_19-16-sim.onnx _weights_03-09-24_19-16-sim-BHWC.onnx 3 400 640
+#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_03-09-24_19-16-sim.onnx _weights_03-09-24_19-16-sim-BHWC.onnx 3 400 640
+python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 3 400 640
+?python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 4? 400 640
 ```
 
 

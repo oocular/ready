@@ -40,17 +40,4 @@ scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious/MOBIOUS/weights/* ~/Desktop/
 #100%   89MB   3.8MB/s   00:23
 ```
 
-## Inference in local device
-```
-cd $HOME_REPO
-conda activate readyVE
-export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 
-#inference openEDS
-python src/ready/apis/inference.py
-vim src/ready/apis/inference.py
-
-#inference mobious
-python src/ready/apis/inference_mobious.py
-vim src/ready/apis/inference_mobious.py
-```
