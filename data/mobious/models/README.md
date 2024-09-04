@@ -61,8 +61,8 @@ cd ~/ready/data/mobious/models
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_21-02-sim.onnx _weights_02-09-24_21-02-sim-BHWC.onnx 3 400 640
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim-BHWC.onnx 3 400 640
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_03-09-24_19-16-sim.onnx _weights_03-09-24_19-16-sim-BHWC.onnx 3 400 640
+#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 4 400 640 # [error] [core.cpp:106] Load Engine: Error in deserializing cuda engine. 
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 3 400 640
-?python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 4? 400 640
 ```
 
 
