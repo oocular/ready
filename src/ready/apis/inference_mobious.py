@@ -20,6 +20,9 @@ from src.ready.utils.utils import get_working_directory, set_data_directory
 #    jaccard_score, f1_score, recall_score, precision_score, accuracy_score, fbeta_score)
 
 #TODO
+# Make sure we have a common path for models to avoid looking where the model path is!
+
+#TODO
 #Add argument to put path of data and name of model
 
 if __name__ == "__main__":
@@ -40,23 +43,38 @@ if __name__ == "__main__":
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
     ### PTH model
-    #checkpoint_path = "weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth"
-    #checkpoint_path = "weights/_weights_02-09-24_21-02.pth"
-    checkpoint_path = "weights/_weights_02-09-24_22-24_trained10e_8batch_1143trainset.pth"
+    #model_name = "_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset"
+    #model_name = "_weights_02-09-24_21-02"
+    #model_name = "weights_02-09-24_22-24_trained10e_8batch_1143trainset"
+    model_name="_weights_03-09-24_19-16"
+
+    #Epoch 100: 
+              #Average loss @ epoch: 9.622711725168294
+              #Saved PyTorch Model State to weights/_weights_03-09-24_19-16.pth
+              #Elapsed time for the training loop: 48.18073609670003 (mins)
+
+    #Epoch 20: loss no-weights
+              #Average loss @ epoch: 11.027751895931218
+              #Saved PyTorch Model State to weights/_weights_03-09-24_22-34.pth
+              #Elapsed time for the training loop: 9.677963574727377 (mins)
+
+    #Epoch 20: loss with weights
+              #Average loss @ epoch: 14.233737432039701
+              #Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
+              #Elapsed time for the training loop: 9.664288135369619 (mins)
+
+    checkpoint_path = "weights/"+str(model_name)+".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    # ### ONNX model
-    #ort_session = onnxruntime.InferenceSession("weights/trained_models_in_cricket/_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx", providers=["CPUExecutionProvider"]) 
-    #ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02.onnx", providers=["CPUExecutionProvider"]) 
-    #ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_21-02-sim.onnx", providers=["CPUExecutionProvider"]) 
-    ort_session = onnxruntime.InferenceSession("weights/_weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx", providers=["CPUExecutionProvider"]) 
+    #### ONNX model
+    onnx_checkpoint_path = "weights/"+str(model_name)+"-sim.onnx"
+    ort_session = onnxruntime.InferenceSession(onnx_checkpoint_path, providers=["CPUExecutionProvider"]) 
     #UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
     def to_numpy(tensor):
         return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-
 
     ### MAIN LOOP
     f, ax = plt.subplots(1, 4)
