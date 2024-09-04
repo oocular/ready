@@ -156,4 +156,36 @@ tensor: float32[batch_size,4,400,640]
 ```
 
 
+### 02-09-24_22-24
+* `_weights_03-09-24_19-16.onnx`
+```
+input
+name: input
+tensor: float32[batch_size,3,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+```
+* `_weights_03-09-24_19-16-sim.onnx`
+```
+
+input
+name: input
+tensor: float32[batch_size,3,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+
+```
+* `_weights_03-09-24_19-16-sim-BHWC.onnx`
+```
+
+INPUT__0
+name: INPUT__0
+tensor: float32[1,400,640,3]
+output_old
+name: output_old
+tensor: float32[batch_size,4,400,640]
+
+```
 

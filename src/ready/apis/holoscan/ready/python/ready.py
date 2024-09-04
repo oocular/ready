@@ -211,6 +211,13 @@ class PostInferenceOp(Operator):
         print(f"mask_pupil_bool.shape {mask_pupil_bool.shape}") #tensor.shape=(1, 4, 400, 640)
         print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}") #bool
 
+
+#/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:500: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+#  setattr(self, word, getattr(machar, word).flat[0])
+#/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:89: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+#  return self._float_to_str(self.smallest_subnormal)
+
+
         centroid = cp.mean(cp.argwhere(mask_pupil_bool),axis=0)
         centroid = cp.nan_to_num(centroid) #convert float NaN to integer
         print(f"centroid: {centroid}")
