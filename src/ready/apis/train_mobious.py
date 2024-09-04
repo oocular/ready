@@ -137,8 +137,8 @@ def main():
     #model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
-    #loss_fn = nn.CrossEntropyLoss()
-    loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+    loss_fn = nn.CrossEntropyLoss()
+    #loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
 #    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
 #TODO
@@ -153,9 +153,9 @@ def main():
     #run_epoch = 1 #to_test
     #run_epoch = 10
     #run_epoch = 10
-    run_epoch = 20
+    #run_epoch = 20
     #run_epoch = 100
-    #run_epoch = 300
+    run_epoch = 200
     #10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
     #250epochs: Eliapsed time for the training loop: 5.3 (mins) #for mobious (5length trainset)
@@ -178,6 +178,10 @@ def main():
               #Average loss @ epoch: 14.233737432039701
               #Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
               #Elapsed time for the training loop: 9.664288135369619 (mins)
+    #Epoch 200:
+              #Average loss @ epoch: 9.453074308542105
+              #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
+              #Elapsed time for the training loop: 96.35676774978637 (mins)
 
     epoch = None
 
@@ -218,7 +222,7 @@ def main():
 #                    "weights/o.pth",
 #                )
 #
-            if j == 200:
+            if j == 300:
                 break
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
