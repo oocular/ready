@@ -58,6 +58,7 @@ clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_02
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_03-09-24_19-16-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_04-09-24_16-31-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
+#clear && python ready-mobious.py -d /workspace/volumes/ready/data/mobious -m _weights_04-09-24_16-31-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 ```
 
 * Debug application in local host device

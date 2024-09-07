@@ -44,7 +44,14 @@ source:  # V4L2VideoCaptureOp
   # gain: 100
 
 
-inference:  # Inference
+inference:
+  #
+  #
+  # InferenceOp
+  #
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/inference/inference.hpp
+  #
+  #
   backend: "trt"
   pre_processor_map:
     "ready_model": ["out_preprocessor"]
@@ -99,10 +106,16 @@ format_input:  #FormatInferenceInputOp
 post_inference_op:  #Info Operator
 info_op:  #Info Operator
 
-segpostprocessor:  # SegmentationPostprocessor
+segpostprocessor:
+  #
+  #
+  # SegmentationPostprocessor
+  # This tensor will have unsigned 8-bit integer data type and shape (H, W, 1).
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/segmentation_postprocessor/segmentation_postprocessor.hpp
+  #
   in_tensor_name: unet_out
-  network_output_type: softmax
-  #network_output_type: sigmoid
+  network_output_type: softmax #softmax layer for multiclass segmentation
+  #network_output_type: sigmoid #sigmoid layer for binary segmentation
   #network_output_type: None
   data_format: nchw
   #data_format: nhwc
