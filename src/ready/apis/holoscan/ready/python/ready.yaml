@@ -1,19 +1,31 @@
 %YAML 1.2
 ---
 replayer:  # VideoStreamReplayer
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" #'preprocessor' - Failed to resize image.
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" #'preprocessor' - Failed to resize image.
+  #
+  # openEDS
+  #
+  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" 
+    #'preprocessor' - Failed to resize image.
+  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" 
+    #'preprocessor' - Failed to resize image.
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
-  #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
-  #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
-  #basename: "cut_video_640x400"
-  #basename: "cut_video_640x400_grayscale"
+  ## Single frames
   #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height_channels3"
+  ## Various re-scaled frames
+  #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3" #
+  #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
+  ## Multiple frames
   #basename: "video_3frames"
   #basename: "video_multiple_frames"
-  basename: "video_30_duplicated_frames_of_1_1i_Ll_1_channels3"
-
+  ## Do we need them?
+  #basename: "cut_video_640x400"
+  #basename: "cut_video_640x400_grayscale"
+  #
+  # mobious
+  #
+  basename: "video_30_duplicated_frames_of_1_1i_Ll_1_channels3" #mobious
+  #
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
   realtime: true # default: true
