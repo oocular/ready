@@ -1,6 +1,7 @@
 """
 Inference
 See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
+See pixel_accuracy, mIoU : https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
 """
 
 import os
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
     ### MAIN LOOP
-    f, ax = plt.subplots(5, 6)
+    f, ax = plt.subplots(6, 6)
     cuda_available = torch.cuda.is_available()
     for j, data in enumerate(trainloader, 1):
         print(j)
@@ -94,9 +95,9 @@ if __name__ == "__main__":
             image=images[0].unsqueeze(0)
             labels = labels.cuda()
             label=labels[0].unsqueeze(0)
-            # print(f"images.size() {images.size()}") #torch.Size([5, 3, 400, 640])
+            # print(f"images.size() {images.size()}") #torch.Size([batch_size_, 3, 400, 640])
             # print(f"image.size() {image.size()}") #torch.Size([1, 3, 400, 640])
-            # print(f"labels.size() {labels.size()}") #torch.Size([5, 4, 400, 640])
+            # print(f"labels.size() {labels.size()}") #torch.Size([batch_size_, 4, 400, 640])
             # print(f"label.size() {label.size()}") #torch.Size([1, 4, 400, 640])
 
         ##PTH model
@@ -116,7 +117,8 @@ if __name__ == "__main__":
         # print(pred_mask.squeeze(0).size()) #torch.Size([400, 640])
 
         ## PRECTION argmax(x)
-        outputs_argmax = torch.argmax(outputs[0], dim=1) #print(outputs_argmax.size()) #torch.Size([400, 640])
+        outputs_argmax = torch.argmax(outputs[0], dim=0) 
+        # print(outputs_argmax.size()) #torch.Size([400, 640])
 
         ##ONNX model
         ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(image)}
@@ -159,31 +161,47 @@ if __name__ == "__main__":
         ax[2,3].imshow(pred[:,2,:,:].squeeze(0).detach().cpu())
         ax[2,4].imshow(pred[:,3,:,:].squeeze(0).detach().cpu())
         # print(pred_ch0.size(), type(pred_ch0), pred_ch0.type()) #torch.Size([400, 640]) #<class 'torch.Tensor'> #torch.cuda.FloatTensor
-        ax[2,0].set_ylabel('pred [400,640,4]')
+        ax[2,0].set_title('pred [400,640,4]')
         ax[2,1].set_title('ch0')
         ax[2,2].set_title('ch1')
         ax[2,3].set_title('ch2')
         ax[2,4].set_title('ch3')
 
         ##PREDICTIONS
-        # ax[3,0].imshow(pred_mask.squeeze(0).cpu())
-        ax[3,5].imshow(pred_mask.squeeze(0).cpu())
-        ax[3,5].set_title('argmax(softmax(model(image)))')
+        ax[3,0].imshow(pred_mask.squeeze(0).cpu())
+        ax[3,1].imshow(pred_mask.squeeze(0).cpu()>0)
+        ax[3,2].imshow(pred_mask.squeeze(0).cpu()>1)
+        ax[3,3].imshow(pred_mask.squeeze(0).cpu()>2)
+        ax[3,4].imshow(pred_mask.squeeze(0).cpu()>3)
+        ax[3,0].set_title('argmax(softmax(model(image)))')
+        ax[3,1].set_title('>0')
+        ax[3,2].set_title('>1')
+        ax[3,3].set_title('>2')
+        ax[3,4].set_title('>3')
 
         # ##ONNX PREDICTIONS
+        ax[4,0].imshow(ort_outs_argmax.cpu())
+        ax[4,1].imshow(ort_outs_argmax.cpu()>0)
+        ax[4,2].imshow(ort_outs_argmax.cpu()>1)
+        ax[4,3].imshow(ort_outs_argmax.cpu()>2)
+        ax[4,4].imshow(ort_outs_argmax.cpu()>3)
+        ax[4,0].set_title('ort_outs_argmax')
+        ax[4,1].set_title('>0')
+        ax[4,2].set_title('>1')
+        ax[4,3].set_title('>2')
+        ax[4,4].set_title('>3')
+
         #Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers). Got range [-27.269308..12.142393].
-        ax[4,0].imshow(ort_outs.permute(1, 2, 0).detach().cpu())
-        ax[4,1].imshow(ort_outs.permute(1, 2, 0)[:,:,0].detach().cpu())
-        ax[4,2].imshow(ort_outs.permute(1, 2, 0)[:,:,1].detach().cpu())
-        ax[4,3].imshow(ort_outs.permute(1, 2, 0)[:,:,2].detach().cpu())
-        ax[4,4].imshow(ort_outs.permute(1, 2, 0)[:,:,3].detach().cpu())
-        ax[4,5].imshow(ort_outs_argmax.cpu())
-        ax[4,0].set_ylabel('onnx [400,640,4]')
-        ax[4,1].set_title('ch0')
-        ax[4,2].set_title('ch1')
-        ax[4,3].set_title('ch2')
-        ax[4,4].set_title('ch3')
-        ax[4,5].set_title('argmax(onnx)')
+        ax[5,0].imshow(ort_outs.permute(1, 2, 0).detach().cpu())
+        ax[5,1].imshow(ort_outs.permute(1, 2, 0)[:,:,0].detach().cpu())
+        ax[5,2].imshow(ort_outs.permute(1, 2, 0)[:,:,1].detach().cpu())
+        ax[5,3].imshow(ort_outs.permute(1, 2, 0)[:,:,2].detach().cpu())
+        ax[5,4].imshow(ort_outs.permute(1, 2, 0)[:,:,3].detach().cpu())
+        ax[5,0].set_title('onnx [400,640,4]')
+        ax[5,1].set_title('ch0')
+        ax[5,2].set_title('ch1')
+        ax[5,3].set_title('ch2')
+        ax[5,4].set_title('ch3')
 
         if j == 2:
             break

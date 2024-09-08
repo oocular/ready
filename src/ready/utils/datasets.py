@@ -6,6 +6,7 @@ import os
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision.io import read_image
 from PIL import Image
@@ -37,14 +38,21 @@ class EyeDataset(Dataset):
         image = torch.stack([image,image,image],1)
         image = torch.squeeze(image)
         # print(f"{type(image) = }, {image.dtype = }, {image.shape = }")
+        # type(image) = <class 'torch.Tensor'>, image.dtype = torch.float32, image.shape = torch.Size([3, 400, 640])
 
         label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
         label = torch.tensor(label, dtype=torch.long)  # .unsqueeze(0)
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
-        #         label = F.one_hot(label, 4).type(torch.float)
-        #         print(label)
-        #         label = label.reshape([4, 400, 640])
-        #         print(label)
+        # type(label) = <class 'torch.Tensor'>, label.dtype = torch.int64, label.shape = torch.Size([400, 640])
+
+        # #TODO check if this is correct
+        # label = F.one_hot(label, 4).type(torch.float)
+        # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
+        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32, label.shape = torch.Size([400, 640, 4])
+        # label = label.reshape([4, 400, 640])
+        # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
+        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32, label.shape = torch.Size([4, 400, 640])
+
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
