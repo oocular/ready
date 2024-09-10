@@ -41,7 +41,13 @@ if __name__ == "__main__":
 
 
     ### PTH model
-    model_name="model3ch-23jul2024t0716"
+    # model_name="model3ch-23jul2024t0716"
+    model_name="_weights_10-09-24_23-53-45"
+            #run_epoch = 100
+            #Average loss @ epoch: 0.0025765099562704563
+            #Saved PyTorch Model State to models/_weights_10-09-24_23-53-45.pth
+            #Elapsed time for the training loop: 1.3849741021792095 (mins)
+
     checkpoint_path = "models/"+str(model_name)+".pth"
 
     # model = UNet(nch_in=1, nch_out=4)

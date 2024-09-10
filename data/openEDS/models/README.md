@@ -23,17 +23,22 @@ scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/weights/* ~/Desktop/nystagmu
 ## Preparations
 * Conversion to ONNX
 ```
+cd $HOME/ root path of repo
 conda activate readyVE
-cd $HOME/src
 export PYTHONPATH=.
 python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket -i model-5jul2024.pth
 python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket -i model3ch-23jul2024t0716.pth
+python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/models -i _weights_10-09-24_23-53-45.pth
+#python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/models -i <modelname>.pth
+
 ```
 
 * ONNX symplification
 ```
 python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket -m model-5jul2024.onnx
 python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket -m model3ch-23jul2024t0716.onnx
+python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/models -m _weights_10-09-24_23-53-45.onnx
+#python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/openEDS/models -m <modelname>.onnx
 ```
 OR https://convertmodel.com/#input=onnx&output=onnx
 
