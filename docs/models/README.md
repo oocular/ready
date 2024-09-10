@@ -4,6 +4,7 @@
 ### Debug models local device
 * activate and export libs
 ```
+#cd root path of repo
 conda activate readyVE
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
@@ -40,4 +41,5 @@ scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious/MOBIOUS/weights/* ~/Desktop/
 #100%   89MB   3.8MB/s   00:23
 ```
 
-
+## Optimise model
+Go to [data](../../data/) and respective models path 

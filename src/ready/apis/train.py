@@ -26,8 +26,6 @@ from src.ready.utils.utils import (export_model, get_working_directory,
                                    set_data_directory)
 
 torch.cuda.empty_cache()
-# import gc
-# gc.collect()
 
 
 def save_checkpoint(state, path):
@@ -94,6 +92,7 @@ def main():
 
     # print(get_working_directory())
     set_data_directory("datasets/openEDS")
+    # set_data_directory("ready/data/openEDS")
 
     #####
     #TODO
@@ -110,6 +109,8 @@ def main():
     cuda_available = torch.cuda.is_available()
     # print(cuda_available)
     trainset = EyeDataset("openEDS/openEDS/train/")
+    # trainset = EyeDataset("sample-frames/val3frames") #for set_data_directory("ready/data/openEDS")
+
     #TODO trainset = RITeye_dataset("RIT-eyes/")
     print("Length of trainset:", len(trainset))
 
@@ -142,6 +143,7 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
+    # run_epoch = 1
     run_epoch = 10
     #02epochs: Elapsed time for the training loop: 1.53 (s) 
     #10epochs: Elapsed time for the training loop: 7.76 (s)
@@ -194,7 +196,7 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
-    modelname = datetime.now().strftime('%d-%m-%y-%H_%M__weights.pth')
+    modelname = datetime.now().strftime('models/_weights_%d-%m-%y_%H-%M-%S.pth')
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
 

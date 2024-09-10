@@ -83,8 +83,8 @@ if __name__ == "__main__":
         ##PTH model
         outputs = model(image)
         # print(f"outputs.size() {outputs.size()}") #outputs.size() torch.Size([1, 4, 400, 640])
-        # print(outputs[0].size()) #torch.Size([4, 400, 640])
-        # print(outputs.squeeze(0).size()) #torch.Size([4, 400, 640])
+        # print(outputs[0].size())          #torch.Size([4, 400, 640])
+        # print(outputs.squeeze(0).size())  #torch.Size([4, 400, 640])
 
         ##PREDICTION
         pred_softmax = F.softmax( outputs, dim=1 ) 
