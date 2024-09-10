@@ -101,8 +101,8 @@ def main():
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    if not os.path.exists("weights"):
-        os.mkdir("weights")
+    if not os.path.exists("models"):
+        os.mkdir("models")
     weight_fn = None  # TO_TEST
 
     if weight_fn is not None:
