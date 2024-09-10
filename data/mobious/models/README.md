@@ -23,6 +23,7 @@ export PYTHONPATH=.
 python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -i _weights_04-09-24_16-31.pth
 python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -i _weights_10-09-24_03-46-29.pth
 python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -i _weights_10-09-24_04-50-40.pth
+python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -i _weights_10-09-24_06-35-14.pth
 #python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -i <ADD_MODEL_NAME>.pth
 ```
 
@@ -35,6 +36,7 @@ python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/rea
 python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -m _weights_04-09-24_16-31.onnx
 python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -m _weights_10-09-24_03-46-29.onnx
 python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -m _weights_10-09-24_04-50-40.onnx
+python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -m _weights_10-09-24_06-35-14.onnx
 #python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/ready/data/mobious/models -m <ADD_MODEL_NAME>.onnx
 ```
 
@@ -57,6 +59,7 @@ cd ~/ready/data/mobious/models
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 3 400 640
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_03-46-29-sim.onnx _weights_10-09-24_03-46-29-sim-BHWC.onnx 3 400 640
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_04-50-40-sim.onnx _weights_10-09-24_04-50-40-sim-BHWC.onnx 3 400 640
+python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_06-35-14-sim.onnx _weights_10-09-24_06-35-14-sim-BHWC.onnx 3 400 640
 #python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py <ADD>-sim.onnx <ADD_MODEL>-BHWC.onnx 3 400 640
 ```
 

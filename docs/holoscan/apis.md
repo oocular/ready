@@ -62,6 +62,7 @@ clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_03
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_04-09-24_16-31-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_03-46-29-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_04-50-40-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
+clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 
 ```
 

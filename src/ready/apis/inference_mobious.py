@@ -78,11 +78,16 @@ if __name__ == "__main__":
     #     # Average loss @ epoch: 0.0028544804081320763
     #     # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
     #     # Elapsed time for the training loop: 2.1838908473650616 (mins)
-    model_name="_weights_10-09-24_04-50-40"
+    # model_name="_weights_10-09-24_04-50-40"
     # run_epoch = 400
     #         # Average loss @ epoch: 0.0006139971665106714
     #         # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     #         # Elapsed time for the training loop: 13.326771756013235 (mins)
+    model_name="_weights_10-09-24_06-35-14"
+    # run_epoch = 100 #noweights
+    #          #Average loss @ epoch: 0.001589389712471593
+    #          #Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
+    #          #Elapsed time for the training loop: 47.66647284428279 (mins)
 
 
     checkpoint_path = "models/"+str(model_name)+".pth"
