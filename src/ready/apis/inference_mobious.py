@@ -73,7 +73,17 @@ if __name__ == "__main__":
     #     #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
     #     #Elapsed time for the training loop: 96.35676774978637 (mins)
 
-    model_name="_weights_10-09-24_03-46-29"
+    # model_name="_weights_10-09-24_03-46-29"
+    #     # Epoch 100:
+    #     # Average loss @ epoch: 0.0028544804081320763
+    #     # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
+    #     # Elapsed time for the training loop: 2.1838908473650616 (mins)
+    model_name="_weights_10-09-24_04-50-40"
+    # run_epoch = 400
+    #         # Average loss @ epoch: 0.0006139971665106714
+    #         # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
+    #         # Elapsed time for the training loop: 13.326771756013235 (mins)
+
 
     checkpoint_path = "models/"+str(model_name)+".pth"
     model = UNet(nch_in=3, nch_out=4)

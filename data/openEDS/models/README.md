@@ -18,20 +18,6 @@ scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/weights/* ~/Desktop/nystagmu
 #100%  268MB   6.2MB/s   00:43
 ```
 
-## Inference 
-Inference for three frames
-
-```
-cd $HOME_REPO
-conda activate readyVE
-export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
-
-#inference openEDS
-python src/ready/apis/inference.py
-vim src/ready/apis/inference.py
-```
-
-![figs](../../../docs/figs/inference-val3frames.svg)
 
 
 ## Preparations
@@ -50,6 +36,27 @@ python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/o
 python src/ready/apis/sim_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket -m model3ch-23jul2024t0716.onnx
 ```
 OR https://convertmodel.com/#input=onnx&output=onnx
+
+
+## Inference 
+Inference for three frames
+
+```
+cd $HOME_REPO
+conda activate readyVE
+export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+
+#inference openEDS
+python src/ready/apis/inference.py
+vim src/ready/apis/inference.py
+```
+
+![figs](../../../docs/figs/inference-val3frames.svg)
+
+* inference_openEDS_model3ch-23jul2024t0716.png
+![fig](../../../docs/figs/inference_openEDS_model3ch-23jul2024t0716.png)
+
+
 
 ## Properties with https://netron.app/
 

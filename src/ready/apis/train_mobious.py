@@ -119,7 +119,7 @@ def main():
 
 
     # trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    trainset = MobiousDataset("sample-frames/test640x400") #for     set_data_directory("ready/data")
+    trainset = MobiousDataset("sample-frames/test640x400") #Length of trainset: 5 for     set_data_directory("ready/data") 
     print("Length of trainset:", len(trainset))
 
     #batch_size_ = 3 #to_test
@@ -156,22 +156,34 @@ def main():
         loss_fn.cuda()
 
     # run_epoch = 1 #to_test
-    #run_epoch = 10
-    # run_epoch = 10
-    #run_epoch = 20
-    run_epoch = 100
-    #run_epoch = 200
+    #
+    #
+    #LOCAL NVIDIARTXA20008GBLaptopGPU
+    #
+    #
     #10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
-    #250epochs: Eliapsed time for the training loop: 5.3 (mins) #for mobious (5length trainset)
-               #Average loss @ epoch: 10.31 in local
     #300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
                #Average loss @ epoch: 10.22 in local 
     #300epochs: Eliapsed time for the training loop: 1.3 (mins) #for mobious (5length trainset)
                #Average loss @ epoch: 10.23 in cricket
-    #10epochs: Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
-               #Average loss @ epoch: 12.10 in cricket
-    #Epoch 100: 
+    # run_epoch = 100
+            # Average loss @ epoch: 0.0028544804081320763
+            # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
+            # Elapsed time for the training loop: 2.1838908473650616 (mins)
+    run_epoch = 400
+            # Average loss @ epoch: 0.0006139971665106714
+            # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
+            # Elapsed time for the training loop: 13.326771756013235 (mins)
+    #
+    #
+    #REMOTE A100 40GB
+    #
+    #
+    #10epochs:
+            # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
+            # Average loss @ epoch: 12.10 in cricket
+    #run_epoch = 100
               #Average loss @ epoch: 9.622711725168294
               #Saved PyTorch Model State to weights/_weights_03-09-24_19-16.pth
               #Elapsed time for the training loop: 48.18073609670003 (mins)
@@ -183,7 +195,7 @@ def main():
               #Average loss @ epoch: 14.233737432039701
               #Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
               #Elapsed time for the training loop: 9.664288135369619 (mins)
-    #Epoch 200:
+    #run_epoch = 200
               #Average loss @ epoch: 9.453074308542105
               #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
               #Elapsed time for the training loop: 96.35676774978637 (mins)
