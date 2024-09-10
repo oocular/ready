@@ -95,8 +95,8 @@ def main():
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    # set_data_directory("datasets/mobious/MOBIOUS")
-    set_data_directory("ready/data/mobious")
+    set_data_directory("datasets/mobious/MOBIOUS")
+    #set_data_directory("ready/data/mobious")
     #TODO train with 1700x3000
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -118,8 +118,8 @@ def main():
     cuda_available = torch.cuda.is_available()
 
 
-    # trainset = MobiousDataset("train") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    trainset = MobiousDataset("sample-frames/test640x400") #Length of trainset: 5 for     set_data_directory("ready/data") 
+    trainset = MobiousDataset("train") #Lenght 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    #trainset = MobiousDataset("sample-frames/test640x400") #Lenght 5; set_data_directory("ready/data") 
     print("Length of trainset:", len(trainset))
 
     #batch_size_ = 3 #to_test
@@ -140,11 +140,11 @@ def main():
     #model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=0.003)
-    # loss_fn = nn.CrossEntropyLoss()
-    loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
-    # loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+    #TODO: chck which criterium properties to setup
+    loss_fn = nn.CrossEntropyLoss()
+    #?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
+    #?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
 
-# TODO: do we need default loss? loss_fn = nn.CrossEntropyLoss()
 
 # TODO
 # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
@@ -155,12 +155,12 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    # run_epoch = 1 #to_test
     #
     #
     #LOCAL NVIDIARTXA20008GBLaptopGPU
     #
     #
+    # run_epoch = 1 #to_test
     #10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     #10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
     #300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
@@ -171,7 +171,7 @@ def main():
             # Average loss @ epoch: 0.0028544804081320763
             # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
             # Elapsed time for the training loop: 2.1838908473650616 (mins)
-    run_epoch = 400
+    #run_epoch = 400
             # Average loss @ epoch: 0.0006139971665106714
             # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
             # Elapsed time for the training loop: 13.326771756013235 (mins)
@@ -180,13 +180,15 @@ def main():
     #REMOTE A100 40GB
     #
     #
+    #run_epoch = 1 #to_test
+    #
     #10epochs:
             # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
             # Average loss @ epoch: 12.10 in cricket
-    #run_epoch = 100
-              #Average loss @ epoch: 9.622711725168294
-              #Saved PyTorch Model State to weights/_weights_03-09-24_19-16.pth
-              #Elapsed time for the training loop: 48.18073609670003 (mins)
+    run_epoch = 100 #noweights
+             #Average loss @ epoch: 0.001589389712471593
+             #Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
+             #Elapsed time for the training loop: 47.66647284428279 (mins)
     #Epoch 20: loss no-weights
               #Average loss @ epoch: 11.027751895931218
               #Saved PyTorch Model State to weights/_weights_03-09-24_22-34.pth
@@ -199,7 +201,6 @@ def main():
               #Average loss @ epoch: 9.453074308542105
               #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
               #Elapsed time for the training loop: 96.35676774978637 (mins)
-
     epoch = None
 
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):

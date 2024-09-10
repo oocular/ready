@@ -32,13 +32,13 @@ vim -O apis/train_mobious.py utils/datasets.py
 ## Copying model to local host
 ```
 #openEDS
-scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/weights/* ~/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket
+scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/models/* ~/Desktop/nystagmus-tracking/datasets/openEDS/models/trained_models_in_cricket
 #100%   89MB   6.2MB/s   00:14 
 #100%  268MB   6.2MB/s   00:43
 
 #MOBIOUS
-scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious/MOBIOUS/weights/* ~/Desktop/nystagmus-tracking/datasets/mobious/weights/trained_models_in_cricket
-#100%   89MB   3.8MB/s   00:23
+scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious/MOBIOUS/models/* ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
+#100%   89MB   3.8MB/s   00:23 # at 44.7KB/s 34:06
 ```
 
 ## Optimise model
