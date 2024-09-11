@@ -62,6 +62,11 @@ vim src/ready/apis/inference.py
 ![fig](../../../docs/figs/inference_openEDS_model3ch-23jul2024t0716.png)
 
 
+* inference_of_weights_10-09-24_23-53-45_on000180.png
+![fig](../../../docs/figs/inference_of_weights_10-09-24_23-53-45_on000180.png)
+```
+
+```
 
 ## Properties with https://netron.app/
 
@@ -96,6 +101,8 @@ cd ~/ready/data/openEDS/models
 pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py model-5jul2024-sim.onnx model-5jul2024-sim-BHWC.onnx 1 400 640
 python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py model3ch-23jul2024t0716-sim.onnx model3ch-23jul2024t0716-sim-BHWC.onnx 3 400 640
+python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_23-53-45-sim.onnx _weights_10-09-24_23-53-45-sim-BHWC.onnx 3 400 640
+#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py <modelname>-sim.onnx <modelname>-sim-BHWC.onnx 3 400 640
 ```
 
 * `model-5jul2024-sim.onnx` 
@@ -139,18 +146,4 @@ name: output_old
 tensor: float32[batch_size,4,400,640]
 ```
 
-## Real-time Inference with holoscan-sdk
-
-* Holocan-sdk api (val-000160-640wX400h)
-
-![figs](../../../docs/figs/holoscan-api-video_30_duplicated_frames_of_val-000160-640wX400h_rgb_channels3.png)
-
-
-* Four images scaled to 640wX400h
-
-![fig](../../../docs/figs/holoscan-sdk-four-frames-in-one.png)
-
-* Fractal images in a scaled resolution of 640wX400h
-
-![fig](../../../docs/figs/holoscan-sdk-fractal-frames-in-one.png)
 

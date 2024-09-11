@@ -29,7 +29,8 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # trainset = EyeDataset("openEDS/openEDS/validation")  # train #test #validation (Length of trainset: 2384) 
-    trainset = EyeDataset("sample-frames/val3frames") #for     set_data_directory("ready/data/openEDS")
+    # trainset = EyeDataset("sample-frames/val3frames") #for     set_data_directory("ready/data/openEDS")
+    trainset = EyeDataset("sample-frames/val1frame_000180") #for     set_data_directory("ready/data/openEDS")
 
     print("Length of trainset:", len(trainset))
 
@@ -116,6 +117,40 @@ if __name__ == "__main__":
         # print(ort_outs.size()) #torch.Size([4, 400, 640])
         ort_outs_argmax = torch.argmax(ort_outs, dim=0) 
         # print(ort_outs.size()) #torch.Size([400, 640])
+
+        ## Details of input image
+        ### FROM holoscan-sdk API
+        # tensor_.shape=(1, 3, 400, 640)
+        # tensor_.min 0.05098039656877518
+        # tensor_.max 1.0
+        # tensor_.mean 0.28184178471565247
+        #image
+        print(f"tensor.shape={image.shape}") #tensor.shape=torch.Size([1, 3, 400, 640])
+        print(f"image min {torch.min(image)}") #tensor.min 0.05882352963089943
+        print(f"image max {torch.max(image)}") #tensor.max 1.0
+        print(f"image mean {torch.mean(image)}") #tensor.mean 0.2846951484680176
+
+        ### FROM holoscan-sdk API
+        # unet_out tensor.shape=(1, 4, 400, 640)
+        # tensor.min -5.484012126922607
+        # tensor.max 7.095162868499756
+        # tensor.mean -2.7057809829711914
+        #outputs
+        print(f"outputs.size() {outputs.size()}") #outputs.size() torch.Size([1, 4, 400, 640])
+        print(f"outputs min {torch.min(outputs)}") #tensor.min -5.49705696105957
+        print(f"outputs max {torch.max(outputs)}") #tensor.max 8.416186332702637
+        print(f"outputs mean {torch.mean(outputs)}") #tensor.mean -0.8920281529426575
+        #pred_softmax
+        print(f"outputs.size() {pred_softmax.size()}") #outputs.size() torch.Size([1, 4, 400, 640])
+        print(f"pred_softmax min {torch.min(pred_softmax)}") #tensor.min 3.291378106951015e-06
+        print(f"pred_softmax max {torch.max(pred_softmax)}") #tensor.max 0.999901294708252
+        print(f"pred_softmax mean {torch.mean(pred_softmax)}") #tensor.mean 0.25
+        #ort_outs
+        print(f"outputs.size() {ort_outs.size()}") #outputs.size() torch.Size([1, 4, 400, 640])
+        print(f"ort_outs min {torch.min(ort_outs)}") #ort_outs min -5.496788024902344
+        print(f"ort_outs max {torch.max(ort_outs)}") #ort_outs max 8.415101051330566
+        print(f"ort_outs mean {torch.mean(ort_outs)}") #ort_outs mean -0.8920357823371887
+
 
         #######################################
         #RAW IMAGE

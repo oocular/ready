@@ -54,6 +54,7 @@ clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m model-5jul2
 clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m model-5jul2024-sim-BHWC.onnx -l logger.log -df TRUE
 ## openEDS: model3ch-23jul2024t0716-sim-BHWC
 clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m model3ch-23jul2024t0716-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
+clear && python ready.py -d /workspace/volumes/ready/data/openEDS -m _weights_10-09-24_23-53-45-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
 ## mobious
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_02-09-24_21-02-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
