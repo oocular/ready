@@ -44,6 +44,8 @@ vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ## Real-time AI segmentation
 * Run app using your own repository in `dev_container` of clara-agx
 ```
+#TODO: add model,path,name to config files and refactor script to pass such values to avoid long arguments inputs!
+
 cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
 
 ## novel
@@ -63,8 +65,7 @@ clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_03
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_04-09-24_16-31-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_03-46-29-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_04-50-40-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
-clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
-
+clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 ```
 
 * Debug application in local host device

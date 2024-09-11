@@ -38,7 +38,8 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     #trainset = MobiousDataset("MOBIOUS/train") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    trainset = MobiousDataset("sample-frames/test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
+    # trainset = MobiousDataset("sample-frames/test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
+    trainset = MobiousDataset("sample-frames/test640x400_1frame_1_1i_Ll_1") #for set_data_directory("ready/data/mobious/sample-frames")
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
@@ -146,6 +147,42 @@ if __name__ == "__main__":
         #print(ort_outs.size()) #torch.Size([4, 400, 640])
         ort_outs_argmax = torch.argmax(ort_outs, dim=0) # print(ort_outs_argmax.size())#torch.Size([400, 640])
 
+
+        ## Details of input image
+        ### FROM holoscan-sdk API
+        # tensor_.shape=(1, 3, 400, 640)
+        # tensor_.min 0.0
+        # tensor_.max 0.988235354423523
+        # tensor_.mean 0.2402516007423401
+        #image
+        print(f"tensor.shape={image.shape}") #tensor.shape=torch.Size([1, 3, 400, 640])
+        print(f"image min {torch.min(image)}") #image min 1.0
+        print(f"image max {torch.max(image)}") #image max 252.0
+        print(f"image mean {torch.mean(image)}") #image mean 61.907188415527344
+
+
+        ### FROM holoscan-sdk API
+        # unet_out tensor.shape=(1, 4, 400, 640)
+        # tensor.min -26.610116958618164
+        # tensor.max 18.82499885559082
+        # tensor.mean -10.790840148925781
+
+        #outputs
+        print(f"outputs.size() {outputs.size()}") #outputs.size() torch.Size([1, 4, 400, 640])
+        print(f"outputs min {torch.min(outputs)}") #outputs min -35.6884765625
+        print(f"outputs max {torch.max(outputs)}") #outputs max 18.10123634338379
+        print(f"outputs mean {torch.mean(outputs)}") #outputs mean -4.6653242111206055
+
+        #pred_softmax
+        print(f"outputs.size() {pred_softmax.size()}") #outputs.size() torch.Size([1, 4, 400, 640])
+        print(f"pred_softmax min {torch.min(pred_softmax)}") #tensor.min 3.281325626518147e-23
+        print(f"pred_softmax max {torch.max(pred_softmax)}") #tensor.max 1.0
+        print(f"pred_softmax mean {torch.mean(pred_softmax)}") #tensor.mean 0.25
+        #ort_outs
+        print(f"ort_outs.size() {ort_outs.unsqueeze(0).size()}") #ort_outs.size() torch.Size([4, 400, 640])
+        print(f"ort_outs min {torch.min(ort_outs)}") #ort_outs min -35.69083023071289
+        print(f"ort_outs max {torch.max(ort_outs)}") #ort_outs max 18.10032081604004
+        print(f"ort_outs mean {torch.mean(ort_outs)}") #ort_outs mean -4.665435314178467
 
         # #######################################
         # ##PLOTTING

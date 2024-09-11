@@ -374,7 +374,6 @@ class READYApp(Application):
 
     def compose(self):
         host_allocator = UnboundedAllocator(self, name="host_allocator")
-
         source_args = self.kwargs("source")
 
         if self.source.lower() == "replayer":
@@ -536,6 +535,12 @@ if __name__ == "__main__":
     # Parse args
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument(
+        "-c",
+        "--config",
+        default="ready.yaml",
+        help=("configuration file (e.g. ready.yaml)"),
+    )
+    parser.add_argument(
         "-s",
         "--source",
         choices=["replayer", "v4l2"],
@@ -571,7 +576,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    config_file = os.path.join(os.path.dirname(__file__), "ready.yaml")
+    config_file = os.path.join(os.path.dirname(__file__), args.config)
 
     app = READYApp(
         source=args.source,
@@ -579,6 +584,7 @@ if __name__ == "__main__":
         model_name=args.model_name,
         debug_print_flag=args.debug_print_flag,
     )
+
     with Tracker(app, filename=args.logger_filename) as tracker:
        app.config(config_file)
        app.run()
