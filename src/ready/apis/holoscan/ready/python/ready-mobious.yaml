@@ -1,8 +1,13 @@
 %YAML 1.2
 ---
-replayer:  # VideoStreamReplayer
+replayer:
   #
-  # mobious
+  #
+  # VideoStreamReplayer
+  #
+  #
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/video_stream_replayer/video_stream_replayer.hpp
+  #
   #
   basename: "video_30_duplicated_frames_of_1_1i_Ll_1_channels3" #mobious
   #
@@ -11,7 +16,17 @@ replayer:  # VideoStreamReplayer
   realtime: true # default: true
   count: 0 # default: 0 (no frame count restriction)
 
-source:  # V4L2VideoCaptureOp
+source:
+  #
+  #
+  # V4L2VideoCaptureOp
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/python/holoscan/operators/v4l2_video_capture/pydoc.hpp
+  #
+  #
+  # TODO: add device arg to python script
+  #         source_device = source_args["device"]
+  #
+  #
   # | Input device. /dev/video0 is generally the defautl input
   device: "/dev/video0"
   #device: "/dev/video4"
@@ -35,8 +50,13 @@ source:  # V4L2VideoCaptureOp
   # exposure_time: 500
   # gain: 100
 
-#TODO add args to __init__ in READYapp class
+
 model:
+  #
+  #
+  #TODO add args to __init__ in READYapp class
+  #
+  #
   path: "/workspace/volumes/ready/data/mobious"
   name: "_weights_10-09-24_06-35-14-sim-BHWC.onnx"
 
@@ -63,7 +83,14 @@ inference:
   is_engine_path: false # optional param, default to false
 
 
-preprocessor_replayer:  # FormatConverter
+preprocessor_replayer:
+  #
+  #
+  # FormatConverter
+  #
+  #https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/format_converter/format_converter.hpp
+  #
+  #
   #in_tensor_name: #- **in_tensor_name**: The name of the input tensor. Optional (default: `""`).
   out_tensor_name: "out_preprocessor"
   scale_min: 1.0
@@ -118,7 +145,13 @@ segpostprocessor:
   #data_format: nhwc
 
 
-viz:  # Holoviz
+viz:
+  #
+  #
+  # Holoviz
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/holoviz/holoviz.hpp
+  #
+  #
   window_title: "READY demo"
   width: 640
   height: 400
