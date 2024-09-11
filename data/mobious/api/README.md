@@ -51,3 +51,12 @@ mask_pupil_bool.shape (400, 640)
 mask_pupil_bool.dtype bool
 centroid: [195.35639707 429.09022908]
 ```
+
+## inference_of__weights_10-09-24_06-35-14-sim-BHWC_with_video_30_duplicated_frames_of_four-frames-in-one_channels3.png
+
+![fig](../../../docs/figs/inference_of__weights_10-09-24_06-35-14-sim-BHWC_with_video_30_duplicated_frames_of_four-frames-in-one_channels3.png)
+
+## inference_of__weights_10-09-24_06-35-14-sim-BHWC_with_video_30_duplicated_frames_of_fractal-frames-in-one_channels3.png
+
+![fig](../../../docs/figs/inference_of__weights_10-09-24_06-35-14-sim-BHWC_with_video_30_duplicated_frames_of_fractal-frames-in-one_channels3.png)
+
