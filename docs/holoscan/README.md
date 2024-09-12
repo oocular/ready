@@ -1,14 +1,23 @@
 # Holoscan
 
+## Requiremetns
+```
+#install cuda 
+https://github.com/mxochicale/code/blob/main/gpu/installation/installing_cuda.bash
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+```
 
 ## Build
 ```
-#TODO: Update https://github.com/nvidia-holoscan/holoscan-sdk/releases/tag/v2.3.0
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
+git pull
+#git checkout 1a67c53 #holoscan-sdk-2.0.0
 ./run clear_cache
 #./dev_container build --verbose
-./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3470.5s (9/9) FINISHE
+#TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3470.5s #~1h (9/9) FINISHED
+./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] [+] Building 3281.7s (8/8) FINISHED
 ```
 
 ## Launch 
@@ -104,5 +113,26 @@ ioctl: VIDIOC_ENUM_FMT
 			Interval: Discrete 0.100s (10.000 fps)
 			Interval: Discrete 0.133s (7.500 fps)
 			Interval: Discrete 0.200s (5.000 fps)
+
+```
+
+
+* USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
+```
+v4l2-ctl -d /dev/video4 --list-formats-ext
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Capture
+
+	[0]: 'YUYV' (YUYV 4:2:2)
+		Size: Discrete 640x480
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 352x288
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 320x240
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 176x144
+			Interval: Discrete 0.033s (30.000 fps)
+		Size: Discrete 160x120
+			Interval: Discrete 0.033s (30.000 fps)
 
 ```

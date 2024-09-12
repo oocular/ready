@@ -26,8 +26,6 @@ from src.ready.utils.utils import (export_model, get_working_directory,
                                    set_data_directory)
 
 torch.cuda.empty_cache()
-# import gc
-# gc.collect()
 
 
 def save_checkpoint(state, path):
@@ -42,41 +40,49 @@ def norm_image(hot_img):
     """
     Normalise image
     """
-    return torch.argmax(hot_img, 0)
+    return torch.argmax(hot_img, dim = 0)
 
 
 def sanity_check(trainloader, neural_network, cuda_available):
     """
-    Sanity check of trainloader for openEDS
-    #TODO Sanity check for RTI-eyes datasets?
+    Sanity check for trainloader and model
     """
-    # f, axarr = plt.subplots(1, 3)
+    f, ax = plt.subplots(5, 3)
 
     for images, labels in trainloader:
         if cuda_available:
             images = images.cuda()
             labels = labels.cuda()
 
-        # print(images[0].unsqueeze(0).size()) #torch.Size([1, 1, 400, 640])
         outputs = neural_network(images[0].unsqueeze(0))
-        # print("nl", labels[0], "no", outputs[0])
-        print(
-            f"   CHECK images[0].shape: {images[0].shape}, labels[0].shape: {labels[0].shape}, outputs.shape: {outputs.shape}"
-        )
-        # nl = norm_image(labels[0].reshape([400, 640, 4]).
+        no = norm_image(outputs[0]).squeeze(0)
+        print(f"   SANITY_CHECK images[0].shape: {images[0].shape}") # torch.Size([3, 400, 640])
+        print(f"   SANITY_CHECK labels[0].shape: {labels[0].shape}") # torch.Size([400, 640])
+        print(f"   SANITY_CHECK outputs.shape: {outputs.shape}") #torch.Size([1, 4, 400, 640])
+        print(f"   SANITY_CHECK outputs[0].shape: {outputs[0].shape}") #torch.Size([4, 400, 640])
+        print(f"   SANITY_CHECK no.shape: {no.shape}") #torch.Size([400, 640])
+
+        # nl = norm_image(labels[0]) #.reshape([400, 640, 4]))
+        # print("NL", nl.shape)
         # swapaxes(0, 2).swapaxes(1, 2)).cpu().squeeze(0)
-        no = norm_image(outputs[0]).cpu().squeeze(0)
+        
         print(
-            f"   CHECK no[no == 0].size(): {no[no == 0].size()}, no[no == 1].size(): {no[no == 1].size()}, no[no == 2].size(): {no[no == 2].size()}, no[no == 3].size(): {no[no == 3].size()}"
+            f"   SANITY_CHECK no[no == 0].size(): {no[no == 0].size()}, no[no == 1].size(): {no[no == 1].size()}, no[no == 2].size(): {no[no == 2].size()}, no[no == 3].size(): {no[no == 3].size()}"
         )
 
         # TOSAVE_PLOTS_TEMPORALY?
-        # axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
-        # print("NLLLL", nl.shape)
-        # axarr[1].imshow(labels[0].squeeze(0).cpu())
-        # axarr[2].imshow(no)
-
-        # plt.show()
+        ax[0,0].imshow((images[0].permute(1,2,0) * 255).to(torch.long).squeeze(0).cpu())
+        ax[0,1].imshow(labels[0].cpu())
+        ax[1,1].imshow(labels[0].cpu()>0)
+        ax[2,1].imshow(labels[0].cpu()>1)
+        ax[3,1].imshow(labels[0].cpu()>2)
+        ax[4,1].imshow(labels[0].cpu()>3)
+        ax[0,2].imshow(no.cpu())
+        ax[1,2].imshow(no.cpu()>0)
+        ax[2,2].imshow(no.cpu()>1)
+        ax[3,2].imshow(no.cpu()>2)
+        ax[4,2].imshow(no.cpu()>3)
+        plt.show()
 
         break
 
@@ -93,7 +99,8 @@ def main():
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
     # print(get_working_directory())
-    set_data_directory("datasets/openEDS")
+    # set_data_directory("datasets/openEDS")
+    set_data_directory("ready/data/openEDS")
 
     #####
     #TODO
@@ -104,12 +111,14 @@ def main():
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    if not os.path.exists("weights"):
-        os.mkdir("weights")
+    if not os.path.exists("models"):
+        os.mkdir("models")
     weight_fn = None  # TO_TEST
     cuda_available = torch.cuda.is_available()
     # print(cuda_available)
-    trainset = EyeDataset("openEDS/openEDS/train/")
+    # trainset = EyeDataset("openEDS/openEDS/train/")
+    trainset = EyeDataset("sample-frames/val3frames") #for set_data_directory("ready/data/openEDS")
+
     #TODO trainset = RITeye_dataset("RIT-eyes/")
     print("Length of trainset:", len(trainset))
 
@@ -142,9 +151,32 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    run_epoch = 10
-    #02epochs: Elapsed time for the training loop: 1.53 (s) 
-    #10epochs: Elapsed time for the training loop: 7.76 (s)
+    #
+    #
+    #LOCAL NVIDIARTXA20008GBLaptopGPU
+    #
+    #
+    # run_epoch = 1
+    # run_epoch = 2
+            #Epoch 2:
+            #Average loss @ epoch: 0.14059916138648987
+            #Elapsed time for the training loop: 0.03951407273610433 (mins)
+
+    #run_epoch = 10
+            #Epoch 10:
+            #Average loss @ epoch: 0.08453492075204849
+            #Elapsed time for the training loop: 0.14809249639511107 (mins)
+    run_epoch = 100
+            #Average loss @ epoch: 0.0025765099562704563
+            #Saved PyTorch Model State to models/_weights_10-09-24_23-53-45.pth
+            #Elapsed time for the training loop: 1.3849741021792095 (mins)
+    #
+    #
+    #REMOTE A100 40GB
+    #
+    #
+    #run_epoch = 1 #to_test
+
 
     epoch = None
 
@@ -180,21 +212,21 @@ def main():
             if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
                 print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
                 # sanity_check(trainloader, model, cuda_available)
-                save_checkpoint(
-                    {
-                        "epoch": run_epoch,
-                        "state_dict": model.state_dict(),
-                        "optimizer": optimizer.state_dict(),
-                    },
-                    "weights/o.pth",
-                )
+                # save_checkpoint(
+                #     {
+                #         "epoch": run_epoch,
+                #         "state_dict": model.state_dict(),
+                #         "optimizer": optimizer.state_dict(),
+                #     },
+                #     "models/o.pth",
+                # )
 
             if j == 200:
                 break
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
-    modelname = datetime.now().strftime('%d-%m-%y-%H_%M__weights.pth')
+    modelname = datetime.now().strftime('models/_weights_%d-%m-%y_%H-%M-%S.pth')
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
 

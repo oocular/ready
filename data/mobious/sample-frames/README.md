@@ -1,19 +1,30 @@
 # Sample frames
 
+## 3000 x 1700 pixels, 
 * `1_1i_Ll_1`: 3000 x 1700 pixels, 
 ```
 ├── [137K]  1_1i_Ll_1.jpg
 ├── [ 24K]  1_1i_Ll_1.png
 ```
+* 1_1i_Ll_1
+![fig](test3000x1700/images/1_1i_Ll_1.jpg)
+![fig](test3000x1700/masks/1_1i_Ll_1.png)
 
-![fig](1_1i_Ll_1.jpg)
-![fig](1_1i_Ll_1.png)
+* 1_1i_Ll_2
+![fig](test3000x1700/images/1_1i_Ll_2.jpg)
+![fig](test3000x1700/masks/1_1i_Ll_2.png)
 
-* `35_2i_Ll_1`
+* 1_1i_Lr_2
+![fig](test3000x1700/images/1_1i_Lr_2.jpg)
+![fig](test3000x1700/masks/1_1i_Lr_2.png)
+
+* 1_1i_Ls_1
+![fig](test3000x1700/images/1_1i_Ls_1.jpg)
+![fig](test3000x1700/masks/1_1i_Ls_1.png)
+
+## 640 x 400 pixels
 ```
-├── [235K]  35_2i_Ll_1.jpg
-├── [ 21K]  35_2i_Ll_1.png
+cd ~/data/bash-scripts
+bash resize_images.bash ~/datasets/mobious/MOBIOUS
+#mogrify -resize 640x400! *.jpg 
 ```
-![fig](35_2i_Ll_1.jpg)
-![fig](35_2i_Ll_1.png)
-

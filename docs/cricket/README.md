@@ -1,24 +1,30 @@
-# “cricket” – ARM CPU, Nvidia GPU
+# Cricket machine: ARM CPU with A100 Nvidia GPU
 
-## features
+## Features
 * HD: 5TB
 * GPU: NVIDIA A100, A100 , 40 GB HBM2, 1.6 TB/sec https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet.pdf
 * https://www.ucl.ac.uk/advanced-research-computing/coming-soon-platforms
 
-## connections
-
-1. connect to `vpn.ucl.ac.uk` using cisco https://www.ucl.ac.uk/isd/services/get-connected/ucl-virtual-private-network-vpn
-2. connect to the server
+## Connect
+1. Connect to `vpn.ucl.ac.uk` using cisco https://www.ucl.ac.uk/isd/services/get-connected/ucl-virtual-private-network-vpn
+2. Connect to the server
 ```
-ssh ccxxxxx@cricket.rc.ucl.ac.uk
+ssh -X ccxxxxx@cricket.rc.ucl.ac.uk
 xterm -rv & # open as many terminals you want
 ```
 
-## Copying dataset
-scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0G ETA 1h at 2MB/s
+## Copying dataset from local device to server
+```
+# openEDS.zip
+scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0GB ETA 1h at 2MB/s
+# MOBIUS.zip
+scp MOBIUS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #MOBIUS.zip #3.3GB ETA  26mins at 2MB/s
+scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   1.9MB/s   00:17
+```
 
+## Container
 
-## /opt/nvidia/containers (first time)
+### Setting up /opt/nvidia/containers (first time)
 ```
 mkdir -p containers && cd containers
 #cd containers
@@ -31,14 +37,18 @@ torch.cuda.is_available()
 watch -n 2 nvidia-smi #in another terminal to see activity every 2secs
 ```
 
-
-## lauch container
+### Lauch container
 ```
-bash docs/launch_container.bash
-##inside adapter>
+# Updates repo
+cd $HOME/ready
+git pull
+
+# Launch container 
+bash docs/cricket/launch_container_in_cricket.bash
+
+#inside adapter>
 cd $HOME/ready
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+## GOTO models/README.md for instructions to train model in cricket
 #type `exit` in the terminal to exit
-
 ```
-

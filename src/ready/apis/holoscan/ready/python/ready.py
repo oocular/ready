@@ -40,7 +40,8 @@ class PreInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"---------- PreInfoOp  ------------")
+        print(f" \/ \/ \/ \/ \/ \/ ")
+        print(f"   PreInfoOp  ")
         in_message = op_input.receive("source_video")
         tensor = cp.asarray(in_message.get(""), dtype=cp.float32)
         tensor_1ch =  tensor[:,:,0]
@@ -75,7 +76,8 @@ class FormatInferenceInputOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"********** FormatInferenceInputOp  ************")
+        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        print(f"   FormatInferenceInputOp  ")
         in_message = op_input.receive("in")
         #print(in_message)
         tensor = cp.asarray(in_message.get("out_preprocessor"), dtype=cp.float32)
@@ -182,8 +184,8 @@ class PostInferenceOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"----------------------------------------------")
-        print(f"---------- PostInferenceOperator  ------------")
+        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        print(f"   PostInferenceOperator  ")
         in_message = op_input.receive("in")
         #print(f"in_message={in_message}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
@@ -208,6 +210,13 @@ class PostInferenceOp(Operator):
         mask_pupil_bool = tensor_1ch_pupil_sq_uint8 > 1
         print(f"mask_pupil_bool.shape {mask_pupil_bool.shape}") #tensor.shape=(1, 4, 400, 640)
         print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}") #bool
+
+
+#/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:500: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+#  setattr(self, word, getattr(machar, word).flat[0])
+#/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:89: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+#  return self._float_to_str(self.smallest_subnormal)
+
 
         centroid = cp.mean(cp.argwhere(mask_pupil_bool),axis=0)
         centroid = cp.nan_to_num(centroid) #convert float NaN to integer
@@ -365,7 +374,6 @@ class READYApp(Application):
 
     def compose(self):
         host_allocator = UnboundedAllocator(self, name="host_allocator")
-
         source_args = self.kwargs("source")
 
         if self.source.lower() == "replayer":
@@ -430,9 +438,9 @@ class READYApp(Application):
 
         pre_info_op_replayer = PreInfoOp(
             self,
-            name="pre_info_op",
+            name="pre_info_op_replayer",
             allocator=host_allocator,
-            **self.kwargs("pre_info_op"),
+            **self.kwargs("pre_info_op_replayer"),
         )
 
         preprocessor_replayer = FormatConverterOp(
@@ -527,6 +535,12 @@ if __name__ == "__main__":
     # Parse args
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument(
+        "-c",
+        "--config",
+        default="ready.yaml",
+        help=("configuration file (e.g. ready.yaml)"),
+    )
+    parser.add_argument(
         "-s",
         "--source",
         choices=["replayer", "v4l2"],
@@ -562,7 +576,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    config_file = os.path.join(os.path.dirname(__file__), "ready.yaml")
+    config_file = os.path.join(os.path.dirname(__file__), args.config)
 
     app = READYApp(
         source=args.source,
@@ -570,6 +584,7 @@ if __name__ == "__main__":
         model_name=args.model_name,
         debug_print_flag=args.debug_print_flag,
     )
+
     with Tracker(app, filename=args.logger_filename) as tracker:
        app.config(config_file)
        app.run()

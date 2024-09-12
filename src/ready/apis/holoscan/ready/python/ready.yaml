@@ -1,18 +1,27 @@
 %YAML 1.2
 ---
 replayer:  # VideoStreamReplayer
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" #'preprocessor' - Failed to resize image.
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" #'preprocessor' - Failed to resize image.
+  #
+  # openEDS
+  #
+  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" 
+    #'preprocessor' - Failed to resize image.
+  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" 
+    #'preprocessor' - Failed to resize image.
+  ## Single frames
+  #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height_channels3"
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
   #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
+  ## Various re-scaled frames
   #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
   #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
-  #basename: "cut_video_640x400"
-  #basename: "cut_video_640x400_grayscale"
-  #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height_channels3"
+  ## Multiple frames
   #basename: "video_3frames"
-  basename: "video_multiple_frames"
-
+  #basename: "video_multiple_frames"
+  ## Do we need them?
+  #?basename: "cut_video_640x400"
+  #?basename: "cut_video_640x400_grayscale"
+  #
   frame_rate: 0 # as specified in timestamps
   repeat: true # default: false
   realtime: true # default: true
@@ -21,7 +30,7 @@ replayer:  # VideoStreamReplayer
 source:  # V4L2VideoCaptureOp
   # | Input device. /dev/video0 is generally the defautl input
   device: "/dev/video0"
-  # device: "/dev/video4"
+  #device: "/dev/video4"
 
   # | App will auto-select default width and height if not provided
   # | For performance, you may want to specify these parameters yourself.
@@ -43,7 +52,14 @@ source:  # V4L2VideoCaptureOp
   # gain: 100
 
 
-inference:  # Inference
+inference:
+  #
+  #
+  # InferenceOp
+  #
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/inference/inference.hpp
+  #
+  #
   backend: "trt"
   pre_processor_map:
     "ready_model": ["out_preprocessor"]
@@ -93,15 +109,21 @@ preprocessor_v4l2:
   scale_min: 0.0
   scale_max: 1.0
 
-pre_info_op:  #Pre Info Operator
+pre_info_op_replayer:  #Pre Info Operator
 format_input:  #FormatInferenceInputOp
 post_inference_op:  #Info Operator
 info_op:  #Info Operator
 
-segpostprocessor:  # SegmentationPostprocessor
+segpostprocessor:
+  #
+  #
+  # SegmentationPostprocessor
+  # This tensor will have unsigned 8-bit integer data type and shape (H, W, 1).
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/segmentation_postprocessor/segmentation_postprocessor.hpp
+  #
   in_tensor_name: unet_out
-  network_output_type: softmax
-  #network_output_type: sigmoid
+  network_output_type: softmax #softmax layer for multiclass segmentation
+  #network_output_type: sigmoid #sigmoid layer for binary segmentation
   #network_output_type: None
   data_format: nchw
   #data_format: nhwc

@@ -1,6 +1,8 @@
 # Documentation
 
-## Installing package in local machine (not need if you are using container)
+## Installing python packages in local machine
+See this [bash script](https://github.com/mxochicale/code/blob/main/conda/download-install-miniconda.bash) to install conda.
+Note that you do not need to install packages if you are using a container in cricket server.
 ```
 conda create -n "readyVE" python=3.12 pip -c conda-forge
 conda activate readyVE
@@ -21,7 +23,10 @@ export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 
 ## Testing 
 ```
-python -m pytest -v -s tests
+python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset
+python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset_labels
+
+#TODO: Fix the following tests with data in the repo
 python -m pytest -v -s tests/test_data_paths.py::test_txt
 python -m pytest -v -s tests/test_data_paths.py::test_png
 python -m pytest -v -s tests/test_data_paths.py::test_masks
@@ -31,8 +36,19 @@ python -m pytest -v -s tests/test_data_paths.py::test_tif_with_matplotlib
 
 ## Pre-commit
 ```
+#TODO run pre-commit with no errors!
 pre-commit run -a
 ```
+
+
+## Demos
+`READY` demo aplication ([ready.py](/src/ready/apis/holoscan/ready/python/ready.py)) is running in a local host LaptopGPU with NVIDIARTXA2000-8GB using local-built holoscan-sdk. 
+[UNet](src/ready/models/unet.py) was trained in cricket with A100-40GB  and using [27.4K images of 1 channel](data/openEDS/README.md). 
+
+| Animation | Data, Model(s), API |
+| --- | --- |
+| ![fig](../docs/figs/animations/ready-demo-2024-07-24_07.52.36-ezgif.com-video-to-gif-converter.gif) **Fig.** Initial demo using UNET with OpenEDS datsets. Video has 3 frames copied 10 times to create a 30 frame per second video. | [DATA: OpenEDS](../data/openEDS);  [MODEL: UNET](../data/openEDS/models); [API: ready.py d98c497](https://github.com/UCL/ready/blob/d98c497392ba7d91e9218fa5b73c75c629e3d29b/src/ready/apis/holoscan/ready/python/ready.py)
+| ![fig](../docs/figs/animations/ready-demo-2024-08-11_18.29.22-ezgif.com-video-to-gif-converter.gif) **Fig.** Pupil segmentation was masked to compute its centroid values as coordinates. Centroid values for x are plotted as cummulative time series of 30 samples. Streamed video consist of different 6 frames copied 5 times to create a 30 frames per second video. | [DATA: OpenEDS](../data/openEDS); [MODEL: UNET](../data/openEDS/models);  [API: ready.py b44515a](https://github.com/UCL/ready/blob/b44515a70727620187f20ea19c50c77f4cacbad6/src/ready/apis/holoscan/ready/python/ready.py)  |
 
 
 ## References
@@ -51,7 +67,6 @@ https://github.com/CAMMA-public/ConvLSTM-Surgical-Tool-Tracker
 
 
 ### Datasets 
-
 * https://heiporspectral.org/
 	* https://figures.heiporspectral.org/view_organs/01_stomach/P086%232021_04_15_11_38_26.html
 
@@ -68,7 +83,6 @@ Duvieusart, Benjamin, Terence S. Leung, Nehzat Koohi, and Diego Kaski. "Digital 
 	* https://medium.com/pytorch/multi-target-in-albumentations-16a777e9006e 
 
 ### Challenges
-
 * Justified Referral in AI Glaucoma Screening
 	* https://justraigs.grand-challenge.org/justraigs/
 	* https://zenodo.org/records/10035093
