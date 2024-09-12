@@ -156,6 +156,8 @@ def test_mobious_dataset():
     """
     Test mobious dataset
     python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset
+
+    TODO: Add assert to properly test shape of data
     """
     print("mobious")
     #set_data_directory("datasets/mobious/MOBIOUS")
@@ -197,6 +199,8 @@ def test_mobious_dataset_labels():
     """
     Test mobious dataset
     python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset_labels
+
+    TODO: Add assert to properly test shape of data
     """
     print("mobious")
     #set_data_directory("datasets/mobious/MOBIOUS")

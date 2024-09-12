@@ -4,23 +4,23 @@
 </div>
 
 ## :eyeglasses: Overview
-This repository contains documentation and code for the `REal-time Ai Diagnosis for nYstagmus` project.
+This repository contains documentation and code for the project `READY: REal-time Ai Diagnosis for nYstagmus`.
 
 ## :school_satchel: Getting started
-* :page_facing_up: [docs](docs/README.md)
-* :floppy_disk: [data](data/)
-* :recycle: [models](docs/models) and [cricket](docs/cricket)
-* :computer: [holoscan](docs/holoscan) 
+* :page_facing_up: [Docs](docs/README.md)
+* :floppy_disk: [Data](data/): [openEDS](data/openEDS/); [mobious](data/mobious/); [novel](data/novel/)
+* :recycle: [models](docs/models) trained in [cricket](docs/cricket); 
+* :computer: [holoscan-sdk](docs/holoscan/)
 
-## :hospital: Demos
-`READY` demo aplication ([ready.py](/src/ready/apis/holoscan/ready/python/ready.py)) is running in a local host LaptopGPU with NVIDIARTXA2000-8GB using local-built holoscan-sdk. 
-[UNet](src/ready/models/unet.py) was trained in cricket with A100-40GB  and using [27.4K images of 1 channel](data/openEDS/README.md). 
+## :clapper: Demos
+Python-based applicaiton, [ready.py](src/ready/apis/holoscan/ready/python/ready.py), was implemented with [holoscan-sdk](docs/holoscan/README.md), where  holoscan-sdk was built on host Laptop computer with NVIDIARTXA2000-8GB.
+The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-40GB, using either [~27K images of 1 channel](data/openEDS/README.md) or [~1K colour images of 3 channels](data/mobious/README.md).
 
-| Animation | Data, Model(s), API |
+| Animation | Data, Model(s) |
 | --- | --- |
-| ![fig](docs/figs/ready-demo-2024-07-24_07.52.36-ezgif.com-video-to-gif-converter.gif) **Fig.** Initial demo using UNET with OpenEDS datsets. Video has 3 frames copied 10 times to create a 30 frame per second video. | [DATA: OpenEDS](data/openEDS);  [MODEL: UNET](data/openEDS/models); [API: ready.py d98c497](https://github.com/UCL/ready/blob/d98c497392ba7d91e9218fa5b73c75c629e3d29b/src/ready/apis/holoscan/ready/python/ready.py) 
-| ![fig](docs/figs/ready-demo-2024-08-11_18.29.22-ezgif.com-video-to-gif-converter.gif) **Fig.** Pupil segmentation was masked to compute its centroid values as coordinates. Centroid values for x are plotted as cummulative time series of 30 samples. Streamed video consist of different 6 frames copied 5 times to create a 30 frames per second video. | [DATA: OpenEDS](data/openEDS); [MODEL: UNET](data/openEDS/models);  [API: ready.py b44515a](https://github.com/UCL/ready/blob/b44515a70727620187f20ea19c50c77f4cacbad6/src/ready/apis/holoscan/ready/python/ready.py)  |
+| ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.22.13-ezgif.com-video-to-gif-converter.gif)  ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.30.29-ezgif.com-video-to-gif-converter.gif) **Fig.**  [API: ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480). |  [Mobious dataset](data/mobious/); [Models](data/mobious//models/) | 
 
+See more demos [here](docs/README.md#demos)
 
 ## :octocat: Cloning repository
 * Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
