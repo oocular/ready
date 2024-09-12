@@ -9,9 +9,10 @@ replayer:
   # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/video_stream_replayer/video_stream_replayer.hpp
   #
   #
-  basename: "video_30_duplicated_frames_of_1_1i_Ll_1_channels3"
+  #basename: "video_30_duplicated_frames_of_1_1i_Ll_1_channels3"
   #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
   #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
+  basename: "video_3framesx10"
   #
   #
   frame_rate: 0 # as specified in timestamps
