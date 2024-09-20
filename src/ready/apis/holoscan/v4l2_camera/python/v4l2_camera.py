@@ -16,24 +16,16 @@
 """  # noqa: E501
 
 import os
-#import random
+
+# import random
 import cupy as cp
 from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
-from holoscan.operators import (
-    FormatConverterOp,
-    HolovizOp,
-    InferenceOp,
-    SegmentationPostprocessorOp,
-    V4L2VideoCaptureOp,
-    VideoStreamReplayerOp,
-)
-from holoscan.resources import (
-    BlockMemoryPool,
-    CudaStreamPool,
-    MemoryStorageType,
-    UnboundedAllocator,
-)
+from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
+                                SegmentationPostprocessorOp,
+                                V4L2VideoCaptureOp, VideoStreamReplayerOp)
+from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
+                                MemoryStorageType, UnboundedAllocator)
 
 
 class InfoOp(Operator):
@@ -108,7 +100,7 @@ class InfoOp(Operator):
             1,
             1,
             1,
-            #random.uniform(0.0, 1.0),
+            # random.uniform(0.0, 1.0),
             0.99,
         ]
 
@@ -118,7 +110,6 @@ class InfoOp(Operator):
         op_output.emit(specs, "output_specs")
 
         self.frame_count += 1
-
 
 
 # Now define a simple application using the operators defined above
@@ -157,16 +148,16 @@ class App(Application):
             block_size = width * height * n_channels
             drop_alpha_block_size = width * height * n_channels * bpp
             drop_alpha_num_blocks = 2
-            #REMVOE allocator = BlockMemoryPool(
-            #REMOVE    self, name="pool", storage_type=0, block_size=block_size, num_blocks=1
-            #REMOVE )
+            # REMOVE allocator = BlockMemoryPool(
+            # REMOVE    self, name="pool", storage_type=0, block_size=block_size, num_blocks=1
+            # REMOVE )
             allocator = BlockMemoryPool(
-            	self,
-            	name="pool",
-            	storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
-            	block_size=drop_alpha_block_size,
-            	num_blocks=drop_alpha_num_blocks,
-        	)
+                self,
+                name="pool",
+                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
+                block_size=drop_alpha_block_size,
+                num_blocks=drop_alpha_num_blocks,
+            )
 
             source = V4L2VideoCaptureOp(
                 self,
@@ -182,7 +173,7 @@ class App(Application):
             visualizer = HolovizOp(
                 self,
                 name="visualizer",
-                #?allocator=allocator,
+                # ?allocator=allocator,
                 cuda_stream_pool=cuda_stream_pool,
                 **visualizer_args,
             )
@@ -200,7 +191,6 @@ class App(Application):
                 **self.kwargs("visualizer"),
             )
 
-        
         info_op = InfoOp(
             self,
             name="info_op",

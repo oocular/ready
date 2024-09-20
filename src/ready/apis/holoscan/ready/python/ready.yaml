@@ -4,9 +4,9 @@ replayer:  # VideoStreamReplayer
   #
   # openEDS
   #
-  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1" 
+  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1"
     #'preprocessor' - Failed to resize image.
-  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1" 
+  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1"
     #'preprocessor' - Failed to resize image.
   ## Single frames
   #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height_channels3"
@@ -28,7 +28,7 @@ replayer:  # VideoStreamReplayer
   count: 0 # default: 0 (no frame count restriction)
 
 source:  # V4L2VideoCaptureOp
-  # | Input device. /dev/video0 is generally the defautl input
+  # | Input device. /dev/video0 is generally the default input
   device: "/dev/video0"
   #device: "/dev/video4"
 
@@ -81,7 +81,7 @@ preprocessor_replayer:  # FormatConverter
   scale_max: 1.0
   #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use
                 #when converting from RGB to RGBA. Optional (default: `255`).
-  #in_dtype: "rgba8888" #for four channles
+  #in_dtype: "rgba8888" #for four channels
   #in_dtype: "float32" ?
   resize_width: 640 #320
   resize_height: 400 #200
@@ -102,7 +102,7 @@ preprocessor_v4l2:
   #
   #
   out_tensor_name: out_preprocessor
-  in_dtype: "rgba8888" #for four channles
+  in_dtype: "rgba8888" #for four channels
   out_dtype: "float32"
   resize_width: 640
   resize_height: 400
@@ -159,6 +159,6 @@ viz:  # Holoviz
     [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
     [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
     [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
-    [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8 
+    [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
     #https://rgbcolorpicker.com/0-1
     ]

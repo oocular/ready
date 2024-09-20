@@ -29,10 +29,10 @@ def main():
     High: sys.argv[4]
     Width: sys.argv[5]
     :return:
- 
+
     https://github.com/nvidia-holoscan/holohub/blob/main/applications/ssd_detection_endoscopy_tools/scripts/graph_surgeon_ssd.py
     """
-    #TODO use only path and input model, instead of input model and output model
+    # TODO use only path and input model, instead of input model and output model
     graph = gs.import_onnx(onnx.load(sys.argv[1]))
 
     # Update graph input/output names
@@ -45,10 +45,14 @@ def main():
 
     # Insert a transpose at the network input tensor [1, 3, width, height] and rebind it to the
     # new node [1, height, width, 3] be careful which one is h and which one is w
-    nhwc_to_nchw_in = gs.Node("Transpose", name="transpose_input", attrs={"perm": [0, 3, 1, 2]})
+    nhwc_to_nchw_in = gs.Node(
+        "Transpose", name="transpose_input", attrs={"perm": [0, 3, 1, 2]}
+    )
     nhwc_to_nchw_in.outputs = graph.inputs
     graph.inputs = [
-        gs.Variable("INPUT__0", dtype=graph.inputs[0].dtype, shape=[1, height, width, channel])
+        gs.Variable(
+            "INPUT__0", dtype=graph.inputs[0].dtype, shape=[1, height, width, channel]
+        )
     ]
     nhwc_to_nchw_in.inputs = graph.inputs
 
