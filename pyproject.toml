@@ -36,10 +36,12 @@ test = [
     "pre-commit"
 ]
 learning = [
-    "torch", #2.3.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
-    "torchvision", #0.18.1 local
-    "onnx", #1.16.1  local
-    "onnxruntime",#1.18.1 local
+    "torch", #2.4.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
+    "torchvision", #0.19.1 local
+]
+model_optimisation = [
+    "onnx", #1.16.2  local
+    "onnxruntime",#1.19.2 local
     "onnxsim",#0.4.36 local
 ]
 

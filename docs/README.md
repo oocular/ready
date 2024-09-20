@@ -20,6 +20,7 @@ deactivate
 uv pip install --editable . # Install the package in editable mode
 uv pip install .[test]
 uv pip install .[learning]
+uv pip install .[model_optimisation]
 #uv pip uninstall ready
 ```
 
