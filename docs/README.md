@@ -1,23 +1,31 @@
 # Documentation
 
-## Installing python packages in local machine
-See this [bash script](https://github.com/mxochicale/code/blob/main/conda/download-install-miniconda.bash) to install conda.
-Note that you do not need to install packages if you are using a container in cricket server.
+## Install uv (An extremely fast Python package manager)
 ```
-conda create -n "readyVE" python=3.12 pip -c conda-forge
-conda activate readyVE
-#cd to home repository path (`cd ../`)
-pip install --editable . # Install the package in editable mode
-pip install .[test]
-pip install .[learning]
-#pip uninstall ready
-#conda deactivate
-#conda remove -n readyVE --all
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+## Create venv
+```
+uv venv --python 3.12 # Create a virtual environment at .venv.
+source .venv/bin/activate #To activate the virtual environment:
+deactivate
+
+#uv venv 2nd_env --python 3.13 #create with a diff python version
+#rm -rf 2nd_env #to remove 2nd_env
+```
+
+## Install python package deps
+```
+uv pip install --editable . # Install the package in editable mode
+uv pip install .[test]
+uv pip install .[learning]
+#uv pip uninstall ready
 ```
 
 ## Debugging
 ```
-conda activate readyVE
+source .venv/bin/activate #To activate the virtual environment:
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
 

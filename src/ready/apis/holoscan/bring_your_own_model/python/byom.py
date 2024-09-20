@@ -17,13 +17,9 @@ import os
 from argparse import ArgumentParser
 
 from holoscan.core import Application, Tracker
-from holoscan.operators import (
-    FormatConverterOp,
-    HolovizOp,
-    InferenceOp,
-    SegmentationPostprocessorOp,
-    VideoStreamReplayerOp,
-)
+from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
+                                SegmentationPostprocessorOp,
+                                VideoStreamReplayerOp)
 from holoscan.resources import UnboundedAllocator
 
 
@@ -57,7 +53,6 @@ class BYOMApp(Application):
             "byom_model": os.path.join(self.models_path, self.model_name),
         }
 
-
     def compose(self):
         host_allocator = UnboundedAllocator(self, name="host_allocator")
 
@@ -66,7 +61,10 @@ class BYOMApp(Application):
         )
 
         preprocessor = FormatConverterOp(
-            self, name="preprocessor", pool=host_allocator, **self.kwargs("preprocessor")
+            self,
+            name="preprocessor",
+            pool=host_allocator,
+            **self.kwargs("preprocessor"),
         )
 
         inference = InferenceOp(
@@ -78,7 +76,10 @@ class BYOMApp(Application):
         )
 
         postprocessor = SegmentationPostprocessorOp(
-            self, name="postprocessor", allocator=host_allocator, **self.kwargs("postprocessor")
+            self,
+            name="postprocessor",
+            allocator=host_allocator,
+            **self.kwargs("postprocessor"),
         )
 
         viz = HolovizOp(self, name="viz", **self.kwargs("viz"))
@@ -118,6 +119,5 @@ if __name__ == "__main__":
 
     app = BYOMApp(data=args.data, model_name=args.model_name)
     with Tracker(app, filename=args.logger_filename) as tracker:
-       app.config(config_file)
-       app.run()
-
+        app.config(config_file)
+        app.run()

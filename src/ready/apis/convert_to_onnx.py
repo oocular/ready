@@ -22,7 +22,7 @@ def main(model_path, input_model_name):
     """
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # DEVICE = torch.device("cpu") #"cuda"
-    channel_n=3 #1
+    channel_n = 3  # 1
 
     model_name = input_model_name[:-4]
     models_path_input_name = model_path + "/" + input_model_name

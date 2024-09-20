@@ -23,6 +23,7 @@ dependencies = [
     "numpy",
     "matplotlib",
     "pandas",
+    "PyQt6",
 ]
 [project.optional-dependencies]
 # development dependency groups

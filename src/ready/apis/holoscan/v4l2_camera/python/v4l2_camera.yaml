@@ -56,6 +56,3 @@ visualizer:  # Holoviz
       type: color
       opacity: 1.0
       priority: 0
-
-
-
