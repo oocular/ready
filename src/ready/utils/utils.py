@@ -26,6 +26,7 @@ def set_data_directory(global_data_path: str):
     """
     os.chdir(os.path.join(get_working_directory(), global_data_path))
 
+
 # #TODO Move this test to somewhere else where we need torch
 # # import torch
 # def export_model(model, device, path_name, dummy_input):
