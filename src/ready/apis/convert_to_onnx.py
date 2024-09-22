@@ -2,16 +2,13 @@
 convert_to_onnx
 """
 
-import os
 from argparse import ArgumentParser
 
 import torch
-import torch.nn as nn
 import torch.onnx
-import torchvision
 
 from src.ready.models.unet import UNet
-from src.ready.utils.utils import export_model
+from src.ready.utils.helpers import export_model
 
 
 def main(model_path, input_model_name):
@@ -20,7 +17,7 @@ def main(model_path, input_model_name):
     OUT: output_model_name
 
     """
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # DEVICE = torch.device("cpu") #"cuda"
     channel_n = 3  # 1
 
@@ -30,29 +27,30 @@ def main(model_path, input_model_name):
 
     # model = SegNet(in_chn=1, out_chn=4, BN_momentum=0.5)
     model = UNet(nch_in=channel_n, nch_out=4)
-    model = model.to(DEVICE)
+    model = model.to(device)
     # model = model.to(torch.device(DEVICE))
 
     model.load_state_dict(
-        torch.load(models_path_input_name, map_location=torch.device(DEVICE))
+        torch.load(models_path_input_name, map_location=torch.device(device))
     )
 
-    model = model.eval().to(DEVICE)
+    model = model.eval().to(device)
 
     batch_size = 1  # just a random number
-    dummy_input = torch.randn((batch_size, channel_n, 400, 640)).to(DEVICE)
+    dummy_input = torch.randn((batch_size, channel_n, 400, 640)).to(device)
     # input size of data to the model [batch, channel, height, width]
     # torch_out = model(dump_input)
 
-    export_model(model, DEVICE, models_path_output_name, dummy_input)
+    export_model(model, device, models_path_output_name, dummy_input)
 
 
 if __name__ == "__main__":
     """
-    USAGE
+    Convert pytorch to onnx model
+
     conda activate readyVE
     export PYTHONPATH=.
-    python src/ready/apis/convert_to_onnx.py -p $HOME/Desktop/nystagmus-tracking/datasets/openEDS/weights/trained_models_in_cricket -i model-5jul2024.pth
+    python src/ready/apis/convert_to_onnx.py -p $MODEL_PATH -i model-5jul2024.pth
     """
 
     # Parse args
