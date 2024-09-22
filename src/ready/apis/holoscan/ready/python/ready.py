@@ -1,3 +1,6 @@
+
+"""Holoscan READY application"""
+
 import os
 from argparse import ArgumentParser
 
@@ -97,23 +100,23 @@ class FormatInferenceInputOp(Operator):
         print(f"tensor1ch.max {cp.max(tensor_1ch)}")
         print(f"tensor1ch.mean {cp.mean(tensor_1ch)}")
 
-        tensor_1CH = cp.expand_dims(tensor_1ch, 0)
+        tensor_1cchh = cp.expand_dims(tensor_1ch, 0)
         print(f"**")
         print(
-            f"tensor_1CH.shape={tensor_1CH.shape}"
+            f"tensor_1CH.shape={tensor_1cchh.shape}"
         )  # tensor_1CH.shape=(1, 1, 400, 640)
-        print(f"tensor_1CH.min {cp.min(tensor_1CH)}")
-        print(f"tensor_1CH.max {cp.max(tensor_1CH)}")
-        print(f"tensor_1CH.mean {cp.mean(tensor_1CH)}")
+        print(f"tensor_1CH.min {cp.min(tensor_1cchh)}")
+        print(f"tensor_1CH.max {cp.max(tensor_1cchh)}")
+        print(f"tensor_1CH.mean {cp.mean(tensor_1cchh)}")
 
-        tensor_1Ch = cp.expand_dims(tensor_1ch, -1)
+        tensor_1ccchhh = cp.expand_dims(tensor_1ch, -1)
         print(f"**")
         print(
-            f"tensor_1Ch.shape={tensor_1Ch.shape}"
+            f"tensor_1Ch.shape={tensor_1ccchhh.shape}"
         )  # tensor_1CH.shape=(1, 400, 640, 1)
-        print(f"tensor_1Ch.min {cp.min(tensor_1Ch)}")
-        print(f"tensor_1Ch.max {cp.max(tensor_1Ch)}")
-        print(f"tensor_1Ch.mean {cp.mean(tensor_1Ch)}")
+        print(f"tensor_1Ch.min {cp.min(tensor_1ccchhh)}")
+        print(f"tensor_1Ch.max {cp.max(tensor_1ccchhh)}")
+        print(f"tensor_1Ch.mean {cp.mean(tensor_1ccchhh)}")
 
         out_message = Entity(context)
         out_message.add(hs.as_tensor(tensor_), "out_preprocessor")
@@ -122,6 +125,7 @@ class FormatInferenceInputOp(Operator):
 
 
 def cv_cuda_gpumat_from_cp_array(arr: cp.ndarray) -> cv2.cuda.GpuMat:
+    """ cv cuda gpumat from cp array """
     print("::: cv_cuda_gpumat_from_cp_array :::")
     print(arr.__cuda_array_interface__["shape"])
     print(arr.__cuda_array_interface__["data"][0])
@@ -194,6 +198,10 @@ class PostInferenceOp(Operator):
         tensor_1ch_sclera = tensor[:, 1, :, :]
         tensor_1ch_iris = tensor[:, 2, :, :]
 
+        print(f"shape of tensor_1ch_background: {tensor_1ch_background.shape}")
+        print(f"shape of tensor_1ch_sclera: {tensor_1ch_sclera.shape}")
+        print(f"shape of tensor_1ch_iris: {tensor_1ch_iris.shape}")
+
         ### CENTROID OF PUPIL MASK
         tensor_1ch_pupil = tensor[:, 3, :, :]
         print(f"tensor.min {cp.min(tensor_1ch_pupil)}")
@@ -216,9 +224,11 @@ class PostInferenceOp(Operator):
         )  # tensor.shape=(1, 4, 400, 640)
         print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}")  # bool
 
-        # /usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:500: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+        # /usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:500:
+        # UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
         #  setattr(self, word, getattr(machar, word).flat[0])
-        # /usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:89: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+        # /usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:89:
+        # UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
         #  return self._float_to_str(self.smallest_subnormal)
 
         centroid = cp.mean(cp.argwhere(mask_pupil_bool), axis=0)
@@ -229,8 +239,10 @@ class PostInferenceOp(Operator):
 
         # 	#EXPERIMENTAL (to be removed or checked for multiple mask)
         #        #https://www.geeksforgeeks.org/python-opencv-find-center-of-contour/
-        #        frameUMat = cv2.UMat(tensor_1ch_pupil_sq_uint8.shape[0], tensor_1ch_pupil_sq_uint8.shape[1], cv2.CV_8U)
-        #        mask_gray = cv2.normalize(src=frameUMat, dst=None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+        #        frameUMat = cv2.UMat(tensor_1ch_pupil_sq_uint8.shape[0],
+        #               tensor_1ch_pupil_sq_uint8.shape[1], cv2.CV_8U)
+        #        mask_gray = cv2.normalize(src=frameUMat, dst=None, alpha=0, beta=255,
+        #               norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         #        #print(mask_gray.get())
         #        blur = cv2.GaussianBlur(mask_gray, (5, 5), 0)
         #        ret,thresh = cv2.threshold(blur,127,255,cv2.THRESH_BINARY)
@@ -238,7 +250,8 @@ class PostInferenceOp(Operator):
         #        M = cv2.moments(thresh)
         #        #M = cv2.cuda.moments(thresh)
         #        #multiple objects
-        #        #contours, hierarchies = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        #        #contours, hierarchies =
+        #               cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         #        #M = cv2.moments(contours)
         #        print(f"Moments from threshold")
         #        print(M["m00"])
@@ -577,7 +590,8 @@ if __name__ == "__main__":
         type=lambda s: s.lower() in ["true", "t", "yes", "1"],
         default=True,
         help=(
-            "Set debug flag either False or True (default). WARNING: Setting this to True will slow down performance of the app!"
+            "Set debug flag either False or True (default). \
+                WARNING: Setting this to True will slow down performance of the app!"
         ),
     )
     args = parser.parse_args()
