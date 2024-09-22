@@ -10,8 +10,7 @@ REF to potentially solve 'aten::max_unpool2d' to ONNX opset version
 https://github.com/pytorch/pytorch/issues/25088
 """
 
-import torch
-import torch.nn as nn
+from torch.nn import nn
 import torch.nn.functional as F
 
 
