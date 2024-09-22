@@ -1,6 +1,7 @@
 
 import torch
 
+
 def export_model(model, device, path_name, dummy_input):
     """
     # Input to the model
