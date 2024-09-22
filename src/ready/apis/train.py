@@ -7,23 +7,15 @@ import time
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.onnx
 import torch.optim as optim
-from torch.autograd import Function
-from torch.utils.data import Dataset
-from torchvision import datasets
-from torchvision.transforms import ToTensor
 
 # from segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import EyeDataset
-from src.ready.utils.utils import (export_model, get_working_directory,
-                                   set_data_directory)
+from src.ready.utils.utils import set_data_directory
 
 torch.cuda.empty_cache()
 
@@ -33,7 +25,7 @@ def save_checkpoint(state, path):
     Save checkpoint method
     """
     torch.save(state, path)
-    print("Checkpoint saved at {}".format(path))
+    print(f"Checkpoint saved at {path}")
 
 
 def norm_image(hot_img):
@@ -75,7 +67,10 @@ def sanity_check(trainloader, neural_network, cuda_available):
         # swapaxes(0, 2).swapaxes(1, 2)).cpu().squeeze(0)
 
         print(
-            f"   SANITY_CHECK no[no == 0].size(): {no[no == 0].size()}, no[no == 1].size(): {no[no == 1].size()}, no[no == 2].size(): {no[no == 2].size()}, no[no == 3].size(): {no[no == 3].size()}"
+            f"   SANITY_CHECK no[no == 0].size(): {no[no == 0].size()}, \
+                                no[no == 1].size(): {no[no == 1].size()}, \
+                                no[no == 2].size(): {no[no == 2].size()}, \
+                                no[no == 3].size(): {no[no == 3].size()}"
         )
 
         # TOSAVE_PLOTS_TEMPORALY?
@@ -116,10 +111,11 @@ def main():
     # TODO
     # add general path for $DATASETPATH
     # set_data_directory("datasets/DATASETPATH")
-    # Split data into train, test and val (currently data is just in folders synthetic and mask-withskin)
+    # Split data into train, test and val (currently data
+    # is just in folders synthetic and mask-withskin)
     # RetrainUNET
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if not os.path.exists("models"):
         os.mkdir("models")
@@ -132,7 +128,7 @@ def main():
     )  # for set_data_directory("ready/data/openEDS")
 
     # TODO trainset = RITeye_dataset("RIT-eyes/")
-    print("Length of trainset:", len(trainset))
+    # print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
@@ -194,14 +190,14 @@ def main():
     if weight_fn is not None:
         raise NotImplemented()
     else:
-        print("Starting new checkpoint.".format(weight_fn))
+        print(f"Starting new checkpoint. {weight_fn}")
         weight_fn = os.path.join(
             os.getcwd(),
-            "checkpoint_{}.pth.tar".format(datetime.now().strftime("%Y%m%d_%H%M%S")),
+            f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
         )
 
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        print("Epoch {}:".format(i))
+        print(f"Epoch {i}:")
         sum_loss = 0.0
 
         for j, data in enumerate(trainloader, 1):
