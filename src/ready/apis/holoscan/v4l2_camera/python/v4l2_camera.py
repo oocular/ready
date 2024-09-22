@@ -1,31 +1,29 @@
-"""
- SPDX-FileCopyrightText: Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
- SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: Copyright (c) 2022-2024 NVIDIA CORPORATION & AFFILIATES.
+# All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 
- http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-"""  # noqa: E501
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# Limitations under the License.
+
+""" v4l2 camera example """
 
 import os
 
 # import random
 import cupy as cp
-from holoscan.core import Application, Operator, OperatorSpec, Tracker
-from holoscan.gxf import Entity
-from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
-                                SegmentationPostprocessorOp,
-                                V4L2VideoCaptureOp, VideoStreamReplayerOp)
+from holoscan.core import Application, Operator, OperatorSpec
+from holoscan.operators import FormatConverterOp, HolovizOp, V4L2VideoCaptureOp
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
-                                MemoryStorageType, UnboundedAllocator)
+                                UnboundedAllocator)
 
 
 class InfoOp(Operator):
@@ -226,6 +224,7 @@ class App(Application):
 
 
 def main(config_file):
+    """Main function to run the application"""
     app = App()
     # if the --config command line argument was provided, it will override this config_file
     app.config(config_file)
