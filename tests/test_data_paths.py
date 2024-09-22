@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from ready.utils.utils import set_data_directory
+from src.ready.utils.utils import set_data_directory
 
 
 def test_data_path():
