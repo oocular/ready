@@ -1,7 +1,8 @@
 """
 Inference
 See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
-See pixel_accuracy, mIoU : https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
+See pixel_accuracy, mIoU:
+https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
 https://medium.com/yodayoda/segmentation-for-creating-maps-92b8d926cf7e
 """
 
@@ -35,8 +36,10 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # trainset = MobiousDataset("MOBIOUS/train") #for  set_data_directory("datasets/mobious/MOBIOUS")
-    # trainset = MobiousDataset("sample-frames/test640x400") #for set_data_directory("ready/data/mobious/sample-frames")
+    # trainset = MobiousDataset("MOBIOUS/train")
+    # #for  set_data_directory("datasets/mobious/MOBIOUS")
+    # trainset = MobiousDataset("sample-frames/test640x400")
+    # #for set_data_directory("ready/data/mobious/sample-frames")
     trainset = MobiousDataset(
         "sample-frames/test640x400_1frame_1_1i_Ll_1"
     )  # for set_data_directory("ready/data/mobious/sample-frames")
@@ -121,10 +124,16 @@ if __name__ == "__main__":
             image = images[0].unsqueeze(0)
             labels = labels.cuda()
             label = labels[0].unsqueeze(0)
-            # print(f"images.size() {images.size()}") #torch.Size([batch_size_, 3, 400, 640])
-            # print(f"image.size() {image.size()}") #torch.Size([1, 3, 400, 640])
-            # print(f"labels.size() {labels.size()}") #labels.size() torch.Size([batch_size_, 400, 640]) #WRONGtorch.Size([batch_size_, 4, 400, 640])
-            # print(f"label.size() {label.size()}") #label.size() torch.Size([1, 400, 640]) #WRONG #torch.Size([1, 4, 400, 640])
+            # print(f"images.size() {images.size()}")
+            # #torch.Size([batch_size_, 3, 400, 640])
+            # print(f"image.size() {image.size()}")
+            # #torch.Size([1, 3, 400, 640])
+            # print(f"labels.size() {labels.size()}")
+            # #labels.size() torch.Size([batch_size_, 400, 640])
+            # #WRONGtorch.Size([batch_size_, 4, 400, 640])
+            # print(f"label.size() {label.size()}")
+            # #label.size() torch.Size([1, 400, 640])
+            # #WRONG #torch.Size([1, 4, 400, 640])
 
         ##PTH model
         outputs = model(image)
@@ -283,7 +292,9 @@ if __name__ == "__main__":
         ax[5, 3].set_title("ort_outs_argmax>2")
         ax[5, 4].set_title("ort_outs_argmax>3")
 
-        # #Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers). Got range [-27.269308..12.142393].
+        # #Clipping input data to the valid range for
+        # imshow with RGB data ([0..1] for floats or [0..255] for integers).
+        # Got range [-27.269308..12.142393].
         ax[6, 0].imshow(ort_outs.permute(1, 2, 0).cpu())
         ax[6, 1].imshow(ort_outs.permute(1, 2, 0)[:, :, 0].cpu())
         ax[6, 2].imshow(ort_outs.permute(1, 2, 0)[:, :, 1].cpu())
