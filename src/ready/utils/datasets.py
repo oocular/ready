@@ -4,10 +4,8 @@ datasets
 
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn.functional as F
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.io import read_image
@@ -40,12 +38,14 @@ class EyeDataset(Dataset):
         image = torch.stack([image, image, image], 1)
         image = torch.squeeze(image)
         # print(f"{type(image) = }, {image.dtype = }, {image.shape = }")
-        # type(image) = <class 'torch.Tensor'>, image.dtype = torch.float32, image.shape = torch.Size([3, 400, 640])
+        # type(image) = <class 'torch.Tensor'>, image.dtype = torch.float32,
+        # image.shape = torch.Size([3, 400, 640])
 
         label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
         label = torch.tensor(label, dtype=torch.long)  # .unsqueeze(0)
-        ## TODO add module to DEBUG LABELS
+        #TODO add module to DEBUG LABELS
+        # import matplotlib.pyplot as plt
         # print(label.long().min(), label.long().max()) # tensor(0) tensor(3)
         # tensor(0) sclera plt.imshow(label>0)
         # tensor(1) iris  plt.imshow(label>1)
@@ -57,15 +57,18 @@ class EyeDataset(Dataset):
         # plt.show()
 
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
-        # type(label) = <class 'torch.Tensor'>, label.dtype = torch.int64, label.shape = torch.Size([400, 640])
+        # type(label) = <class 'torch.Tensor'>, label.dtype = torch.int64,
+        # label.shape = torch.Size([400, 640])
 
-        # #TODO check if this is correct
+        #TODO check if this is correct
         # label = F.one_hot(label, 4).type(torch.float)
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
-        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32, label.shape = torch.Size([400, 640, 4])
+        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32,
+        # label.shape = torch.Size([400, 640, 4])
         # label = label.reshape([4, 400, 640])
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
-        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32, label.shape = torch.Size([4, 400, 640])
+        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32,
+        # label.shape = torch.Size([4, 400, 640])
 
         if self.transform:
             image = self.transform(image)
@@ -135,7 +138,7 @@ class MobiousDataset(Dataset):
         # torch.set_printoptions(threshold=torch.inf)
         # print(mask)
 
-        # #TODO add sanity check for plotting encoded masks
+        #TODO add sanity check for plotting encoded masks
         # plt.subplot(2,5,1), plt.imshow(mask), plt.colorbar()
         # plt.subplot(2,5,2), plt.imshow(mask>0 ), plt.colorbar()
         # plt.subplot(2,5,3), plt.imshow(mask>30), plt.colorbar()
@@ -158,7 +161,7 @@ class MobiousDataset(Dataset):
         # print(f"************************")
         # print(encode_mask.unique())
 
-        # #TODO add sanity check for plotting encoded masks
+        #TODO add sanity check for plotting encoded masks
         # plt.subplot(2,5,6), plt.imshow(encode_mask), plt.colorbar()
         # plt.subplot(2,5,7), plt.imshow(encode_mask>0 ), plt.colorbar()
         # plt.subplot(2,5,8), plt.imshow(encode_mask>1), plt.colorbar()
