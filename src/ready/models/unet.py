@@ -2,14 +2,14 @@
 https://github.com/hanyoseob/pytorch-UNET
 """
 
-# from layer import *
 import torch
 import torch.nn as nn
-from torch.nn import init
-from torch.optim import lr_scheduler
 
 
 class CNR2d(nn.Module):
+    """
+    Module for Conv + Norm + ReLU
+    """
     def __init__(
         self,
         nch_in,
@@ -54,10 +54,12 @@ class CNR2d(nn.Module):
         self.cbr = nn.Sequential(*layers)
 
     def forward(self, x):
+        """ forward """
         return self.cbr(x)
 
 
 class Pooling2d(nn.Module):
+    """ Module for Pooling"""
     def __init__(self, nch=[], pool=2, type="avg"):
         super().__init__()
 
@@ -69,10 +71,12 @@ class Pooling2d(nn.Module):
             self.pooling = nn.Conv2d(nch, nch, kernel_size=pool, stride=pool)
 
     def forward(self, x):
+        """forward"""
         return self.pooling(x)
 
 
 class UnPooling2d(nn.Module):
+    """Module for unpooling"""
     def __init__(self, nch=[], pool=2, type="nearest"):
         super().__init__()
 
@@ -86,10 +90,12 @@ class UnPooling2d(nn.Module):
             self.unpooling = nn.ConvTranspose2d(nch, nch, kernel_size=pool, stride=pool)
 
     def forward(self, x):
+        """forward"""
         return self.unpooling(x)
 
 
 class Conv2d(nn.Module):
+    """Module for Conv2d"""
     def __init__(self, nch_in, nch_out, kernel_size=4, stride=1, padding=1, bias=True):
         super(Conv2d, self).__init__()
         self.conv = nn.Conv2d(
@@ -102,10 +108,12 @@ class Conv2d(nn.Module):
         )
 
     def forward(self, x):
+        """forward"""
         return self.conv(x)
 
 
 class Norm2d(nn.Module):
+    """Module for Normalization"""
     def __init__(self, nch, norm_mode):
         super(Norm2d, self).__init__()
         if norm_mode == "bnorm":
@@ -114,10 +122,12 @@ class Norm2d(nn.Module):
             self.norm = nn.InstanceNorm2d(nch)
 
     def forward(self, x):
+        """forward"""
         return self.norm(x)
 
 
 class ReLU(nn.Module):
+    """Module for ReLU"""
     def __init__(self, relu):
         super(ReLU, self).__init__()
         if relu > 0:
@@ -126,10 +136,12 @@ class ReLU(nn.Module):
             self.relu = nn.ReLU(True)
 
     def forward(self, x):
+        """forward"""
         return self.relu(x)
 
 
 class UNet(nn.Module):
+    """Module for UNet"""
     def __init__(self, nch_in, nch_out, nch_ker=64, norm="bnorm"):
         super(UNet, self).__init__()
 
@@ -143,10 +155,7 @@ class UNet(nn.Module):
         else:
             self.bias = True
 
-        """
-        Encoder part
-        """
-
+        """Encoder part""" #noqa: W0105
         self.enc1_1 = CNR2d(
             1 * self.nch_in,
             1 * self.nch_ker,
@@ -232,9 +241,7 @@ class UNet(nn.Module):
             relu=0.0,
         )
 
-        """
-        Decoder part
-        """
+        """Decoder part""" #noqa: W0105
         self.dec5_1 = CNR2d(
             16 * self.nch_ker,
             8 * self.nch_ker,
@@ -331,10 +338,9 @@ class UNet(nn.Module):
         self.fc = Conv2d(1 * self.nch_ker, 1 * self.nch_out, kernel_size=1, padding=0)
 
     def forward(self, x):
-        """
-        Encoder part
-        """
+        """forward"""
 
+        """Encoder part""" # noqa: W0105
         enc1 = self.enc1_2(self.enc1_1(x))
         pool1 = self.pool1(enc1)
 
@@ -349,9 +355,7 @@ class UNet(nn.Module):
 
         enc5 = self.enc5_1(pool4)
 
-        """
-        Encoder part
-        """
+        """Decoder part""" # noqa: W0105
         dec5 = self.dec5_1(enc5)
 
         unpool4 = self.unpool4(dec5)
