@@ -1,12 +1,10 @@
 """
 Inference
 See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
-See pixel_accuracy, mIoU : https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
+See pixel_accuracy, mIoU :
+https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
 """
 
-import os
-
-import matplotlib.image as mimg
 import matplotlib.pyplot as plt
 import numpy as np
 import onnxruntime
@@ -15,7 +13,7 @@ import torch.nn.functional as F
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import EyeDataset
-from src.ready.utils.utils import get_working_directory, set_data_directory
+from src.ready.utils.utils import set_data_directory
 
 # TODO
 # from sklearn.metrics import (
@@ -28,8 +26,10 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # trainset = EyeDataset("openEDS/openEDS/validation")  # train #test #validation (Length of trainset: 2384)
-    # trainset = EyeDataset("sample-frames/val3frames") #for     set_data_directory("ready/data/openEDS")
+    # trainset = EyeDataset("openEDS/openEDS/validation")
+    # # train #test #validation (Length of trainset: 2384)
+    # trainset = EyeDataset("sample-frames/val3frames")
+    # #for     set_data_directory("ready/data/openEDS")
     trainset = EyeDataset(
         "sample-frames/val1frame_000180"
     )  # for     set_data_directory("ready/data/openEDS")
@@ -84,15 +84,27 @@ if __name__ == "__main__":
             labels = labels.cuda()
             label = labels[0].unsqueeze(0)
             ## images
-            # print(f"images.size() {images.size()}") #torch.Size([batch_size_, 3, 400, 640])
-            # print(f"image.size() {image.size()}") #torch.Size([1, 3, 400, 640])
-            # print(f"images.size() {images.size()}; type(labels): {type(images)}; pred.type: {images.type()} ")
-            # torch.Size([3, 3, 400, 640]); <class 'torch.Tensor'>; torch.cuda.FloatTensor
+            # print(f"images.size() {images.size()}")
+            # #torch.Size([batch_size_, 3, 400, 640])
+            # print(f"image.size() {image.size()}")
+            # #torch.Size([1, 3, 400, 640])
+            # print(f"images.size() {images.size()};
+            # type(labels): {type(images)};
+            # pred.type: {images.type()} ")
+            # torch.Size([3, 3, 400, 640]);
+            # <class 'torch.Tensor'>;
+            # torch.cuda.FloatTensor
             ## labels
-            # print(f"labels.size() {labels.size()}") #torch.Size([batch_size_, 400, 640])
-            # print(f"label.size() {label.size()}") #torch.Size([1, 400, 640])
-            # print(f"labels.size() {labels.size()}; type(labels): {type(labels)}; pred.type: {labels.type()} ")
-            # torch.Size([batch_size_, 400, 640]),  <class 'torch.Tensor'>, torch.cuda.LongTensor
+            # print(f"labels.size() {labels.size()}")
+            # #torch.Size([batch_size_, 400, 640])
+            # print(f"label.size() {label.size()}")
+            # #torch.Size([1, 400, 640])
+            # print(f"labels.size() {labels.size()};
+            # type(labels): {type(labels)};
+            # pred.type: {labels.type()} ")
+            # torch.Size([batch_size_, 400, 640]),
+            # <class 'torch.Tensor'>,
+            # torch.cuda.LongTensor
 
         ##PTH model
         outputs = model(image)
@@ -102,8 +114,12 @@ if __name__ == "__main__":
 
         ##PREDICTION
         pred_softmax = F.softmax(outputs, dim=1)
-        # print(f"pred.size() {pred.size()}, type(pred): {type(pred)} pred.type: {pred.type()} ")
-        # pred.size() torch.Size([1, 4, 400, 640]), type(pred): <class 'torch.Tensor'> pred.type: torch.cuda.FloatTensor
+        # print(f"pred.size() {pred.size()},
+        # type(pred): {type(pred)}
+        # pred.type: {pred.type()} ")
+        # pred.size() torch.Size([1, 4, 400, 640]),
+        # type(pred): <class 'torch.Tensor'>
+        # pred.type: torch.cuda.FloatTensor
 
         ## PREDICTION argmax(softmax(x))
         pred_argmax_softmax = torch.argmax(F.softmax(outputs, dim=1), dim=1)

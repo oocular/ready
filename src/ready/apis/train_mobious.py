@@ -6,24 +6,15 @@ import os
 import time
 from datetime import datetime
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.onnx
-import torch.optim as optim
-from torch.autograd import Function
-from torch.utils.data import Dataset
-from torchvision import datasets
-from torchvision.transforms import ToTensor
+from torch import nn
+from torch import optim as optim
 
 # from segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import (export_model, get_working_directory,
-                                   set_data_directory)
+from src.ready.utils.utils import set_data_directory
 
 torch.cuda.empty_cache()
 # import gc
@@ -74,6 +65,7 @@ def sanity_check(trainloader, neural_network, cuda_available):
         )
 
         # TOSAVE_PLOTS_TEMPORALY?
+        # import matplotlib.pyplot as plt
         # axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
         # print("NLLLL", nl.shape)
         # axarr[1].imshow(labels[0].squeeze(0).cpu())
@@ -108,10 +100,10 @@ def main():
     if weight_fn is not None:
         raise NotImplemented()
     else:
-        print("Starting new checkpoint.".format(weight_fn))
+        print(f"Starting new checkpoint. {weight_fn}""")
         weight_fn = os.path.join(
             os.getcwd(),
-            "checkpoint_{}.pth.tar".format(datetime.now().strftime("%Y%m%d_%H%M%S")),
+            f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
         )
 
     cuda_available = torch.cuda.is_available()
@@ -119,7 +111,8 @@ def main():
     trainset = MobiousDataset(
         "train"
     )  # Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
-    # trainset = MobiousDataset("sample-frames/test640x400") #Length 5; set_data_directory("ready/data")
+    # trainset = MobiousDataset("sample-frames/test640x400")
+    # Length 5; set_data_directory("ready/data")
     print("Length of trainset:", len(trainset))
 
     # batch_size_ = 3 #to_test
@@ -212,16 +205,27 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
                 ## images
-                # print(f"images.size() {images.size()}; type(labels): {type(images)}; images.type: {images.type()} ")
-                # torch.Size([batch_size_, 3, 400, 640]);  <class 'torch.Tensor'>; torch.cuda.FloatTensor
+                # print(f"images.size() {images.size()};
+                # type(labels): {type(images)};
+                # images.type: {images.type()} ")
+                # torch.Size([batch_size_, 3, 400, 640]);
+                # <class 'torch.Tensor'>;
+                # torch.cuda.FloatTensor
                 ## labels
-                # print(f"labels.size() {labels.size()}; type(labels): {type(labels)}; labels.type: {labels.type()} ")
-                # torch.Size([batch_size_, 400, 640]),  <class 'torch.Tensor'>, torch.cuda.LongTensor
+                # print(f"labels.size() {labels.size()};
+                # type(labels): {type(labels)};
+                # labels.type: {labels.type()} ")
+                # torch.Size([batch_size_, 400, 640]),
+                # <class 'torch.Tensor'>, torch.cuda.LongTensor
 
             optimizer.zero_grad()
             output = model(images)
-            # print(f"output.size() {output.size()}; type(output): {type(output)}; pred.type: {output.type()} ")
-            # torch.Size([batch_size_, 4, 400, 640]); <class 'torch.Tensor'>; torch.cuda.FloatTensor
+            # print(f"output.size() {output.size()};
+            # type(output): {type(output)};
+            # pred.type: {output.type()} ")
+            # torch.Size([batch_size_, 4, 400, 640]);
+            # <class 'torch.Tensor'>;
+            # torch.cuda.FloatTensor
 
             # labels = labels.type(torch.LongTensor).cuda()
             loss = loss_fn(output, labels)
@@ -254,7 +258,7 @@ def main():
 
     # TODO
     #    batch_size = 1    # just a random number
-    #    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
+    #    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(device)
     #    export_model(model, device, path_name, dummy_input):
 
     endtime = time.time()

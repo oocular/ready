@@ -10,9 +10,8 @@ REF to potentially solve 'aten::max_unpool2d' to ONNX opset version
 https://github.com/pytorch/pytorch/issues/25088
 """
 
-import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn import nn
 
 
 class SegNet(nn.Module):

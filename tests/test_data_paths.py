@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from ready.utils.utils import set_data_directory
+from src.ready.utils.utils import set_data_directory
 
 
 def test_data_path():
@@ -107,7 +107,7 @@ def test_data_path_rit_eyes():
     print(os.getcwd())
 
 
-def test_tif_with_Image():
+def test_tif_with_image():
     """
     test png image with Image open
     """
@@ -170,7 +170,7 @@ def test_mobious_dataset():
     sclera = lnp[:, :, 0]
     iris = lnp[:, :, 1]
     pupil = lnp[:, :, 2]
-    bck = lnp[:, :, 3]
+    #TOPLOT bck = lnp[:, :, 3]
     print(lnp.shape)  # (400, 640, 4)
     # print(pupil)
 
@@ -221,7 +221,7 @@ def test_mobious_dataset_labels():
     mask_sclera = l[:, :, 0]  # sclera
     mask_iris = l[:, :, 1]  # iris
     mask_pupil = l[:, :, 2]  # pupil
-    mask_bck = l[:, :, 3]  # pupil
+    #TOPLOT mask_bck = l[:, :, 3]  # pupil
 
     plt.subplot(1, 3, 1)
     # plt.imshow(raw, "gray", interpolation="none")
