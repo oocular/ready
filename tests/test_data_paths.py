@@ -7,6 +7,7 @@ import os
 import matplotlib.image as mimg
 import matplotlib.pyplot as plt
 import numpy as np
+from loguru import logger
 from PIL import Image
 
 from src.ready.utils.utils import set_data_directory
@@ -159,7 +160,6 @@ def test_mobious_dataset():
     Test mobious dataset
     python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset
 
-    TODO: Add assert to properly test shape of data
     """
     print("mobious")
     # set_data_directory("datasets/mobious/MOBIOUS")
@@ -171,9 +171,14 @@ def test_mobious_dataset():
     iris = lnp[:, :, 1]
     pupil = lnp[:, :, 2]
     #TOPLOT bck = lnp[:, :, 3]
-    print(lnp.shape)  # (400, 640, 4)
-    # print(pupil)
 
+    logger.info(f"raw.shape: {raw.shape}")
+    logger.info(f"lnp.shape: {lnp.shape}")
+
+    assert raw.shape == (400, 640, 3)
+    assert lnp.shape == (400, 640, 4)
+
+    # Plots
     plt.subplot(2, 3, 1)
     plt.imshow(raw)
     plt.title("Raw image (.jpg)")
@@ -202,12 +207,12 @@ def test_mobious_dataset_labels():
     Test mobious dataset
     python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset_labels
 
-    TODO: Add assert to properly test shape of data
     """
     print("mobious")
     # set_data_directory("datasets/mobious/MOBIOUS")
     set_data_directory("ready/data/mobious/sample-frames/test640x400")
 
+    #TODO: TEST all images
     # imagename="1_1i_Ll_1"
     # imagename="1_1i_Ll_2"
     # imagename="1_1i_Lr_1"
@@ -223,6 +228,14 @@ def test_mobious_dataset_labels():
     mask_pupil = l[:, :, 2]  # pupil
     #TOPLOT mask_bck = l[:, :, 3]  # pupil
 
+    logger.info(f"raw.shape: {raw.shape}")
+    logger.info(f"l.shape: {l.shape}")
+
+    assert raw.shape == (400, 640, 3)
+    assert l.shape == (400, 640, 4)
+
+
+    #Plots
     plt.subplot(1, 3, 1)
     # plt.imshow(raw, "gray", interpolation="none")
     plt.imshow(raw)

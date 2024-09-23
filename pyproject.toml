@@ -24,6 +24,7 @@ dependencies = [
     "matplotlib",
     "pandas",
     "PyQt6",
+    "loguru",
 ]
 [project.optional-dependencies]
 # development dependency groups

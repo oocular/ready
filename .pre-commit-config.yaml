@@ -11,6 +11,7 @@ repos:
         exclude: 'data/.*|docs/.*'
         exclude_types: [markdown]
     -   id: check-yaml
+        exclude: '.github/workflows/.*'
     -   id: check-added-large-files
   - repo: local
     hooks:
