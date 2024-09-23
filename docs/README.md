@@ -45,7 +45,6 @@ python -m pytest -v -s tests/test_data_paths.py::test_tif_with_matplotlib
 
 ## Pre-commit
 ```
-#TODO run pre-commit with no errors!
 pre-commit run -a
 ```
 
