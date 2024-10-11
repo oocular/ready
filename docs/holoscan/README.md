@@ -13,11 +13,9 @@ sudo apt-get install -y nvidia-container-toolkit
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
 git pull
-#git checkout 1a67c53 #holoscan-sdk-2.0.0
 ./run clear_cache
-#./dev_container build --verbose
-#TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3470.5s #~1h (9/9) FINISHED
-./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] [+] Building 3281.7s (8/8) FINISHED
+./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3222.9s (8/8) FINISHED #~50mins
+#TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
 ```
 
 ## Launch 
