@@ -3,25 +3,20 @@ utils
 """
 
 import os
+from pathlib import Path
+
+HOME_PATH = Path.home()
+REPOSITORY_PATH = Path.cwd()
 
 
-def get_working_directory():
-    """
-    Test working directory
-    """
 
-    pwd = os.getcwd()
-    if os.path.split(pwd)[-1] == "models":
-        os.chdir("../../../../")  # for models
-    else:
-        os.chdir("../")  # for tests
-    get_pwd = os.getcwd()  # get_pwd = os.path.abspath(os.getcwd())
-    return get_pwd
-
-
-def set_data_directory(global_data_path: str):
+def set_data_directory(main_path: str = None, data_path: str = None):
     """
     set_data_directory with input variable:
-        global_data_path. For example: "datasets/openEDS"
+        data_path.
+        For example:
+        set_data_directory("data/mobious/sample-frames/test640x400")
     """
-    os.chdir(os.path.join(get_working_directory(), global_data_path))
+    if main_path is None:
+        main_path = REPOSITORY_PATH
+    os.chdir(os.path.join(main_path, data_path))
