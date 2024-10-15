@@ -20,7 +20,7 @@ torch.cuda.empty_cache()
 # import gc
 # gc.collect()
 
-MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #TO_UPDATE 
+MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #TO_UPDATE
 
 def save_checkpoint(state, path):
     """
