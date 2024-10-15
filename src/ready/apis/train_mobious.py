@@ -20,7 +20,9 @@ torch.cuda.empty_cache()
 # import gc
 # gc.collect()
 
-MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #TO_UPDATE
+#MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
+MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
+
 
 def save_checkpoint(state, path):
     """
@@ -87,11 +89,10 @@ def main():
     """
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-
-    # set_data_directory("datasets/mobious/MOBIOUS")
-    # set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #TOTEST
-    set_data_directory(data_path="data/mobious") #data in repo
     # TODO train with 1700x3000
+    #set_data_directory(data_path="data/mobious") #data in repo
+
+    set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -110,12 +111,12 @@ def main():
 
     cuda_available = torch.cuda.is_available()
 
+    #trainset = MobiousDataset(
+    #    "sample-frames/test640x400"
+    #    ) # Length 5; set_data_directory("ready/data")
     trainset = MobiousDataset(
-        "sample-frames/test640x400"
-        ) # Length 5; set_data_directory("ready/data")
-    # trainset = MobiousDataset(
-    #     "train"
-    # )  # Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+        "train"
+    )  # Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
 
     print("Length of trainset:", len(trainset))
 
