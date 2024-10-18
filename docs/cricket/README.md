@@ -24,7 +24,7 @@ scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   
 
 ## Container
 
-### Setting up /opt/nvidia/containers (first time)
+### Setting up /opt/nvidia/containers (Optional)
 ```
 mkdir -p containers && cd containers
 #cd containers
