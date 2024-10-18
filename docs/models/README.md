@@ -5,7 +5,7 @@
 * activate and export libs
 ```
 #cd root path of repo
-conda activate readyVE
+source .venv/bin/activate #To activate the virtual environment:
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
 ### Train models in server

@@ -14,11 +14,14 @@ from torch import optim as optim
 # from segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import set_data_directory
+from src.ready.utils.utils import HOME_PATH, set_data_directory
 
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
+
+#MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
+MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
 
 
 def save_checkpoint(state, path):
@@ -86,9 +89,8 @@ def main():
     """
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-
-    set_data_directory("datasets/mobious/MOBIOUS")
-    # set_data_directory("ready/data/mobious")
+    #set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
+    set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
     # TODO train with 1700x3000
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -108,11 +110,16 @@ def main():
 
     cuda_available = torch.cuda.is_available()
 
+    ## Length 5; set_data_directory("ready/data")
+    #trainset = MobiousDataset(
+    #    "sample-frames/test640x400"
+    #    )
+
+    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
         "train"
-    )  # Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
-    # trainset = MobiousDataset("sample-frames/test640x400")
-    # Length 5; set_data_directory("ready/data")
+    )
+
     print("Length of trainset:", len(trainset))
 
     # batch_size_ = 3 #to_test
@@ -147,12 +154,14 @@ def main():
         model.cuda()
         loss_fn.cuda()
 
-    #
-    #
+
+    run_epoch = 1 #to_test
+    # run_epoch = ?
+
+    #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
     #
     #
-    # run_epoch = 1 #to_test
     # 10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     # 10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
     # 300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
@@ -167,28 +176,31 @@ def main():
     # Average loss @ epoch: 0.0006139971665106714
     # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     # Elapsed time for the training loop: 13.326771756013235 (mins)
-    #
-    #
+
+
+    ##############################################
     # REMOTE A100 40GB
     #
-    #
-    # run_epoch = 1 #to_test
     #
     # 10epochs:
     # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
     # Average loss @ epoch: 12.10 in cricket
-    run_epoch = 100  # noweights
+    #
+    # run_epoch = 100  # noweights
     # Average loss @ epoch: 0.001589389712471593
     # Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
     # Elapsed time for the training loop: 47.66647284428279 (mins)
+    #
     # Epoch 20: loss no-weights
     # Average loss @ epoch: 11.027751895931218
     # Saved PyTorch Model State to weights/_weights_03-09-24_22-34.pth
     # Elapsed time for the training loop: 9.677963574727377 (mins)
+    #
     # Epoch 20: loss with weights
     # Average loss @ epoch: 14.233737432039701
     # Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
     # Elapsed time for the training loop: 9.664288135369619 (mins)
+    #
     # run_epoch = 200
     # Average loss @ epoch: 9.453074308542105
     # Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
@@ -252,6 +264,9 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
+    #TODO
+    # setup a  shared path to save models when using datafrom repo (to avoid save models in repo)
+    # add argument to say if we want or not save models
     modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
