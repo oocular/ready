@@ -44,7 +44,7 @@ cd $HOME/ready
 git pull
 
 # Launch container 
-bash docs/cricket/launch_container_in_cricket.bash
+bash docs/cricket/launch_container_in_cricket.bash <ADD_USERNAME (eg. ccxxxxx)>
 
 #inside adapter>
 cd $HOME/ready
