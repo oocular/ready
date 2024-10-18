@@ -89,10 +89,9 @@ def main():
     """
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    # TODO train with 1700x3000
-    #set_data_directory(data_path="data/mobious") #data in repo
-
+    #set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
     set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
+    # TODO train with 1700x3000
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -111,12 +110,15 @@ def main():
 
     cuda_available = torch.cuda.is_available()
 
+    ## Length 5; set_data_directory("ready/data")
     #trainset = MobiousDataset(
     #    "sample-frames/test640x400"
-    #    ) # Length 5; set_data_directory("ready/data")
+    #    )
+
+    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
         "train"
-    )  # Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    )
 
     print("Length of trainset:", len(trainset))
 
@@ -153,11 +155,13 @@ def main():
         loss_fn.cuda()
 
 
+    run_epoch = 1 #to_test
+    # run_epoch = ?
+
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
     #
     #
-    run_epoch = 1 #to_test
     # 10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
     # 10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
     # 300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
@@ -177,8 +181,6 @@ def main():
     ##############################################
     # REMOTE A100 40GB
     #
-    #
-    # run_epoch = 1 #to_test
     #
     # 10epochs:
     # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
@@ -262,6 +264,9 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
+    #TODO
+    # setup a  shared path to save models when using datafrom repo (to avoid save models in repo)
+    # add argument to say if we want or not save models
     modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
     torch.save(model.state_dict(), modelname)
     print(f"Saved PyTorch Model State to {modelname}")
