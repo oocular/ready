@@ -18,7 +18,8 @@ The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-40
 
 | Animation | Data, Model(s) |
 | --- | --- |
-| ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.22.13-ezgif.com-video-to-gif-converter.gif)  ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.30.29-ezgif.com-video-to-gif-converter.gif) **Fig.**  [API: ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480). |  [Mobious dataset](data/mobious/); [Models](data/mobious//models/) | 
+| ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.22.13-ezgif.com-video-to-gif-converter.gif)  ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.30.29-ezgif.com-video-to-gif-converter.gif)   
+**Fig.**  [API: ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480). |  [Mobious dataset](data/mobious/); [Models](data/mobious//models/) | 
 
 See more demos [here](docs/README.md#demos)
 
