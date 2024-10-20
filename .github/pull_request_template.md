@@ -25,18 +25,6 @@ Please delete options accordingly to the description.
 - [ ] My code is properly tested with `pytest -sv tests`
 - [ ] I have requested review to this PR.
 - [ ] I have addressed and marked as resolved all the review comments in my PR.
-- [ ] Make sure your branch is up-to-date with main branch. See below a general example if `rebase` is need.
+- [ ] Make sure your branch is up-to-date with main branch. See step 4 in [`CONTRIBUTING`](https://github.com/UCL/ready/blob/main/CONTRIBUTING.md).
 - [ ] Finally, I have selected `squash and merge`
-```
-git checkout main
-git pull origin main
-git checkout ISSUE_NUMBER-FEATURE_BRANCH #(e.g. git checkout 422-my-feature-branch)
-git fetch
-git rebase main
-#git status
-#edit conflicting files with your editor
-#git rebase --continue
-#git add .
-git merge main
-git push --force origin FEATURE_BRANCH
-```
+
