@@ -1,6 +1,6 @@
 # Documentation
 
-## Install uv (An extremely fast Python package manager)
+## Install [uv](https://github.com/astral-sh/uv): "An extremely fast Python package manager".
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
