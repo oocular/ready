@@ -130,7 +130,6 @@ def test_mobious_dataset_labels():
 
 def test_openEDS_dataset():
     """
-    [XZ 06/11/2024]
     Test openEDS dataset
     python -m pytest -v -s tests/test_data_paths.py::test_openEDS_dataset
 
@@ -147,7 +146,7 @@ def test_openEDS_dataset():
     pupil = mask > 2
 
     logger.info(f"raw.shape: {raw.shape}")
-    # logger.info(f"lnp.shape: {lnp.shape}")
+    logger.info(f"mask.shape: {mask.shape}")
 
     assert raw.shape == (400, 640)
     assert mask.shape == (400, 640)
