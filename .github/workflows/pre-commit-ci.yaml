@@ -1,5 +1,6 @@
 name: pre-commit CI
-on: [push]]
+
+on: [push]
 
 jobs:
   build:
