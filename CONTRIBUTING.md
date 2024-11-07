@@ -29,7 +29,7 @@ git clone git@github.com:UCL/ready.git
 
 ## Committing and pushing changes 
 The following commands are typed or copied via command line. 
-Altenatively, you can use the features of your integrated development environment (pycharm, code, vim, etc).
+Alternatively, you can use the features of your integrated development environment (pycharm, code, vim, etc).
 
 1. Clone this repo 
 ```
