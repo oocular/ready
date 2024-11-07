@@ -16,11 +16,14 @@ from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
 from src.ready.utils.utils import HOME_PATH, set_data_directory
 
+# from sklearn.metrics import jaccard_score
+from src.ready.utils.metrics import mIoU
+
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
 
-#MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
+# MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
 MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
 
 
@@ -87,10 +90,10 @@ def main():
     #CHECK add execution time
     #CHECK save loss
     """
-
+# 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    #set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
-    set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
+    set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
+    # set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
     # TODO train with 1700x3000
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -110,20 +113,20 @@ def main():
 
     cuda_available = torch.cuda.is_available()
 
-    ## Length 5; set_data_directory("ready/data")
-    #trainset = MobiousDataset(
-    #    "sample-frames/test640x400"
-    #    )
-
-    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    # Length 5; set_data_directory("ready/data")
     trainset = MobiousDataset(
-        "train"
-    )
+       "sample-frames/test640x400"
+       )
+
+    # ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    # trainset = MobiousDataset(
+    #     "train"
+    # )
 
     print("Length of trainset:", len(trainset))
 
-    # batch_size_ = 3 #to_test
-    batch_size_ = 8  # 8 original
+    batch_size_ = 3 #to_test
+    # batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
@@ -210,30 +213,39 @@ def main():
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
         print("Epoch {}:".format(i))
         sum_loss = 0.0
+        iou_score = 0.0
 
         for j, data in enumerate(trainloader, 1):
             images, labels = data
+            print(f"images.size() {images.size()};\
+            type(images): {type(images)};\
+            images.type: {images.type()} ")
+            # images.size() torch.Size([5, 3, 400, 640])
+            print(f"labels.size() {labels.size()};\
+            type(labels): {type(labels)};\
+            labels.type: {labels.type()} ")
+            # labels.size() torch.Size([5, 400, 640]);   
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
                 ## images
-                # print(f"images.size() {images.size()};
-                # type(labels): {type(images)};
-                # images.type: {images.type()} ")
+                print(f"images.size() {images.size()};\
+                type(labels): {type(images)};\
+                images.type: {images.type()} ")
                 # torch.Size([batch_size_, 3, 400, 640]);
                 # <class 'torch.Tensor'>;
                 # torch.cuda.FloatTensor
                 ## labels
-                # print(f"labels.size() {labels.size()};
-                # type(labels): {type(labels)};
-                # labels.type: {labels.type()} ")
+                print(f"labels.size() {labels.size()};\
+                type(labels): {type(labels)};\
+                labels.type: {labels.type()} ")
                 # torch.Size([batch_size_, 400, 640]),
                 # <class 'torch.Tensor'>, torch.cuda.LongTensor
 
             optimizer.zero_grad()
             output = model(images)
-            # print(f"output.size() {output.size()};
-            # type(output): {type(output)};
+            # print(f"output.size() {output.size()};\
+            # type(output): {type(output)};\
             # pred.type: {output.type()} ")
             # torch.Size([batch_size_, 4, 400, 640]);
             # <class 'torch.Tensor'>;
@@ -243,6 +255,9 @@ def main():
             loss = loss_fn(output, labels)
             loss.backward()
             optimizer.step()
+
+            iou_score += mIoU(output, labels, n_classes=1)
+                # ja = jaccard_score(output[:,i].flatten(), labels[:,i].flatten(), average='micro')
 
             sum_loss += loss.item()
             # Log every X batches
@@ -262,6 +277,7 @@ def main():
             if j == 300:
                 break
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
+        print(f"Average IoU @ epoch: {iou_score / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
     #TODO
