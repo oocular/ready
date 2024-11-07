@@ -85,8 +85,8 @@ def test_mobious_dataset_labels():
 
     #TODO: TEST each of the following images
     # imagename="1_1i_Ll_1"
-    # imagename="1_1i_Ll_2"
     # imagename="1_1i_Lr_1"
+    # imagename="1_1i_Ll_2"
     # imagename="1_1i_Lr_2"
     imagename = "1_1i_Ls_1"
 
@@ -127,6 +127,52 @@ def test_mobious_dataset_labels():
 
     plt.show()
 
+
+def test_openEDS_dataset():
+    """
+    Test openEDS dataset
+    python -m pytest -v -s tests/test_data_paths.py::test_openEDS_dataset
+
+    """
+    print("openEDS")
+    # set_data_directory("datasets/mobious/MOBIOUS") #TODO test main data
+    set_data_directory(data_path="data/openEDS/sample-frames/val3frames")
+
+    raw = mimg.imread("images/000160.png")
+    mask = np.load("labels/000160.npy")
+    # lnp = np.asarray(Image.open("masks/000160.png").convert("RGBA"))
+    sclera = mask > 0
+    iris = mask > 1
+    pupil = mask > 2
+
+    logger.info(f"raw.shape: {raw.shape}")
+    logger.info(f"mask.shape: {mask.shape}")
+
+    assert raw.shape == (400, 640)
+    assert mask.shape == (400, 640)
+
+    # Plots
+    plt.subplot(2, 3, 1)
+    plt.imshow(raw, cmap="gray")
+    plt.title("Raw image (.png)")
+
+    plt.subplot(2, 3, 2)
+    plt.imshow(mask)
+    plt.title("Mask (.npy)")
+
+    plt.subplot(2, 3, 4)
+    plt.imshow(sclera, cmap="Reds")
+    plt.title("Sclera")
+
+    plt.subplot(2, 3, 5)
+    plt.imshow(iris, cmap="Greens")
+    plt.title("Iris")
+
+    plt.subplot(2, 3, 6)
+    plt.imshow(pupil, cmap="Blues")
+    plt.title("Pupil")
+
+    plt.show()
 
 
 def test_png_openEDS():
