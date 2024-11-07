@@ -4,6 +4,7 @@ Hackathon hosted by Hawkes Institute
 6-8th November 2024    
 https://cmic-ucl.github.io/CMICHACKS/
 
+![fig](team-hawkes2024.svg)
 
 ## :scroll: Project description
 End to end real-time AI workflows are challenging due to the orchestration of various stages: (1) data acquisition, curation, labelling, postprocessing, (2) model train, validation, optimisation and deployment and (3) design of appropriate graphical user interfaces.
