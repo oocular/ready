@@ -1,5 +1,4 @@
 name: pre-commit CI
-
 on: [push]]
 
 jobs:
