@@ -308,6 +308,7 @@ class PostInferenceOp(Operator):
         y = 0.8 + 0.1 * cp.sin(8 * cp.pi * self.x + self.frame_count / 60 * 2 * cp.pi)
         point_coords = cp.stack(
             (self.x, y), axis=-1
+            # (self.y, y), axis=-1
         )  # Stack so the final shape is (n_points, 2)
 
         # adds messages
