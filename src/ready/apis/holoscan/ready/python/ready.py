@@ -3,6 +3,7 @@
 
 import os
 from argparse import ArgumentParser
+import socket
 
 import cupy as cp
 import cv2
@@ -168,7 +169,7 @@ class PostInferenceOp(Operator):
     """
 
     # def __init__(self, *args, **kwargs):
-    def __init__(self, fragment, width=None, height=None, **kwargs):
+    def __init__(self, fragment, width=None, height=None, outsocket = None, **kwargs):
         """Initialize Operator"""
         super().__init__(fragment, **kwargs)
         self.frame_count = 1
@@ -235,6 +236,10 @@ class PostInferenceOp(Operator):
         centroid = cp.nan_to_num(centroid)  # convert float NaN to integer
         print(f"centroid: {centroid}")
         centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
+        if outsocket is not None:
+            #not sure this will work, might need to convert to integer then
+            #a byte representation.
+            outsocket.sendall(centroid)
         # https://stackoverflow.com/questions/73131778/
 
         # 	#EXPERIMENTAL (to be removed or checked for multiple mask)
@@ -361,7 +366,7 @@ class PostInferenceOp(Operator):
 
 class READYApp(Application):
     def __init__(
-        self, source=None, data=None, model_name=None, debug_print_flag=None, **kwargs
+        self, source=None, data=None, model_name=None, debug_print_flag=None, use_socket = False, **kwargs
     ):
         """Initialize the application
 
@@ -377,6 +382,11 @@ class READYApp(Application):
         self.source = source
         self.debug_print_flag = debug_print_flag
         self.data_path = data
+
+        self.out_socket = None
+        if use_socket = True:
+            self.out_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.out_socket.connect(HOST, PORT)
 
         if data == "none":
             data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
@@ -500,6 +510,7 @@ class READYApp(Application):
             allocator=host_allocator,
             width=width,
             height=height,
+            out_socket = self.out_socket,
             **self.kwargs("post_inference_op"),
         )
 
@@ -594,6 +605,16 @@ if __name__ == "__main__":
                 WARNING: Setting this to True will slow down performance of the app!"
         ),
     )
+    parser.add_argument(
+        "-sk",
+        "--socket",
+        type=lambda s: s.lower() in ["true", "t", "yes", "1"],
+        default=False,
+        help=(
+            "If true the application will send the pupil centroid over a socket"
+        ),
+    )
+
     args = parser.parse_args()
 
     config_file = os.path.join(os.path.dirname(__file__), args.config)
@@ -603,6 +624,7 @@ if __name__ == "__main__":
         data=args.data,
         model_name=args.model_name,
         debug_print_flag=args.debug_print_flag,
+        use_socket = args.socket
     )
 
     with Tracker(app, filename=args.logger_filename) as tracker:

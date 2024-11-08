@@ -1,0 +1,1 @@
+This is a version of pong controlled by a socket. If you have pygame installed 'pip install pygame' then you should be able to run it with python pong.py. The application will wait until you connect a client to the relevant port. After which you can control the paddle by sending integer values over the socket from your client application.
