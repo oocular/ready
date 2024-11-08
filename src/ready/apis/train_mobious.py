@@ -17,7 +17,10 @@ from src.ready.utils.datasets import MobiousDataset
 from src.ready.utils.utils import HOME_PATH, set_data_directory
 
 # from sklearn.metrics import jaccard_score
-from src.ready.utils.metrics import mIoU
+from src.ready.utils.metrics import evaluate # mIoU, dice
+from argparse import ArgumentParser
+
+import json
 
 torch.cuda.empty_cache()
 # import gc
@@ -82,7 +85,7 @@ def sanity_check(trainloader, neural_network, cuda_available):
         break
 
 
-def main():
+def main(args):
     """
     #CHECK epoch = None
     #CHECK if weight_fn is not None:
@@ -125,12 +128,12 @@ def main():
 
     print("Length of trainset:", len(trainset))
 
-    batch_size_ = 3 #to_test
-    # batch_size_ = 8  # 8 original
+    # batch_size_ = 3 #to_test
+    batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
-    print(f"trainloader.batch_size {trainloader.batch_size}")
+    print(f"trainloader.batch_size: {trainloader.batch_size}")
 
     ##################
     # TODO create a sanity_check module
@@ -210,35 +213,47 @@ def main():
     # Elapsed time for the training loop: 96.35676774978637 (mins)
     epoch = None
 
+    performance = {
+        "accuracy": 0.0,
+        "f1": 0.0,
+        "recall": 0.0,
+        "precision": 0.0,
+        "fbeta": 0.0,
+        "miou": 0.0,
+        "dice": 0.0,
+    }
+
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
         print("Epoch {}:".format(i))
         sum_loss = 0.0
-        iou_score = 0.0
+        
+        performance_epoch = {key: 0.0 for key in performance.keys()}
+
 
         for j, data in enumerate(trainloader, 1):
             images, labels = data
-            print(f"images.size() {images.size()};\
-            type(images): {type(images)};\
-            images.type: {images.type()} ")
+            # print(f"images.size() {images.size()};\
+            # type(images): {type(images)};\
+            # images.type: {images.type()} ")
             # images.size() torch.Size([5, 3, 400, 640])
-            print(f"labels.size() {labels.size()};\
-            type(labels): {type(labels)};\
-            labels.type: {labels.type()} ")
+            # print(f"labels.size() {labels.size()};\
+            # type(labels): {type(labels)};\
+            # labels.type: {labels.type()} ")
             # labels.size() torch.Size([5, 400, 640]);   
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
                 ## images
-                print(f"images.size() {images.size()};\
-                type(labels): {type(images)};\
-                images.type: {images.type()} ")
+                # print(f"images.size() {images.size()};\
+                # type(labels): {type(images)};\
+                # images.type: {images.type()} ")
                 # torch.Size([batch_size_, 3, 400, 640]);
                 # <class 'torch.Tensor'>;
                 # torch.cuda.FloatTensor
                 ## labels
-                print(f"labels.size() {labels.size()};\
-                type(labels): {type(labels)};\
-                labels.type: {labels.type()} ")
+                # print(f"labels.size() {labels.size()};\
+                # type(labels): {type(labels)};\
+                # labels.type: {labels.type()} ")
                 # torch.Size([batch_size_, 400, 640]),
                 # <class 'torch.Tensor'>, torch.cuda.LongTensor
 
@@ -256,13 +271,16 @@ def main():
             loss.backward()
             optimizer.step()
 
-            iou_score += mIoU(output, labels, n_classes=1)
-                # ja = jaccard_score(output[:,i].flatten(), labels[:,i].flatten(), average='micro')
+            batch_metrics = evaluate(output, labels)
+
+            for key, value in batch_metrics.items():
+                print(f"{key}: {value:.4f}")
+                performance_epoch[key] += value
 
             sum_loss += loss.item()
             # Log every X batches
             if j % 50 == 0 or j == 1:
-                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
+                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size:.4f}")
             # TODO
             #                sanity_check(trainloader, model, cuda_available)
             #                save_checkpoint(
@@ -276,16 +294,28 @@ def main():
             #
             if j == 300:
                 break
-        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
-        print(f"Average IoU @ epoch: {iou_score / (j*trainloader.batch_size)}")
+            # performance[key].append(average_metric)
+
+        average_loss = sum_loss / (j * trainloader.batch_size)
+
+        print(f"\nAverage loss @ epoch: {average_loss:.4f}")
+    for key in performance:
+        performance[key] = float(performance_epoch[key] / j)
+        print(f"Average {key} @ epoch: {performance[key]:.4f}")
+    print("===========================")
+
+        # print 
 
     print("Training complete. Saving checkpoint...")
     #TODO
     # setup a  shared path to save models when using datafrom repo (to avoid save models in repo)
     # add argument to say if we want or not save models
-    modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
-    torch.save(model.state_dict(), modelname)
-    print(f"Saved PyTorch Model State to {modelname}")
+    if not args.debug_print_flag:
+        modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
+        torch.save(model.state_dict(), modelname)
+        print(f"Saved PyTorch Model State to {modelname}")
+    else: 
+        print("Model saving is disabled, set debug_print_flag to False to save model")
 
     # TODO
     #    batch_size = 1    # just a random number
@@ -296,6 +326,29 @@ def main():
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
 
+    # export performance to json
+    # reference: https://github.com/SciKit-Surgery/cmicHACKS2/blob/19d365ca92aa8f5af3da68d4c27851a1312eae31/export_eval_metrics.py
+    path_to_file = datetime.now().strftime("models/performance_%d-%m-%y_%H-%M-%S.json")
+    
 
+    text = json.dumps(performance, indent=4)
+    with open(path_to_file, "w") as out_file_obj:
+        out_file_obj.write(text)
+        
 if __name__ == "__main__":
-    main()
+    # main()
+    
+    parser = ArgumentParser(description="READY demo application.")
+    parser.add_argument(
+        "-df",
+        "--debug_print_flag",
+        type=lambda s: s.lower() in ["true", "t", "yes", "1"],
+        default=True,
+        help=(
+            "Set debug flag either False or True (default). \
+                WARNING: Setting this to True will slow down performance of the app!"
+        ),
+    )
+    
+    args = parser.parse_args()
+    main(args)
