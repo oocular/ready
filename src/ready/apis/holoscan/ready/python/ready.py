@@ -179,6 +179,7 @@ class PostInferenceOp(Operator):
         self.cycle = 0
         self.x = cp.linspace(0, 1.0, 30)
         self.varing_array = cp.zeros((30, 2))
+        self.outsocket = outsocket
 
     def setup(self, spec: OperatorSpec):
         """Setting up specifications of Operator"""
@@ -236,10 +237,10 @@ class PostInferenceOp(Operator):
         centroid = cp.nan_to_num(centroid)  # convert float NaN to integer
         print(f"centroid: {centroid}")
         centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
-        if outsocket is not None:
+        if self.outsocket is not None:
             #not sure this will work, might need to convert to integer then
             #a byte representation.
-            outsocket.sendall(centroid)
+            outsocket.sendall(centroid_x)
         # https://stackoverflow.com/questions/73131778/
 
         # 	#EXPERIMENTAL (to be removed or checked for multiple mask)
@@ -384,9 +385,9 @@ class READYApp(Application):
         self.data_path = data
 
         self.out_socket = None
-        if use_socket = True:
+        if use_socket == True:
             self.out_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.out_socket.connect(HOST, PORT)
+            self.out_socket.connect(127.0.0.1, 65432)
 
         if data == "none":
             data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
