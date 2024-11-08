@@ -127,9 +127,24 @@ class MobiousDataset(Dataset):
 
         # # print(f"x.size() {mask.shape}; type(x): {type(mask)}; x.type: {mask.type()} ")
 
-        mask = Image.open(masks_path).convert("P")
+        mask = Image.open(masks_path)
         # For the “P” mode, this method translates pixels through the palette.
+        print(type(mask))
+        print(np.array(mask).shape)
 
+        # mask2 = mask.convert("P")
+        # print(mask2)
+        # print(type(mask2))
+
+        if self.transform:
+            image = self.transform(image)
+        if self.target_transform:
+            mask = self.target_transform(mask)
+
+        print(type(mask))
+        print(np.array(mask).shape)
+
+        mask = mask.convert("P")
         mask = np.array(mask)
         mask = torch.tensor(mask, dtype=torch.long)
 
@@ -183,11 +198,6 @@ class MobiousDataset(Dataset):
         # print(label)
         # label = label.reshape([4, 400, 640])
         # print(label)
-
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            encode_mask = self.target_transform(encode_mask)
 
         # return image, label
         return image, encode_mask

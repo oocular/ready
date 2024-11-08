@@ -10,6 +10,7 @@ import torch
 import torch.onnx
 from torch import nn
 from torch import optim as optim
+from torchvision import transforms
 
 # from segnet import SegNet
 from src.ready.models.unet import UNet
@@ -20,8 +21,8 @@ torch.cuda.empty_cache()
 # import gc
 # gc.collect()
 
-#MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
-MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
+MAIN_PATH = os.path.join(HOME_PATH, "Downloads\\hackathon") #LOCAL
+# MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
 
 
 def save_checkpoint(state, path):
@@ -90,10 +91,11 @@ def main():
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
     #set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
-    set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
+    set_data_directory(main_path=MAIN_PATH, data_path="MOBIOUS") #SERVER
     # TODO train with 1700x3000
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"device used {device}")
 
     if not os.path.exists("models"):
         os.mkdir("models")
@@ -114,12 +116,19 @@ def main():
     #trainset = MobiousDataset(
     #    "sample-frames/test640x400"
     #    )
+    
+
+    transforms_train = transforms.Compose([transforms.RandomHorizontalFlip(p=0.2),
+                                           transforms.RandomVerticalFlip(p=0.2),
+                                           transforms.RandomRotation(45),
+                        ])
 
     ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        "train"
+        "train", transform=transforms_train, target_transform=transforms_train
     )
 
+    
     print("Length of trainset:", len(trainset))
 
     # batch_size_ = 3 #to_test
