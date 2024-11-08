@@ -17,7 +17,9 @@ import torch.nn.functional as F
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import get_working_directory, set_data_directory
+from src.ready.utils.utils import set_data_directory
+
+from src.ready.utils.metrics import evaluate
 
 # TODO
 # from sklearn.metrics import (
@@ -31,7 +33,9 @@ from src.ready.utils.utils import get_working_directory, set_data_directory
 
 if __name__ == "__main__":
     # set_data_directory("datasets/mobious")
-    set_data_directory("ready/data/mobious")
+    set_data_directory(
+        # main_path="ready/data/mobious",
+        data_path="data/mobious")
     print(os.getcwd())
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -87,7 +91,8 @@ if __name__ == "__main__":
     #         # Average loss @ epoch: 0.0006139971665106714
     #         # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     #         # Elapsed time for the training loop: 13.326771756013235 (mins)
-    model_name = "_weights_10-09-24_06-35-14"
+    # model_name = "_weights_10-09-24_06-35-14"
+    model_name = "_weights_08-11-24_16-38-01"
     # run_epoch = 100 #noweights
     #          #Average loss @ epoch: 0.001589389712471593
     #          #Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
@@ -99,19 +104,19 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    #### ONNX model
-    onnx_checkpoint_path = "models/" + str(model_name) + "-sim.onnx"
-    ort_session = onnxruntime.InferenceSession(
-        onnx_checkpoint_path, providers=["CPUExecutionProvider"]
-    )
+    # #### ONNX model
+    # onnx_checkpoint_path = "models/" + str(model_name) + "-sim.onnx"
+    # ort_session = onnxruntime.InferenceSession(
+    #     onnx_checkpoint_path, providers=["CPUExecutionProvider"]
+    # )
 
-    # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
-    def to_numpy(tensor):
-        return (
-            tensor.detach().cpu().numpy()
-            if tensor.requires_grad
-            else tensor.cpu().numpy()
-        )
+    # # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
+    # def to_numpy(tensor):
+    #     return (
+    #         tensor.detach().cpu().numpy()
+    #         if tensor.requires_grad
+    #         else tensor.cpu().numpy()
+    #     )
 
     ### MAIN LOOP
     f, ax = plt.subplots(7, 6)
