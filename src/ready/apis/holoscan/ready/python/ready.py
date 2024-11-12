@@ -174,8 +174,10 @@ class PostInferenceOp(Operator):
         self.frame_count = 1
         self.width = width
         self.height = height
-        self.centroid_coords = cp.array([0])
+        self.x_centroid_coords = cp.array([0])
+        self.y_centroid_coords = cp.array([0])
         self.cycle = 0
+        # Arrays for 30 frames
         self.x = cp.linspace(0, 1.0, 30)
         self.y = cp.linspace(0, 1.0, 30)
         self.x_varing_array = cp.zeros((30, 2))
@@ -235,8 +237,8 @@ class PostInferenceOp(Operator):
 
         centroid = cp.mean(cp.argwhere(mask_pupil_bool), axis=0)
         centroid = cp.nan_to_num(centroid)  # convert float NaN to integer
-        print(f"centroid: {centroid}")
         centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
+        print(f"centroid: {centroid}")
         # https://stackoverflow.com/questions/73131778/
 
         # 	#EXPERIMENTAL (to be removed or checked for multiple mask)
@@ -277,7 +279,7 @@ class PostInferenceOp(Operator):
         )
         # print(centroid_xy) #[[320. 200.]]
         centroid_xy = centroid_xy[cp.newaxis, :, :]
-        # print(centroid_xy) #[[[320. 200.]]]
+        print(f"normalised centroid_xy: {centroid_xy}")
 
         out_message = Entity(context)
 
@@ -294,29 +296,32 @@ class PostInferenceOp(Operator):
         # Create a time-varying "points" tensor
         #######################################
         # Set of (x, y) points with 30 points equally spaced along x
-        # whose y coordinate varies based on self.centroid_coords over time.
-        # self.centroid_coords = cp.append(self.centroid_coords, centroid_x/self.width)
-        self.centroid_coords = cp.append(self.centroid_coords, centroid_y / self.height)
+        # whose y coordinate varies based on self.y_centroid_coords over time.
+        self.y_centroid_coords = cp.append(self.y_centroid_coords, centroid_y / self.height)
+        self.x_centroid_coords = cp.append(self.x_centroid_coords, centroid_x / self.width)
+        # print(self.y_centroid_coords)
         if self.frame_count % 29 == 0:
-            # print(self.centroid_coords)
-            self.x_varing_array = cp.stack((self.x, self.centroid_coords), axis=-1)
-            print(self.x_varing_array)
-            # print(self.x_varing_array.shape)
+            #print(f"self.y_centroid_coords: {self.y_centroid_coords}")
+            self.x_varing_array = cp.stack((self.x, self.y_centroid_coords), axis=-1)
+            self.y_varing_array = cp.stack((self.x, self.x_centroid_coords), axis=-1)
+            #print(f"self.x_varing_array: {self.x_varing_array}")
             self.cycle = 0
-            self.centroid_coords = cp.array([0])
+            self.y_centroid_coords = cp.array([0]) #clean array
+            self.x_centroid_coords = cp.array([0]) #clean array
 
         self.cycle += 1
 
-        y = 0.8 + 0.1 * cp.sin(8 * cp.pi * self.x + self.frame_count / 60 * 2 * cp.pi)
-        x_point_coords = cp.stack(
-            (self.x, y), axis=-1
-            # (self.y, y), axis=-1
-        )  # Stack so the final shape is (n_points, 2)
+        #y = 0.8 + 0.1 * cp.sin(8 * cp.pi * self.x + self.frame_count / 60 * 2 * cp.pi)
+        #x_point_coords = cp.stack(
+        #    (self.x, y), axis=-1
+        #    # (self.y, y), axis=-1
+        #)  # Stack so the final shape is (n_points, 2)
 
         # adds messages
         out_message.add(hs.as_tensor(centroid_xy), "pupil_cXcY")
         out_message.add(hs.as_tensor(text_coords), "text_coords")
-        out_message.add(hs.as_tensor(self.x_varing_array), "x_point_coords")
+        out_message.add(hs.as_tensor(self.x_varing_array), "x_coords_varing_array")
+        out_message.add(hs.as_tensor(self.y_varing_array), "y_coords_varing_array")
         op_output.emit(out_message, "out")
 
         specs = []
