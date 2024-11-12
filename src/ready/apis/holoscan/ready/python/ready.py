@@ -177,7 +177,9 @@ class PostInferenceOp(Operator):
         self.centroid_coords = cp.array([0])
         self.cycle = 0
         self.x = cp.linspace(0, 1.0, 30)
-        self.varing_array = cp.zeros((30, 2))
+        self.y = cp.linspace(0, 1.0, 30)
+        self.x_varing_array = cp.zeros((30, 2))
+        self.y_varing_array = cp.zeros((30, 2))
 
     def setup(self, spec: OperatorSpec):
         """Setting up specifications of Operator"""
@@ -297,16 +299,16 @@ class PostInferenceOp(Operator):
         self.centroid_coords = cp.append(self.centroid_coords, centroid_y / self.height)
         if self.frame_count % 29 == 0:
             # print(self.centroid_coords)
-            self.varing_array = cp.stack((self.x, self.centroid_coords), axis=-1)
-            print(self.varing_array)
-            # print(self.varing_array.shape)
+            self.x_varing_array = cp.stack((self.x, self.centroid_coords), axis=-1)
+            print(self.x_varing_array)
+            # print(self.x_varing_array.shape)
             self.cycle = 0
             self.centroid_coords = cp.array([0])
 
         self.cycle += 1
 
         y = 0.8 + 0.1 * cp.sin(8 * cp.pi * self.x + self.frame_count / 60 * 2 * cp.pi)
-        point_coords = cp.stack(
+        x_point_coords = cp.stack(
             (self.x, y), axis=-1
             # (self.y, y), axis=-1
         )  # Stack so the final shape is (n_points, 2)
@@ -314,8 +316,7 @@ class PostInferenceOp(Operator):
         # adds messages
         out_message.add(hs.as_tensor(centroid_xy), "pupil_cXcY")
         out_message.add(hs.as_tensor(text_coords), "text_coords")
-        # out_message.add(hs.as_tensor(point_coords), "point_coords")
-        out_message.add(hs.as_tensor(self.varing_array), "point_coords")
+        out_message.add(hs.as_tensor(self.x_varing_array), "x_point_coords")
         op_output.emit(out_message, "out")
 
         specs = []

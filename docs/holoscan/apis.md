@@ -71,7 +71,7 @@ clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/
 * Debug application in local host device
 ```
 cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/ready/python
-vim -O ready.py ready.yaml ##Ctrl+WW to swap windows; :vertical resize 100
+vim -O ready.py ready-mobious.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
 ## References
