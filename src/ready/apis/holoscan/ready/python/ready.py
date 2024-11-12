@@ -293,10 +293,14 @@ class PostInferenceOp(Operator):
         text_coords = text_coords[cp.newaxis, :, :]
 
         #######################################
-        # Create a time-varying "points" tensor
-        #######################################
+        # Create a time-varying tensors for "centroid coordinate points"
+        #
         # Set of (x, y) points with 30 points equally spaced along x
-        # whose y coordinate varies based on self.y_centroid_coords over time.
+        # whose y coordinate varies based on 
+        # self.y_centroid_coords, and 
+        # self.x_centroid_coords 
+        # over time.
+        #
         self.y_centroid_coords = cp.append(self.y_centroid_coords, centroid_y / self.height)
         self.x_centroid_coords = cp.append(self.x_centroid_coords, centroid_x / self.width)
         # print(self.y_centroid_coords)
@@ -310,12 +314,6 @@ class PostInferenceOp(Operator):
             self.x_centroid_coords = cp.array([0]) #clean array
 
         self.cycle += 1
-
-        #y = 0.8 + 0.1 * cp.sin(8 * cp.pi * self.x + self.frame_count / 60 * 2 * cp.pi)
-        #x_point_coords = cp.stack(
-        #    (self.x, y), axis=-1
-        #    # (self.y, y), axis=-1
-        #)  # Stack so the final shape is (n_points, 2)
 
         # adds messages
         out_message.add(hs.as_tensor(centroid_xy), "pupil_cXcY")
