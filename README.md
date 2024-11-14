@@ -14,7 +14,7 @@ This repository contains documentation and code for the project `READY: REal-tim
 
 ## :clapper: Demos
 Python-based application, [ready.py](src/ready/apis/holoscan/ready/python/ready.py), was implemented with [holoscan-sdk](docs/holoscan/README.md), where  holoscan-sdk was built on host Laptop computer with NVIDIARTXA2000-8GB.
-The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-40GB, using either [~27K images of 1 channel](data/openEDS/README.md) or [~1K colour images of 3 channels](data/mobious/README.md).
+The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-40GB, using either [~27K images of 1 channel](data/openEDS/README.md) or [~1K colour images of 3 channels](data/mobious/README.md). See [apis](docs/holoscan/apis.md) for detailed instructions on running the application.
 
 | Animation | Data, Model(s) |
 | --- | --- |
