@@ -4,6 +4,7 @@ Hackathon hosted by Hawkes Institute
 6-8th November 2024    
 https://cmic-ucl.github.io/CMICHACKS/
 
+![fig](team-hawkes2024.svg)
 
 ## :scroll: Project description
 End to end real-time AI workflows are challenging due to the orchestration of various stages: (1) data acquisition, curation, labelling, postprocessing, (2) model train, validation, optimisation and deployment and (3) design of appropriate graphical user interfaces.
@@ -17,9 +18,8 @@ Our goal is to bring together researchers, engineers, and clinicians from variou
 Lead organiser: [Miguel Xochicale](https://github.com/mxochicale) from Advanced Research Computing (ARC) Centre, UCL  
 Co-organiser: [Stephen Thompson](https://github.com/thompson318) from Advanced Research Computing (ARC) Centre, UCL  
 
-Contributors: Diego Kaski at UCL Queen Square Institute of Neurology, Terence Leung at Dept of Med Phys & Biomedical Eng UCL, and Mikael Brudfors at NVIDIA
-
-Participants: <...>
+Collaborators: Diego Kaski at UCL Queen Square Institute of Neurology, Terence Leung at Dept of Med Phys & Biomedical Eng UCL, and Mikael Brudfors at NVIDIA     
+Participants: Benjamin Duvieusart, Elvira Cortese, Tiantian He, Xin Zhao      
 
 ## :school: Registration and venue
 Registration is free and you can get your tickets [here](https://www.eventbrite.co.uk/e/hawkes-hacks-tickets-1046969793837)
