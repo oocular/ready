@@ -6,6 +6,8 @@
 https://github.com/mxochicale/code/blob/main/gpu/installation/installing_cuda.bash
 sudo apt-get update
 sudo apt-get install -y nvidia-container-toolkit
+#checking driver version
+nvidia-smi
 ```
 
 ## Build
@@ -14,7 +16,7 @@ cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
 git pull
 ./run clear_cache
-./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building 3222.9s (8/8) FINISHED #~50mins
+./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building holoscan-sdk-2.6.0 2997.6s (8/8) FINISHED #~50mins
 #TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
 ```
 
