@@ -296,9 +296,9 @@ class PostInferenceOp(Operator):
         # Create a time-varying tensors for "centroid coordinate points"
         #
         # Set of (x, y) points with 30 points equally spaced along x
-        # whose y coordinate varies based on 
-        # self.y_centroid_coords, and 
-        # self.x_centroid_coords 
+        # whose y coordinate varies based on
+        # self.y_centroid_coords, and
+        # self.x_centroid_coords
         # over time.
         #
         self.y_centroid_coords = cp.append(self.y_centroid_coords, centroid_y / self.height)
