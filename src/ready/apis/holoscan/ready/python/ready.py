@@ -421,13 +421,15 @@ class READYApp(Application):
             source = VideoStreamReplayerOp(
                 self,
                 name="replayer",
+                # allocator=allocator,
+                # allocator=host_allocator,
                 directory=self.video_dir,
                 **self.kwargs("replayer"),
             )
 
         elif self.source.lower() == "v4l2":
-            width = source_args["width"]
-            height = source_args["height"]
+            width = 640  # TODO source_args["width"]
+            height = 400  # TODO source_args["height"]
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
             block_size = width * height * n_channels

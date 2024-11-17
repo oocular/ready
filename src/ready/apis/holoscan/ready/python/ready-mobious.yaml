@@ -15,9 +15,9 @@ replayer:
   basename: "video_3framesx10"
   #
   #
-  frame_rate: 0 # as specified in timestamps
-  repeat: true # default: false
-  realtime: true # default: true
+  frame_rate: 0.0 # as specified in timestamps
+  realtime: True # default: true
+  repeat: True # default: false
   count: 0 # default: 0 (no frame count restriction)
 
 source:
@@ -32,10 +32,10 @@ source:
   #
   #
   # | Input device. /dev/video0 is generally the default input
-  #device: "/dev/video0"
+  device: "/dev/video0"
 
   #USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
-  device: "/dev/video4"
+  # device: "/dev/video4"
 
   # | App will auto-select default width and height if not provided
   # | For performance, you may want to specify these parameters yourself.
