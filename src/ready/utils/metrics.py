@@ -11,7 +11,7 @@ https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/sem
 
 def mIoU(pred_mask, mask, smooth=1e-10, n_classes=1):
     """
-        Mean Intersection over Union (also referred to as Jaccard index) over defined number of classes.
+        Mean Intersection over Union (miou and jaccard score is actually the same) over defined number of classes.
         Equation: IoU = (|X & Y|)/ (|X or Y|)
         Args:
             pred_mask: predicted mask
@@ -30,11 +30,11 @@ def mIoU(pred_mask, mask, smooth=1e-10, n_classes=1):
         true_class = pred_mask == clas
         true_label = mask == clas
 
-        if true_label.long().sum().item() == 0: #no exist label in this loop
+        if np.sum(true_label) == 0: #no exist label in this loop
             iou_per_class.append(np.nan)
         else:
-            intersect = torch.logical_and(true_class, true_label).sum().float().item()
-            union = torch.logical_or(true_class, true_label).sum().float().item()
+            intersect = np.logical_and(true_class, true_label).sum()
+            union = np.logical_or(true_class, true_label).sum()
 
             iou = (intersect + smooth) / (union +smooth)
             iou_per_class.append(iou)
@@ -63,12 +63,11 @@ def dice(pred_mask, mask, smooth=1e-10, n_classes=1):
         true_class = pred_mask == clas
         true_label = mask == clas
 
-        if true_label.long().sum().item() == 0: #no exist label in this loop
+        if np.sum(true_label) == 0: #no exist label in this loop
             dice_per_class.append(np.nan)
         else:
-            intersect = torch.logical_and(true_class, true_label).sum().float().item()
-            # union = torch.logical_or(true_class, true_label).sum().float().item()
-            total = torch.sum(true_class) + torch.sum(true_label)
+            intersect = np.logical_and(true_class, true_label).sum()
+            total = np.sum(true_class) + np.sum(true_label)
 
             dice = 2 * (intersect + smooth) / (total +smooth)
             dice_per_class.append(dice)
@@ -99,13 +98,14 @@ def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1):
         pred_mask = F.softmax(pred_mask, dim=1)
         pred_mask = torch.argmax(pred_mask, dim=1)
         pred_mask = pred_mask.contiguous().view(-1)
-        mask = mask.contiguous().view(-1)
+        pred_mask = pred_mask.cpu().numpy()
+        mask = mask.contiguous().view(-1).cpu().numpy()
 
-        accuracy = accuracy_score(mask.cpu().numpy(), pred_mask.cpu().numpy())
-        f1 = f1_score(mask.cpu().numpy(), pred_mask.cpu().numpy(), average='weighted')
-        recall = recall_score(mask.cpu().numpy(), pred_mask.cpu().numpy(), average='weighted')
-        precision = precision_score(mask.cpu().numpy(), pred_mask.cpu().numpy(), average='weighted')
-        fbeta = fbeta_score(mask.cpu().numpy(), pred_mask.cpu().numpy(), beta=1, average='weighted')
+        accuracy = accuracy_score(mask, pred_mask)
+        f1 = f1_score(mask, pred_mask, average='weighted')
+        recall = recall_score(mask, pred_mask, average='weighted')
+        precision = precision_score(mask, pred_mask, average='weighted')
+        fbeta = fbeta_score(mask, pred_mask, beta=1, average='weighted')
         miou = mIoU(pred_mask, mask, smooth, n_classes)
         dice_score = dice(pred_mask, mask, smooth, n_classes)
 

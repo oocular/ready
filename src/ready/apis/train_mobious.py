@@ -314,6 +314,13 @@ def main(args):
         modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
         torch.save(model.state_dict(), modelname)
         print(f"Saved PyTorch Model State to {modelname}")
+
+        # export performance to json
+        # reference: https://github.com/SciKit-Surgery/cmicHACKS2/blob/19d365ca92aa8f5af3da68d4c27851a1312eae31/export_eval_metrics.py
+        path_to_file = datetime.now().strftime("models/performance_%d-%m-%y_%H-%M-%S.json")
+        text = json.dumps(performance, indent=4)
+        with open(path_to_file, "w") as out_file_obj:
+            out_file_obj.write(text)
     else: 
         print("Model saving is disabled, set debug_print_flag to False to save model")
 
@@ -325,15 +332,6 @@ def main(args):
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
-
-    # export performance to json
-    # reference: https://github.com/SciKit-Surgery/cmicHACKS2/blob/19d365ca92aa8f5af3da68d4c27851a1312eae31/export_eval_metrics.py
-    path_to_file = datetime.now().strftime("models/performance_%d-%m-%y_%H-%M-%S.json")
-    
-
-    text = json.dumps(performance, indent=4)
-    with open(path_to_file, "w") as out_file_obj:
-        out_file_obj.write(text)
         
 if __name__ == "__main__":
     # main()

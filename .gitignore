@@ -17,6 +17,7 @@ log_parser.py
 app_perf_graph.py
 
 ## videos, models, and files
+*.json
 **.gxf_entities
 **.gxf_index
 **.mp4
