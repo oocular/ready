@@ -15,6 +15,9 @@ nvidia-smi
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
 git pull
+#git checkout 1a67c53 #holoscan-sdk-2.0.0
+#git checkout 3834a7b #holoscan-sdk-2.5.0
+#git checkout f7f561f #holoscan-sdk-2.6.0
 ./run clear_cache
 ./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #[+] Building holoscan-sdk-2.6.0 2997.6s (8/8) FINISHED #~50mins
 #TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
