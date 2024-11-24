@@ -67,10 +67,10 @@ def test_MOBIOUSDataset_unetvit():
     plt.show()
 
 
-def test_inference():
+def test_train_pipeline():
     """
-    Test inference with MOBIOUS dataset
-    pytest -vs tests/test_unetvit.py::test_inference
+    Test train pipeline with MOBIOUS dataset for UNetViT
+    pytest -vs tests/test_unetvit.py::test_train_pipeline
     """
     DATASET_PATH = os.path.join(str(Path.home()), config_yaml['ABS_DATA_PATH'])
     MODELS_PATH = DATASET_PATH + "/models" #TODO add an absolute model path
@@ -107,9 +107,21 @@ def test_inference():
     logger.info(f"Number of test batches: {len(test_dataloader)}")
     logger.info(f"Number of train batches: {len(train_dataloader)}")
 
-    #########################
-    ###  TOTEST below lines
-    #########################
+    assert len(test_dataloader) > 0
+    assert len(train_dataloader) > 0
+
+
+def test_inference_pipeline():
+    """
+    Test inference with MOBIOUS dataset
+    pytest -vs tests/test_unetvit.py::test_inference_pipeline
+
+    TODO:
+        * debug inference pipeline
+        * add onnx model inference with input name name file
+            input_model_name = "unetvit_epochs_0_valloss_2.07737.pth"
+    """
+
     input_model_name = "unetvit_epochs_0_valloss_2.07737.pth"
     model_name = input_model_name[:-4]
     model = UNetViT(n_channels=3, n_classes=6, bilinear=True).to(device)
