@@ -10,7 +10,7 @@ import torch
 import torch.onnx
 from torch import nn
 from torch import optim as optim
-from torchvision import transforms
+import torchvision.transforms.v2 as transforms
 
 # from segnet import SegNet
 from src.ready.models.unet import UNet
@@ -117,22 +117,27 @@ def main():
     #    "sample-frames/test640x400"
     #    )
     
+    # set transforms for training images 
+    transforms_msk = transforms.Compose([transforms.RandomHorizontalFlip(p=0.3),
+                                        transforms.RandomVerticalFlip(p=0.3),
+                                        transforms.RandomRotation(45)])
 
-    transforms_train = transforms.Compose([transforms.RandomHorizontalFlip(p=0.2),
-                                           transforms.RandomVerticalFlip(p=0.2),
-                                           transforms.RandomRotation(45),
-                        ])
-
+    transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
+                                          transforms.ToImage(),
+                                          transforms.ToDtype(torch.float32, scale=True), # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon 
+                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])# standardisation values taken from ImageNet
+ 
+    
     ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        "train", transform=transforms_train, target_transform=transforms_train
+        "train", transform=transforms_img, target_transform=transforms_msk
     )
 
     
     print("Length of trainset:", len(trainset))
 
-    # batch_size_ = 3 #to_test
-    batch_size_ = 8  # 8 original
+    batch_size_ = 3 #to_test
+    # batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
