@@ -25,7 +25,7 @@ def test_MOBIOUSDataset_unetvit():
     """
     Test MOBIOUSDataset_unetvit class
     pytest -vs tests/test_unetvit.py::test_MOBIOUSDataset_unetvit
-        TODO: 
+        TODO:
             - Use 640x400 image size
             - Test mask to show sclera, iris, pupil and background
     """
