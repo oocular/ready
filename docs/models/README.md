@@ -40,6 +40,12 @@ vim -O apis/train_mobious.py utils/datasets.py
 ```
 
 ### Debug, test and train `UNetViT`
+* Test test_unetvit.py::test_MOBIOUSDataset_unetvit
+```
+source .venv/bin/activate
+pytest -vs tests/test_unetvit.py::test_MOBIOUSDataset_unetvit
+```
+* Docstrings to include in respective scripts
 ```
 Data Loading:
 Original: Assumed consistent image sizes (512x512)

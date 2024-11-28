@@ -25,6 +25,9 @@ def test_MOBIOUSDataset_unetvit():
     """
     Test MOBIOUSDataset_unetvit class
     pytest -vs tests/test_unetvit.py::test_MOBIOUSDataset_unetvit
+        TODO: 
+            - Use 640x400 image size
+            - Test mask to show sclera, iris, pupil and background
     """
     # Define transforms - note we do ToTensor in the dataset class
     color_shift = transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)
