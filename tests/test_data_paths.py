@@ -85,8 +85,8 @@ def test_mobious_dataset_labels():
 
     #TODO: TEST each of the following images
     # imagename="1_1i_Ll_1"
-    # imagename="1_1i_Ll_2"
     # imagename="1_1i_Lr_1"
+    # imagename="1_1i_Ll_2"
     # imagename="1_1i_Lr_2"
     imagename = "1_1i_Ls_1"
 
