@@ -161,7 +161,7 @@ def main(args):
         loss_fn.cuda()
 
 
-    run_epoch = 1 #to_test
+    run_epoch = 2 #to_test
     # run_epoch = ?
 
     #############################################
@@ -224,10 +224,10 @@ def main(args):
     }
 
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        print("Epoch {}:".format(i))
+        print("\nEpoch {}:".format(i))
         sum_loss = 0.0
-        
-        performance_epoch = {key: 0.0 for key in performance.keys()}
+        num_samples, num_batches = 0, 0        
+        # performance_epoch = {key: 0.0 for key in performance.keys()}
 
 
         for j, data in enumerate(trainloader, 1):
@@ -274,13 +274,15 @@ def main(args):
             batch_metrics = evaluate(output, labels)
 
             for key, value in batch_metrics.items():
-                print(f"{key}: {value:.4f}")
-                performance_epoch[key] += value
+                # print(f"{key}: {value:.4f}")
+                performance[key] += value * len(images) # weighted by batch size
 
+            num_samples += len(images)
             sum_loss += loss.item()
+
             # Log every X batches
             if j % 50 == 0 or j == 1:
-                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size:.4f}")
+                print(f"Loss at {j} mini-batch {loss.item():.4f}")
             # TODO
             #                sanity_check(trainloader, model, cuda_available)
             #                save_checkpoint(
@@ -292,16 +294,17 @@ def main(args):
             #                    "models/o.pth",
             #                )
             #
-            if j == 300:
-                break
-            # performance[key].append(average_metric)
+            # if j == 300:
+            #     break
+            # # performance[key].append(average_metric)
 
-        average_loss = sum_loss / (j * trainloader.batch_size)
-
+        average_loss = sum_loss / num_samples
         print(f"\nAverage loss @ epoch: {average_loss:.4f}")
-    for key in performance:
-        performance[key] = float(performance_epoch[key] / j)
-        print(f"Average {key} @ epoch: {performance[key]:.4f}")
+
+        for key in performance:
+            performance[key] /= num_samples
+            print(f"Average {key} @ epoch: {performance[key]:.4f}")
+
     print("===========================")
 
         # print 
