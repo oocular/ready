@@ -409,7 +409,7 @@ class READYApp(Application):
             n_channels = 1
             bpp = 4  # bytes per pixel
             block_size = width * height * n_channels
-            drop_alpha_block_size = width * height * n_channels * bpp
+            drop_alpha_block_size = width * height * n_channels * bpp # drop_alpha_block_size=1024000
             drop_alpha_num_blocks = 2
             allocator = BlockMemoryPool(
                 self,
@@ -421,9 +421,14 @@ class READYApp(Application):
             source = VideoStreamReplayerOp(
                 self,
                 name="replayer",
-                # allocator=allocator,
-                # allocator=host_allocator,
+                # allocator=allocator, #[error] [memory_buffer.hpp:79] pool Failed to allocate 768000 size of memory of type 1. Error code: GXF_ARGUMENT_INVALID
+                allocator=host_allocator,
+                basename= "video_3framesx10",
                 directory=self.video_dir,
+                frame_rate=0.0,
+                realtime=True, # default: true
+                repeat=True, # default: false
+                count=0, # default: 0 (no frame count restriction)
                 **self.kwargs("replayer"),
             )
 
