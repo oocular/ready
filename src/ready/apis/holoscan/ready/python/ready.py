@@ -583,14 +583,60 @@ class READYApp(Application):
             self,
             name="segpostprocessor",
             allocator=host_allocator,
-            **self.kwargs("segpostprocessor"),
+            in_tensor_name="unet_out",
+            network_output_type="softmax",
+            data_format="nchw",
+            # **self.kwargs("segpostprocessor"),
         )
 
         viz = HolovizOp(
             self,
             name="viz",
-            **self.kwargs("viz"),
+            window_title="READY demo",
+            width=640,
+            height=400,
+            tensors=[
+                dict(
+                    name="",
+                    type="color",
+                    opacity=1.0,
+                    priority= 0,
+                ),
+                dict(
+                    name="pupil_cXcY",
+                    type="crosses",
+                    color=[0.6, 0.1, 0.6, 0.8],
+                    opacity=0.85,
+                    priority=2,
+                    line_width=5.0, #for crosses only
+                ),
+                dict(
+                    name="x_coords_varing_array",
+                    type="points",
+                    color=[1.0, 0.0, 0.0, 1.0],
+                    point_size=5.0,
+                    priority=2,
+                ),
+                dict(
+                    name="y_coords_varing_array",
+                    type="points",
+                    color=[0.0, 1.0, 0.0, 1.0],
+                    point_size=5.0,
+                    priority=2,
+                ),
+                dict(
+                    name="out_tensor",
+                    type="color_lut",
+                    opacity=1.0,
+                    priority=0,
+                ),
+            ],
+            color_lut=[[0.65, 0.81, 0.89, 0.01],[0.3, 0.3, 0.9, 0.5],[0.1, 0.8, 0.2, 0.5],[0.9, 0.9, 0.3, 0.8],]
+            # **self.kwargs("viz"),
         )
+
+        print(f"**self.kwargs(viz)")
+        print(**self.kwargs("viz"))
 
         if self.source.lower() == "replayer":
             self.add_flow(source, viz, {("", "receivers")})

@@ -146,11 +146,11 @@ segpostprocessor:
   # This tensor will have unsigned 8-bit integer data type and shape (H, W, 1).
   # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/segmentation_postprocessor/segmentation_postprocessor.hpp
   #
-  in_tensor_name: unet_out
-  network_output_type: softmax #softmax layer for multiclass segmentation
+  # in_tensor_name: unet_out
+  # network_output_type: softmax #softmax layer for multiclass segmentation
   #network_output_type: sigmoid #sigmoid layer for binary segmentation
   #network_output_type: None
-  data_format: nchw
+  # data_format: nchw
   #data_format: nhwc
 
 
@@ -161,41 +161,41 @@ viz:
   # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/holoviz/holoviz.hpp
   #
   #
-  window_title: "READY demo"
-  width: 640
-  height: 400
-  tensors:
-    - name: ""
-      type: color
-      opacity: 1.0
-      priority: 0
-    - name: "pupil_cXcY"
-      type: crosses
-      opacity: 0.85
-      color: [0.6, 0.1, 0.6, 0.8] #RGB for purple with alpha 0.8
-      line_width: 5.0 #for crosses only
-      point_size: 10.0 #for points only
-      priority: 2
-    - name: "x_coords_varing_array"
-      type: points
-      opacity: 0.95
-      color: [1.0, 0.0, 0.0, 1.0]
-      point_size: 5.0
-      priority: 2
-    - name: "y_coords_varing_array"
-      type: points
-      opacity: 0.95
-      color: [0.0, 1.0, 0.0, 1.0]
-      point_size: 5.0
-      priority: 2
-    - name: "out_tensor"
-      type: color_lut
-      opacity: 1.0
-      priority: 0
-  color_lut: [
-    [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
-    [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
-    [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
-    [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
-    #https://rgbcolorpicker.com/0-1
-    ]
+  # window_title: "READY demo"
+  # width: 640
+  # height: 400
+  # tensors:
+  #   - name: ""
+  #     type: color
+  #     opacity: 1.0
+  #     priority: 0
+  #   - name: "pupil_cXcY"
+  #     type: crosses
+  #     opacity: 0.85
+  #     color: [0.6, 0.1, 0.6, 0.8] #RGB for purple with alpha 0.8
+  #     line_width: 5.0 #for crosses only
+  #     point_size: 10.0 #for points only
+  #     priority: 2
+  #   - name: "x_coords_varing_array"
+  #     type: points
+  #     opacity: 0.95
+  #     color: [1.0, 0.0, 0.0, 1.0]
+  #     point_size: 5.0
+  #     priority: 2
+  #   - name: "y_coords_varing_array"
+  #     type: points
+  #     opacity: 0.95
+  #     color: [0.0, 1.0, 0.0, 1.0]
+  #     point_size: 5.0
+  #     priority: 2
+  #   - name: "out_tensor"
+  #     type: color_lut
+  #     opacity: 1.0
+  #     priority: 0
+  # color_lut: [
+  #   [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+  #   [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+  #   [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+  #   [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
+  #   #https://rgbcolorpicker.com/0-1
+  #   ]
