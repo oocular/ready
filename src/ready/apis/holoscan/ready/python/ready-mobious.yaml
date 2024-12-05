@@ -126,13 +126,13 @@ preprocessor_v4l2:
   # DROP ALPHA CHANNEL
   #
   #
-  out_tensor_name: out_preprocessor
-  in_dtype: "rgba8888" #for four channels
-  out_dtype: "float32"
-  resize_width: 640
-  resize_height: 400
-  scale_min: 1.0
-  scale_max: 252.0
+  # out_tensor_name: out_preprocessor
+  # in_dtype: "rgba8888" #for four channels
+  # out_dtype: "float32"
+  # resize_width: 640
+  # resize_height: 400
+  # scale_min: 1.0
+  # scale_max: 252.0
 
 pre_info_op_replayer:  #Pre Info Operator
 format_input:  #FormatInferenceInputOp

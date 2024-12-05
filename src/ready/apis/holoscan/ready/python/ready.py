@@ -502,7 +502,21 @@ class READYApp(Application):
         preprocessor_v4l2 = FormatConverterOp(
             self,
             name="preprocessor_v4l2",
-            pool=host_allocator,
+            out_tensor_name="out_preprocessor",            
+            in_dtype="rgba8888", #for four channels
+            out_dtype="float32",
+            scale_min=1.0,
+            scale_max=252.0,
+            resize_width=640,
+            resize_height=400,            
+            # pool=host_allocator,
+            pool=BlockMemoryPool(
+                self,
+                name="preprocessor_replayer_pool",
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=640 * 400 * bytes_per_float32 * in_components,
+                num_blocks=2*3,
+            ),
             cuda_stream_pool=formatter_cuda_stream_pool,
             **self.kwargs("preprocessor_v4l2"),
         )
