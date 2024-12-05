@@ -97,19 +97,20 @@ preprocessor_replayer:
   #
   # FormatConverter
   #
-  #https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/format_converter/format_converter.hpp
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/format_converter/format_converter.hpp
   #
   #
   #in_tensor_name: #- **in_tensor_name**: The name of the input tensor. Optional (default: `""`).
-  out_tensor_name: "out_preprocessor"
-  scale_min: 1.0
-  scale_max: 252.0
+  # out_tensor_name: "out_preprocessor"
+  # scale_min: 1.0
+  # scale_max: 252.0
   #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use#when converting from RGB to RGBA. Optional (default: `255`).
   #in_dtype: "rgba8888" #for four channels
   #in_dtype: "float32" ?
-  resize_width: 640 #320
-  resize_height: 400 #200
-  out_dtype: "float32"
+  # resize_width: 640 #320
+  # resize_height: 400 #200
+  # out_dtype: "float32"
+  # tested out_channel_order
   #out_channel_order: [0, 1, 2, 3]
   #out_channel_order: [0, 1, 2]
   #out_channel_order: [0, 2, 1]

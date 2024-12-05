@@ -13,7 +13,7 @@ from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,
                                 V4L2VideoCaptureOp, VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
-                                UnboundedAllocator)
+                                UnboundedAllocator, MemoryStorageType)
 
 
 class PreInfoOp(Operator):
@@ -457,7 +457,7 @@ class READYApp(Application):
         else:
             print(f"plesea either choose v4l2 or replayer")
 
-        cuda_stream_pool = CudaStreamPool(
+        formatter_cuda_stream_pool = CudaStreamPool(
             self,
             name="cuda_stream",
             dev_id=0,
@@ -474,20 +474,36 @@ class READYApp(Application):
             **self.kwargs("pre_info_op_replayer"),
         )
 
+        in_dtype = "rgb888" # float32
+        bytes_per_float32 =4
+        in_components=3
         preprocessor_replayer = FormatConverterOp(
             self,
-            name="preprocessor",
-            pool=host_allocator,
-            # pool=allocator,
-            cuda_stream_pool=cuda_stream_pool,
-            **self.kwargs("preprocessor_replayer"),
+            name="preprocessor_replayer",
+            in_dtype=in_dtype,
+            # pool=UnboundedAllocator(self, name="FormatConverter allocator"),
+            pool=BlockMemoryPool(
+                self,
+                name="preprocessor_replayer_pool",
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=640 * 400 * bytes_per_float32 * in_components,
+                num_blocks=2*3,
+            ),
+            out_tensor_name="out_preprocessor",
+            scale_min=1.0,
+            scale_max=252.0,
+            resize_width=640,
+            resize_height=400,
+            out_dtype="float32",
+            cuda_stream_pool=formatter_cuda_stream_pool,
+            # **self.kwargs("preprocessor_replayer"),
         )
 
         preprocessor_v4l2 = FormatConverterOp(
             self,
             name="preprocessor_v4l2",
             pool=host_allocator,
-            cuda_stream_pool=cuda_stream_pool,
+            cuda_stream_pool=formatter_cuda_stream_pool,
             **self.kwargs("preprocessor_v4l2"),
         )
 
@@ -525,7 +541,6 @@ class READYApp(Application):
         viz = HolovizOp(
             self,
             name="viz",
-            cuda_stream_pool=cuda_stream_pool,
             **self.kwargs("viz"),
         )
 
