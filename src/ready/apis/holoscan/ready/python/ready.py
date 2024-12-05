@@ -528,12 +528,46 @@ class READYApp(Application):
             **self.kwargs("format_input"),
         )
 
+
+        n_channels_inference = 4
+        width_inference = 640
+        height_inference = 400
+        bpp_inference = 4
+        inference_block_size = (
+            width_inference * height_inference * n_channels_inference * bpp_inference
+        )
+        inference_num_blocks = 2
+
+        # inference_allocator=UnboundedAllocator(self, name="inference_allocator"),
+        # the RMMAllocator supported since v2.6 is much faster than the default UnboundAllocator
+        try:
+            from holoscan.resources import RMMAllocator
+            allocator = RMMAllocator(self, name="inference_allocator")
+        except Exception:
+            pass
+
         inference = InferenceOp(
             self,
             name="inference",
-            allocator=host_allocator,
+            backend="trt",
+            pre_processor_map={"ready_model": ["out_preprocessor"]},
+            inference_map={"ready_model": ["unet_out"]},
+            enable_fp16=False,
+            parallel_inference=True,
+            infer_on_cpu=False,
+            input_on_cuda=True,
+            output_on_cuda=True,
+            transmit_on_cuda=True,
+            is_engine_path=False,
+            # allocator=allocator,
+            allocator=BlockMemoryPool(
+                self,
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=inference_block_size,
+                num_blocks=inference_num_blocks,
+            ),
             model_path_map=self.models_path_map,
-            **self.kwargs("inference"),
+            # **self.kwargs("inference"),
         )
 
         post_inference_op = PostInferenceOp(

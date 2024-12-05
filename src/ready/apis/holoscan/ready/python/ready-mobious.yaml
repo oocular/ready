@@ -78,18 +78,18 @@ inference:
   # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/inference/inference.hpp
   #
   #
-  backend: "trt"
-  pre_processor_map:
-    "ready_model": ["out_preprocessor"]
-  inference_map:
-    "ready_model": ["unet_out"]
-  enable_fp16: False #Use 16-bit floating point computations. Optional (default: `false`).
-  parallel_inference: true # optional param, default to true
-  infer_on_cpu: false # optional param, default to false
-  input_on_cuda: true # optional param, default to true
-  output_on_cuda: true # optional param, default to true
-  transmit_on_cuda: true # optional param, default to true
-  is_engine_path: false # optional param, default to false
+  # backend: "trt"
+  # pre_processor_map:
+  #   "ready_model": ["out_preprocessor"]
+  # inference_map:
+  #   "ready_model": ["unet_out"]
+  # enable_fp16: False #Use 16-bit floating point computations. Optional (default: `false`).
+  # parallel_inference: true # optional param, default to true
+  # infer_on_cpu: false # optional param, default to false
+  # input_on_cuda: true # optional param, default to true
+  # output_on_cuda: true # optional param, default to true
+  # transmit_on_cuda: true # optional param, default to true
+  # is_engine_path: false # optional param, default to false
 
 
 preprocessor_replayer:
