@@ -400,12 +400,21 @@ class READYApp(Application):
         }
 
     def compose(self):
-        host_allocator = UnboundedAllocator(self, name="host_allocator")
+        # TO DEBUG 
         source_args = self.kwargs("v4l2_source")
-        # TO DEBUG self.kwargs; check __init__ settings
+        # self.kwargs; check __init__ settings
         # width = source_args["width"]
         # height = source_args["height"]
         # print(f'xxxxxxxxxxxxxxxxx {width} {height}')
+
+        host_allocator = UnboundedAllocator(self, name="host_allocator")
+        # the RMMAllocator supported since v2.6 is much faster than the default UnboundAllocator
+        try:
+            from holoscan.resources import RMMAllocator
+            rmm_allocator = RMMAllocator(self, name="rmm_allocator")
+        except Exception:
+            pass
+
 
         width = 640  # TODO source_args["width"]
         height = 400  # TODO source_args["height"]
@@ -427,7 +436,8 @@ class READYApp(Application):
                 #     block_size=block_size,
                 #     num_blocks=num_blocks,
                 # ),
-                allocator=UnboundedAllocator(self, name="replayer_allocator"),
+                # allocator=host_allocator,
+                allocator=rmm_allocator,
                 basename= "video_3framesx10",
                 directory=self.video_dir,
                 frame_rate=0.0,
@@ -445,7 +455,7 @@ class READYApp(Application):
             source = V4L2VideoCaptureOp(
                 self,
                 name="v4l2_source",
-                # allocator=v4l2_allocator,
+                # allocator=rmm_allocator,
                 allocator=BlockMemoryPool(
                     self,
                     name="v4l2_replayer_pool",
@@ -488,7 +498,7 @@ class READYApp(Application):
             self,
             name="preprocessor_replayer",
             in_dtype=in_dtype,
-            # pool=UnboundedAllocator(self, name="FormatConverter allocator"),
+            # pool=rmm_allocator,
             pool=BlockMemoryPool(
                 self,
                 name="preprocessor_replayer_pool",
@@ -516,7 +526,7 @@ class READYApp(Application):
             scale_max=252.0,
             resize_width=width,
             resize_height=height,
-            # pool=host_allocator,
+            # pool=rmm_allocator,
             pool=BlockMemoryPool(
                 self,
                 name="preprocessor_replayer_pool",
@@ -537,21 +547,9 @@ class READYApp(Application):
 
 
         n_channels_inference = 4
-        width_inference = width
-        height_inference = height
         bpp_inference = 4
-        inference_block_size = (
-            width_inference * height_inference * n_channels_inference * bpp_inference
-        )
+        inference_block_size = width * height * n_channels_inference * bpp_inference
         inference_num_blocks = 2
-
-        # inference_allocator=UnboundedAllocator(self, name="inference_allocator"),
-        # the RMMAllocator supported since v2.6 is much faster than the default UnboundAllocator
-        try:
-            from holoscan.resources import RMMAllocator
-            allocator = RMMAllocator(self, name="inference_allocator")
-        except Exception:
-            pass
 
         inference = InferenceOp(
             self,
@@ -566,7 +564,7 @@ class READYApp(Application):
             output_on_cuda=True,
             transmit_on_cuda=True,
             is_engine_path=False,
-            # allocator=allocator,
+            # allocator=rmm_allocator,
             allocator=BlockMemoryPool(
                 self,
                 storage_type=MemoryStorageType.DEVICE,
