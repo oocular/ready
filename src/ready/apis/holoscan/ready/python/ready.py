@@ -13,7 +13,7 @@ from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,
                                 V4L2VideoCaptureOp, VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
-                                UnboundedAllocator, MemoryStorageType)
+                                MemoryStorageType, UnboundedAllocator)
 
 
 class PreInfoOp(Operator):
@@ -506,13 +506,13 @@ class READYApp(Application):
         preprocessor_v4l2 = FormatConverterOp(
             self,
             name="preprocessor_v4l2",
-            out_tensor_name="out_preprocessor",            
+            out_tensor_name="out_preprocessor",
             in_dtype="rgba8888", #for four channels
             out_dtype="float32",
             scale_min=1.0,
             scale_max=252.0,
             resize_width=640,
-            resize_height=400,            
+            resize_height=400,
             # pool=host_allocator,
             pool=BlockMemoryPool(
                 self,
