@@ -400,7 +400,7 @@ class READYApp(Application):
         }
 
     def compose(self):
-        # TO DEBUG 
+        # TO DEBUG
         source_args = self.kwargs("v4l2_source")
         # self.kwargs; check __init__ settings
         # width = source_args["width"]
