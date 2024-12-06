@@ -25,5 +25,6 @@ video_frames**
 video_30_duplicated_frames_of_validation-026580**
 **.NVIDIARTXA20008GBLaptopGPU.8.6.20.trt.8.6.1.6.engine.fp32
 **.NVIDIARTXA20008GBLaptopGPU.8.6.20.trt.8.6.1.6.engine.fp16
+**.NVIDIARTXA20008GBLaptopGPU.8.6.20.trt.10.3.0.26.engine.fp32
 logger.log
 **.onnx

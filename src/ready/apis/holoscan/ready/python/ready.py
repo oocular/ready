@@ -13,7 +13,7 @@ from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,
                                 V4L2VideoCaptureOp, VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
-                                UnboundedAllocator)
+                                MemoryStorageType, UnboundedAllocator)
 
 
 class PreInfoOp(Operator):
@@ -377,6 +377,7 @@ class READYApp(Application):
         """
 
         super().__init__(**kwargs)
+        # super().__init__()
 
         self.name = "READY App"
         self.source = source
@@ -399,58 +400,81 @@ class READYApp(Application):
         }
 
     def compose(self):
+        # TO DEBUG
+        source_args = self.kwargs("v4l2_source")
+        # self.kwargs; check __init__ settings
+        # width = source_args["width"]
+        # height = source_args["height"]
+        # print(f'xxxxxxxxxxxxxxxxx {width} {height}')
+
         host_allocator = UnboundedAllocator(self, name="host_allocator")
-        source_args = self.kwargs("source")
+        # the RMMAllocator supported since v2.6 is much faster than the default UnboundAllocator
+        try:
+            from holoscan.resources import RMMAllocator
+            rmm_allocator = RMMAllocator(self, name="rmm_allocator")
+        except Exception:
+            pass
+
+
+        width = 640  # TODO source_args["width"]
+        height = 400  # TODO source_args["height"]
 
         if self.source.lower() == "replayer":
-            width = 640  # TODO source_args["width"]
-            height = 400  # TODO source_args["height"]
-            # n_channels = 4  # RGBA
             n_channels = 1
-            bpp = 4  # bytes per pixel
-            block_size = width * height * n_channels
-            drop_alpha_block_size = width * height * n_channels * bpp
-            drop_alpha_num_blocks = 2
-            allocator = BlockMemoryPool(
-                self,
-                name="pool",
-                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
-                block_size=drop_alpha_block_size,
-                num_blocks=drop_alpha_num_blocks,
-            )
+            bpp = 1  # bytes per pixel
+            block_size = width * height * n_channels * bpp
+            num_blocks = 1
             source = VideoStreamReplayerOp(
                 self,
                 name="replayer",
+                ## [error] [block_memory_pool.cpp:125] Requested 768000 bytes of memory in a pool with block size 512000
+                # allocator=BlockMemoryPool(
+                #     self,
+                #     name="video_replayer_pool",
+                #     storage_type=0,
+                #     # storage_type=MemoryStorageType.DEVICE,
+                #     block_size=block_size,
+                #     num_blocks=num_blocks,
+                # ),
+                # allocator=host_allocator,
+                allocator=rmm_allocator,
+                basename= "video_3framesx10",
                 directory=self.video_dir,
-                **self.kwargs("replayer"),
+                frame_rate=0.0,
+                realtime=True, # default: true
+                repeat=True, # default: false
+                count=0, # default: 0 (no frame count restriction)
+                # **self.kwargs("replayer"),
             )
 
         elif self.source.lower() == "v4l2":
-            width = source_args["width"]
-            height = source_args["height"]
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
-            block_size = width * height * n_channels
             drop_alpha_block_size = width * height * n_channels * bpp
             drop_alpha_num_blocks = 2
-            allocator = BlockMemoryPool(
-                self,
-                name="pool",
-                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
-                block_size=drop_alpha_block_size,
-                num_blocks=drop_alpha_num_blocks,
-            )
             source = V4L2VideoCaptureOp(
                 self,
-                name="source",
-                allocator=allocator,
-                **source_args,
+                name="v4l2_source",
+                # allocator=rmm_allocator,
+                allocator=BlockMemoryPool(
+                    self,
+                    name="v4l2_replayer_pool",
+                    storage_type=0,
+                    # storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
+                    block_size=drop_alpha_block_size,
+                    num_blocks=drop_alpha_num_blocks,
+                ),
+                device="/dev/video0",
+                width=640,
+                height=480,
+                pixel_format="YUYV",
+                # **self.kwargs("v4l2_source"),
             )
 
         else:
             print(f"plesea either choose v4l2 or replayer")
 
-        cuda_stream_pool = CudaStreamPool(
+        formatter_cuda_stream_pool = CudaStreamPool(
             self,
             name="cuda_stream",
             dev_id=0,
@@ -467,20 +491,50 @@ class READYApp(Application):
             **self.kwargs("pre_info_op_replayer"),
         )
 
+        in_dtype = "rgb888" # float32
+        bytes_per_float32 =4
+        in_components=3
         preprocessor_replayer = FormatConverterOp(
             self,
-            name="preprocessor",
-            pool=host_allocator,
-            # pool=allocator,
-            cuda_stream_pool=cuda_stream_pool,
-            **self.kwargs("preprocessor_replayer"),
+            name="preprocessor_replayer",
+            in_dtype=in_dtype,
+            # pool=rmm_allocator,
+            pool=BlockMemoryPool(
+                self,
+                name="preprocessor_replayer_pool",
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=width * height * bytes_per_float32 * in_components,
+                num_blocks=2*3,
+            ),
+            out_tensor_name="out_preprocessor",
+            scale_min=1.0,
+            scale_max=252.0,
+            resize_width=width,
+            resize_height=height,
+            out_dtype="float32",
+            cuda_stream_pool=formatter_cuda_stream_pool,
+            # **self.kwargs("preprocessor_replayer"),
         )
 
         preprocessor_v4l2 = FormatConverterOp(
             self,
             name="preprocessor_v4l2",
-            pool=host_allocator,
-            cuda_stream_pool=cuda_stream_pool,
+            out_tensor_name="out_preprocessor",
+            in_dtype="rgba8888", #for four channels
+            out_dtype="float32",
+            scale_min=1.0,
+            scale_max=252.0,
+            resize_width=width,
+            resize_height=height,
+            # pool=rmm_allocator,
+            pool=BlockMemoryPool(
+                self,
+                name="preprocessor_replayer_pool",
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=width * height * bytes_per_float32 * in_components,
+                num_blocks=2*3,
+            ),
+            cuda_stream_pool=formatter_cuda_stream_pool,
             **self.kwargs("preprocessor_v4l2"),
         )
 
@@ -491,18 +545,40 @@ class READYApp(Application):
             **self.kwargs("format_input"),
         )
 
+
+        n_channels_inference = 4
+        bpp_inference = 4
+        inference_block_size = width * height * n_channels_inference * bpp_inference
+        inference_num_blocks = 2
+
         inference = InferenceOp(
             self,
             name="inference",
-            allocator=host_allocator,
+            backend="trt",
+            pre_processor_map={"ready_model": ["out_preprocessor"]},
+            inference_map={"ready_model": ["unet_out"]},
+            enable_fp16=False,
+            parallel_inference=True,
+            infer_on_cpu=False,
+            input_on_cuda=True,
+            output_on_cuda=True,
+            transmit_on_cuda=True,
+            is_engine_path=False,
+            # allocator=rmm_allocator,
+            allocator=BlockMemoryPool(
+                self,
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=inference_block_size,
+                num_blocks=inference_num_blocks,
+            ),
             model_path_map=self.models_path_map,
-            **self.kwargs("inference"),
+            # **self.kwargs("inference"),
         )
 
         post_inference_op = PostInferenceOp(
             self,
             name="post_inference_op",
-            allocator=host_allocator,
+            allocator=UnboundedAllocator(self, name="post_inference_allocator"),
             width=width,
             height=height,
             **self.kwargs("post_inference_op"),
@@ -511,15 +587,57 @@ class READYApp(Application):
         segpostprocessor = SegmentationPostprocessorOp(
             self,
             name="segpostprocessor",
-            allocator=host_allocator,
-            **self.kwargs("segpostprocessor"),
+            allocator=UnboundedAllocator(self, name="segpostprocessor_allocator"),
+            in_tensor_name="unet_out",
+            network_output_type="softmax",
+            data_format="nchw",
+            # **self.kwargs("segpostprocessor"),
         )
 
         viz = HolovizOp(
             self,
             name="viz",
-            cuda_stream_pool=cuda_stream_pool,
-            **self.kwargs("viz"),
+            window_title="READY demo",
+            width=width,
+            height=height,
+            tensors=[
+                dict(
+                    name="",
+                    type="color",
+                    opacity=1.0,
+                    priority= 0,
+                ),
+                dict(
+                    name="pupil_cXcY",
+                    type="crosses",
+                    color=[0.6, 0.1, 0.6, 0.8],
+                    opacity=0.85,
+                    priority=2,
+                    line_width=5.0, #for crosses only
+                ),
+                dict(
+                    name="x_coords_varing_array",
+                    type="points",
+                    color=[1.0, 0.0, 0.0, 1.0],
+                    point_size=5.0,
+                    priority=2,
+                ),
+                dict(
+                    name="y_coords_varing_array",
+                    type="points",
+                    color=[0.0, 1.0, 0.0, 1.0],
+                    point_size=5.0,
+                    priority=2,
+                ),
+                dict(
+                    name="out_tensor",
+                    type="color_lut",
+                    opacity=1.0,
+                    priority=0,
+                ),
+            ],
+            color_lut=[[0.65, 0.81, 0.89, 0.01],[0.3, 0.3, 0.9, 0.5],[0.1, 0.8, 0.2, 0.5],[0.9, 0.9, 0.3, 0.8],]
+            # **self.kwargs("viz"),
         )
 
         if self.source.lower() == "replayer":
