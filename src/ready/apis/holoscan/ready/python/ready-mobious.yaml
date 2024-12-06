@@ -20,7 +20,7 @@ replayer:
   # repeat: True # default: false
   # count: 0 # default: 0 (no frame count restriction)
 
-source:
+v4l2_source:
   #
   #
   # V4L2VideoCaptureOp

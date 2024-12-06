@@ -366,7 +366,7 @@ class PostInferenceOp(Operator):
 
 class READYApp(Application):
     def __init__(
-        self, source=None, data=None, model_name=None, debug_print_flag=None, **kwargs
+        self, source=None, data=None, model_name=None, debug_print_flag=None
     ):
         """Initialize the application
 
@@ -376,7 +376,8 @@ class READYApp(Application):
         model_name : Model name
         """
 
-        super().__init__(**kwargs)
+        # super().__init__(**kwargs)
+        super().__init__()
 
         self.name = "READY App"
         self.source = source
@@ -405,23 +406,22 @@ class READYApp(Application):
         if self.source.lower() == "replayer":
             width = 640  # TODO source_args["width"]
             height = 400  # TODO source_args["height"]
-            # n_channels = 4  # RGBA
             n_channels = 1
-            bpp = 4  # bytes per pixel
-            block_size = width * height * n_channels
-            drop_alpha_block_size = width * height * n_channels * bpp # drop_alpha_block_size=1024000
-            drop_alpha_num_blocks = 2
-            allocator = BlockMemoryPool(
-                self,
-                name="pool",
-                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
-                block_size=drop_alpha_block_size,
-                num_blocks=drop_alpha_num_blocks,
-            )
+            bpp = 1  # bytes per pixel
+            block_size = width * height * n_channels * bpp
+            num_blocks = 1
             source = VideoStreamReplayerOp(
                 self,
                 name="replayer",
-                # allocator=allocator, #[error] [memory_buffer.hpp:79] pool Failed to allocate 768000 size of memory of type 1. Error code: GXF_ARGUMENT_INVALID
+                ## [error] [block_memory_pool.cpp:125] Requested 768000 bytes of memory in a pool with block size 512000
+                # allocator=BlockMemoryPool(
+                #     self,
+                #     name="video_replayer_pool",
+                #     storage_type=0,
+                #     # storage_type=MemoryStorageType.DEVICE,
+                #     block_size=block_size,
+                #     num_blocks=num_blocks,
+                # ),
                 allocator=host_allocator,
                 basename= "video_3framesx10",
                 directory=self.video_dir,
@@ -429,7 +429,7 @@ class READYApp(Application):
                 realtime=True, # default: true
                 repeat=True, # default: false
                 count=0, # default: 0 (no frame count restriction)
-                **self.kwargs("replayer"),
+                # **self.kwargs("replayer"),
             )
 
         elif self.source.lower() == "v4l2":
@@ -437,21 +437,25 @@ class READYApp(Application):
             height = 400  # TODO source_args["height"]
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
-            block_size = width * height * n_channels
             drop_alpha_block_size = width * height * n_channels * bpp
             drop_alpha_num_blocks = 2
-            allocator = BlockMemoryPool(
-                self,
-                name="pool",
-                storage_type=0,  # storage_type=MemoryStorageType.DEVICE,
-                block_size=drop_alpha_block_size,
-                num_blocks=drop_alpha_num_blocks,
-            )
             source = V4L2VideoCaptureOp(
                 self,
-                name="source",
-                allocator=allocator,
-                **source_args,
+                name="v4l2_source",
+                # allocator=v4l2_allocator,
+                allocator=BlockMemoryPool(
+                    self,
+                    name="v4l2_replayer_pool",
+                    storage_type=0,
+                    # storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
+                    block_size=drop_alpha_block_size,
+                    num_blocks=drop_alpha_num_blocks,
+                ),
+                device="/dev/video0",
+                width=640,
+                height=480,
+                pixel_format="YUYV",
+                # **self.kwargs("v4l2_source"),
             )
 
         else:
@@ -634,9 +638,6 @@ class READYApp(Application):
             color_lut=[[0.65, 0.81, 0.89, 0.01],[0.3, 0.3, 0.9, 0.5],[0.1, 0.8, 0.2, 0.5],[0.9, 0.9, 0.3, 0.8],]
             # **self.kwargs("viz"),
         )
-
-        print(f"**self.kwargs(viz)")
-        print(**self.kwargs("viz"))
 
         if self.source.lower() == "replayer":
             self.add_flow(source, viz, {("", "receivers")})
