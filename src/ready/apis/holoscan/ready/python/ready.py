@@ -366,7 +366,7 @@ class PostInferenceOp(Operator):
 
 class READYApp(Application):
     def __init__(
-        self, source=None, data=None, model_name=None, debug_print_flag=None
+        self, source=None, data=None, model_name=None, debug_print_flag=None, **kwargs
     ):
         """Initialize the application
 
@@ -376,8 +376,8 @@ class READYApp(Application):
         model_name : Model name
         """
 
-        # super().__init__(**kwargs)
-        super().__init__()
+        super().__init__(**kwargs)
+        # super().__init__()
 
         self.name = "READY App"
         self.source = source
@@ -401,11 +401,16 @@ class READYApp(Application):
 
     def compose(self):
         host_allocator = UnboundedAllocator(self, name="host_allocator")
-        source_args = self.kwargs("source")
+        source_args = self.kwargs("v4l2_source")
+        # TO DEBUG self.kwargs; check __init__ settings
+        # width = source_args["width"]
+        # height = source_args["height"]
+        # print(f'xxxxxxxxxxxxxxxxx {width} {height}')
+
+        width = 640  # TODO source_args["width"]
+        height = 400  # TODO source_args["height"]
 
         if self.source.lower() == "replayer":
-            width = 640  # TODO source_args["width"]
-            height = 400  # TODO source_args["height"]
             n_channels = 1
             bpp = 1  # bytes per pixel
             block_size = width * height * n_channels * bpp
@@ -422,7 +427,7 @@ class READYApp(Application):
                 #     block_size=block_size,
                 #     num_blocks=num_blocks,
                 # ),
-                allocator=host_allocator,
+                allocator=UnboundedAllocator(self, name="replayer_allocator"),
                 basename= "video_3framesx10",
                 directory=self.video_dir,
                 frame_rate=0.0,
@@ -433,8 +438,6 @@ class READYApp(Application):
             )
 
         elif self.source.lower() == "v4l2":
-            width = 640  # TODO source_args["width"]
-            height = 400  # TODO source_args["height"]
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
             drop_alpha_block_size = width * height * n_channels * bpp
@@ -490,14 +493,14 @@ class READYApp(Application):
                 self,
                 name="preprocessor_replayer_pool",
                 storage_type=MemoryStorageType.DEVICE,
-                block_size=640 * 400 * bytes_per_float32 * in_components,
+                block_size=width * height * bytes_per_float32 * in_components,
                 num_blocks=2*3,
             ),
             out_tensor_name="out_preprocessor",
             scale_min=1.0,
             scale_max=252.0,
-            resize_width=640,
-            resize_height=400,
+            resize_width=width,
+            resize_height=height,
             out_dtype="float32",
             cuda_stream_pool=formatter_cuda_stream_pool,
             # **self.kwargs("preprocessor_replayer"),
@@ -511,14 +514,14 @@ class READYApp(Application):
             out_dtype="float32",
             scale_min=1.0,
             scale_max=252.0,
-            resize_width=640,
-            resize_height=400,
+            resize_width=width,
+            resize_height=height,
             # pool=host_allocator,
             pool=BlockMemoryPool(
                 self,
                 name="preprocessor_replayer_pool",
                 storage_type=MemoryStorageType.DEVICE,
-                block_size=640 * 400 * bytes_per_float32 * in_components,
+                block_size=width * height * bytes_per_float32 * in_components,
                 num_blocks=2*3,
             ),
             cuda_stream_pool=formatter_cuda_stream_pool,
@@ -534,8 +537,8 @@ class READYApp(Application):
 
 
         n_channels_inference = 4
-        width_inference = 640
-        height_inference = 400
+        width_inference = width
+        height_inference = height
         bpp_inference = 4
         inference_block_size = (
             width_inference * height_inference * n_channels_inference * bpp_inference
@@ -577,7 +580,7 @@ class READYApp(Application):
         post_inference_op = PostInferenceOp(
             self,
             name="post_inference_op",
-            allocator=host_allocator,
+            allocator=UnboundedAllocator(self, name="post_inference_allocator"),
             width=width,
             height=height,
             **self.kwargs("post_inference_op"),
@@ -586,7 +589,7 @@ class READYApp(Application):
         segpostprocessor = SegmentationPostprocessorOp(
             self,
             name="segpostprocessor",
-            allocator=host_allocator,
+            allocator=UnboundedAllocator(self, name="segpostprocessor_allocator"),
             in_tensor_name="unet_out",
             network_output_type="softmax",
             data_format="nchw",
@@ -597,8 +600,8 @@ class READYApp(Application):
             self,
             name="viz",
             window_title="READY demo",
-            width=640,
-            height=400,
+            width=width,
+            height=height,
             tensors=[
                 dict(
                     name="",
