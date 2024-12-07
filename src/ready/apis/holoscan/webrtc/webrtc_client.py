@@ -23,7 +23,6 @@ from threading import Thread
 
 import holoscan
 from aiohttp import web
-
 from operators.webrtc_client.webrtc_client_op import WebRTCClientOp
 
 ROOT = os.path.dirname(__file__)
