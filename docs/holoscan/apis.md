@@ -79,6 +79,26 @@ cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/bring_your_own
 vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
+## WebRTC Video Client
+* Launching `webrtc_video_client`
+```
+export PYTHONPATH=${PYTHONPATH}:/workspace/volumes/holohub
+python /workspace/volumes/ready/src/ready/apis/holoscan/webrtc/webrtc_client.py
+```
+
+* Open browser
+```
+http://127.0.0.1:8080/
+```
+
+* TODO: Conneting from a different machine
+```
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key
+./run launch webrtc_video_client --cert-file MyCertificate.crt --key-file MyKey.key
+```
+* video-resolution: 320x240, 640x480, 960x540, 1280x720, 1920x1080
+* video-codec: VP8, H264
+
 
 ## References
 * Visit the [SDK User Guide](https://docs.nvidia.com/holoscan/sdk-user-guide/examples/byom.html) for step-by-step documentation of this example.

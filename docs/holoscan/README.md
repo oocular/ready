@@ -19,7 +19,6 @@ git pull
 #git checkout 3834a7b #holoscan-sdk-2.5.0 #WORKS! pointing to "holohub:ngc-v2.4.0" > https://github.com/nvidia-holoscan/holohub/blob/3834a7b057501d6dbc564df05692866d2b775324/dev_container#L472
 #git checkout f7f561f #holoscan-sdk-2.6.0 #WORKS! pointing to "holohub:ngc-v2.5.0" [+] Building holoscan-sdk-2.6.0 2997.6s (8/8) FINISHED #~50mins
 #git checkout 9554bd3 #holoscan-sdk-2.7.0 #ISSUES! Wed Dec 4 10:26:06 2024 -0500
-./run clear_cache
 ./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #Building 1602.1s (8/8) FINISHED  2.7.0
 #TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
 ```
