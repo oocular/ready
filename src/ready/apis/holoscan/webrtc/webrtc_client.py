@@ -91,6 +91,8 @@ class WebRTCClientApp(holoscan.core.Application):
             self,
             name="Video Sink",
             window_title="WebRTC Client",
+            width=640, #TODO pass this as a width and height from index.html video-resolution
+            height=480,
             cuda_stream_pool=holoscan.resources.CudaStreamPool(
                 self,
                 name="cuda_stream_pool",
