@@ -8,6 +8,8 @@ set -Eeuxo pipefail
 
 # bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cut_video_640x400_7117d0.mp4 640 400 3 24
 # bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cut_video_640x400_cc6b03.mp4 640 400 3 24
+# bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cropped_cut_video_640x400_cc6b03.mp4 640 400 3 30
+# bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cropped_cut_video_640x400_bf7bf0.mp4 640 400 3 30
 
 ### INPUT ARGUMENTS
 VIDEOPATH=$1 # Path to the video

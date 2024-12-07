@@ -27,10 +27,19 @@ ffmpeg -y -i ${VIDEOPATH}/${VIDEO_SHORTNAME} -vf scale=640:400 ${VIDEOPATH}/vide
 
 ffmpeg -y -ss ${START_TIME}  -i  ${VIDEOPATH}/video_640x400_${VIDEO_SHORTNAME} -vcodec libx264 -acodec copy -t ${DURATION_FRAME} ${VIDEOPATH}/cut_video_640x400_${VIDEO_SHORTNAME}
 
-# ## Convert video to grayscale and hue
-ffmpeg -y -i ${VIDEOPATH}/cut_video_640x400_${VIDEO_SHORTNAME} -vf format=gray ${VIDEOPATH}/cut_video_640x400_grayscale_${VIDEO_SHORTNAME}
-ffmpeg -y -i ${VIDEOPATH}/cut_video_640x400_${VIDEO_SHORTNAME} -vf hue=s=20 ${VIDEOPATH}/cut_video_640x400_hue_${VIDEO_SHORTNAME}
+## Crop and scale video
+# To crop a 250×200 section, starting from position (00, 100)
+# ffplay -i cut_video_640x400_cc6b03.mp4 -vf "crop=250:200:00:100" #to_test
+# ffplay -i cut_video_640x400_bf7bf0.mp4 -vf "crop=220:190:100:100" #to_test
+# https://video.stackexchange.com/questions/4563/
+ffmpeg -i ${VIDEOPATH}/cut_video_640x400_${VIDEO_SHORTNAME} -vf "crop=220:190:100:100" -c:a copy ${VIDEOPATH}/cropped_WxH_cut_video_640x400_${VIDEO_SHORTNAME}
+ffmpeg -y -i ${VIDEOPATH}/cropped_WxH_cut_video_640x400_${VIDEO_SHORTNAME} -vf scale=640:400 ${VIDEOPATH}/cropped_cut_video_640x400_${VIDEO_SHORTNAME}
 
-# # ## Remove files
+## Convert video to grayscale and hue
+#ffmpeg -y -i ${VIDEOPATH}/cut_video_640x400_${VIDEO_SHORTNAME} -vf format=gray ${VIDEOPATH}/cut_video_640x400_grayscale_${VIDEO_SHORTNAME}
+#ffmpeg -y -i ${VIDEOPATH}/cut_video_640x400_${VIDEO_SHORTNAME} -vf hue=s=20 ${VIDEOPATH}/cut_video_640x400_hue_${VIDEO_SHORTNAME}
+
+## Remove files
+rm ${VIDEOPATH}/cropped_WxH_cut_video_640x400_${VIDEO_SHORTNAME}
 rm ${VIDEOPATH}/${VIDEO_SHORTNAME}
 rm ${VIDEOPATH}/video_640x400_${VIDEO_SHORTNAME}
