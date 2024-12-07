@@ -438,7 +438,10 @@ class READYApp(Application):
                 # ),
                 # allocator=host_allocator,
                 allocator=rmm_allocator,
-                basename= "video_3framesx10",
+                # basename= "video_3framesx10",
+                # basename= "cut_video_640x400_7117d0",
+                basename= "cut_video_640x400_cc6b03",
+                # basename= "cut_video_640x400_grayscale_cc6b03",
                 directory=self.video_dir,
                 frame_rate=0.0,
                 realtime=True, # default: true

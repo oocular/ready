@@ -1,23 +1,28 @@
 #!/bin/bash
+set -Eeuxo pipefail
 
 ### USAGE
+#cd ~/ready
+#source .venv/bin/activate
 #cd ~/ready/data/bash-scripts
-#conda activate readyVE #(in local machine)
-#bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/novel/videos cut_video_640x400.mp4 640 400 3 24
-#bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/novel/videos cut_video_640x400_grayscale.mp4 640 400 3 24
+
+# bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cut_video_640x400_7117d0.mp4 640 400 3 24
+# bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cut_video_640x400_cc6b03.mp4 640 400 3 24
 
 ### INPUT ARGUMENTS
-VIDEOPATH=$1
-VIDEONAME=$2
-WIDTH=$3
-HEIGHT=$4
-CHANNELS=$5
-NNframes=$6
+VIDEOPATH=$1 # Path to the video
+VIDEONAME=$2 # Name of the video including extension
+WIDTH=$3 # Width of the video
+HEIGHT=$4 # Height of the video
+CHANNELS=$5 # Number of channels in the video
+NNframes=$6 # Number of frames per second which should match the same FPS as the original video
 
+echo ${VIDEOPATH}/${VIDEONAME}
+
+## TODO: include the following arguments
 #FRAMES_PATH=$1
 #IMAGE_EXTENSION=$2 # png or jpg
 #FRAMEFILENAMEID=$4
-echo ${VIDEOPATH}/${VIDEONAME}
 ##${FILE%%.*} filename
 ##${FILE#*.} extension
 
