@@ -140,7 +140,7 @@ class App(Application):
             # width and height given, use BlockMemoryPool (better latency)
             width = source_args["width"]
             height = source_args["height"]
-            #####REMVOEprint(f'xxxxxxxxxxxxxxxxx {width} {height}')
+            #####REMOVE print(f'xxxxxxxxxxxxxxxxx {width} {height}')
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
             block_size = width * height * n_channels
