@@ -10,7 +10,7 @@ import torch
 import torch.onnx
 from torch import nn
 from torch import optim as optim
-import torchvision.transforms.v2 as transforms
+import torchvision.transforms.v2 as transforms #https://pytorch.org/vision/main/transforms.html
 
 # from segnet import SegNet
 from src.ready.models.unet import UNet
@@ -21,8 +21,9 @@ torch.cuda.empty_cache()
 # import gc
 # gc.collect()
 
-MAIN_PATH = os.path.join(HOME_PATH, "Downloads\\hackathon") #LOCAL
-# MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
+# MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
+# MAIN_PATH = os.path.join(HOME_PATH, "Downloads\\hackathon") #LOCAL
+MAIN_PATH = os.path.join(HOME_PATH, "") #GITHUB
 
 
 def save_checkpoint(state, path):
@@ -90,12 +91,12 @@ def main():
     """
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    #set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
-    set_data_directory(main_path=MAIN_PATH, data_path="MOBIOUS") #SERVER
+    set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
+    # set_data_directory(main_path=MAIN_PATH, data_path="MOBIOUS") #SERVER
+    # set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
     # TODO train with 1700x3000
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"device used {device}")
 
     if not os.path.exists("models"):
         os.mkdir("models")
@@ -112,36 +113,39 @@ def main():
 
     cuda_available = torch.cuda.is_available()
 
-    ## Length 5; set_data_directory("ready/data")
-    #trainset = MobiousDataset(
-    #    "sample-frames/test640x400"
-    #    )
     
     # set transforms for training images 
-    transforms_msk = transforms.Compose([transforms.RandomHorizontalFlip(p=0.3),
-                                        transforms.RandomVerticalFlip(p=0.3),
-                                        transforms.RandomRotation(45)])
-
     transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
                                           transforms.ToImage(),
                                           transforms.ToDtype(torch.float32, scale=True), # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon 
                                           transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])# standardisation values taken from ImageNet
  
+    transforms_rotations = transforms.Compose([
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(10),
+                                            ])
     
-    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+
+    # Length 5; set_data_directory("ready/data")
     trainset = MobiousDataset(
-        "train", transform=transforms_img, target_transform=transforms_msk
-    )
+        "sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
+       )
+
+    # ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    # trainset = MobiousDataset(
+    #     "train", transform=transforms_img, target_transform=transforms_msk
+    # )
 
     
-    print("Length of trainset:", len(trainset))
+    print("Length of trainset:", len(trainset))    
 
-    batch_size_ = 3 #to_test
-    # batch_size_ = 8  # 8 original
+    batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
-    print(f"trainloader.batch_size {trainloader.batch_size}")
+    print(f"trainloader.batch_size: {trainloader.batch_size}")
 
     ##################
     # TODO create a sanity_check module
@@ -170,7 +174,6 @@ def main():
 
 
     run_epoch = 1 #to_test
-    # run_epoch = ?
 
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
@@ -231,15 +234,15 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
                 ## images
-                # print(f"images.size() {images.size()};
-                # type(labels): {type(images)};
+                # print(f"images.size() {images.size()};\
+                # type(labels): {type(images)};\
                 # images.type: {images.type()} ")
                 # torch.Size([batch_size_, 3, 400, 640]);
                 # <class 'torch.Tensor'>;
                 # torch.cuda.FloatTensor
                 ## labels
-                # print(f"labels.size() {labels.size()};
-                # type(labels): {type(labels)};
+                # print(f"labels.size() {labels.size()};\
+                # type(labels): {type(labels)};\
                 # labels.type: {labels.type()} ")
                 # torch.Size([batch_size_, 400, 640]),
                 # <class 'torch.Tensor'>, torch.cuda.LongTensor

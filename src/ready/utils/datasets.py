@@ -96,12 +96,6 @@ class MobiousDataset(Dataset):
 
     def __len__(self):
         return len(self.img_path)
-    
-    def apply_transform(self, applied_transform, img, mask, seeding):
-        random.seed(seeding) # apply this seed to img transforms 
-        img, mask = applied_transform(img, mask)
-
-        return img, mask
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
@@ -109,10 +103,9 @@ class MobiousDataset(Dataset):
         # TODO check when there is no numpy lalbels
         # labels_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
 
-        # image = read_image(img_path)
-        image = Image.open(img_path)
-
-        # / 255 #torch.Size([1, 3, 400, 640])
+        image = read_image(img_path).type(
+            torch.float
+        )  # / 255 #torch.Size([1, 3, 400, 640])
         # image = np.asarray(Image.open( img_path ).convert("RGB")) #torch.Size([1, 400, 640, 3])
 
         # label = np.load(labels_path)
@@ -136,36 +129,9 @@ class MobiousDataset(Dataset):
 
         # # print(f"x.size() {mask.shape}; type(x): {type(mask)}; x.type: {mask.type()} ")
 
-        mask = Image.open(masks_path)
+        mask = Image.open(masks_path).convert("P")
+        # For the “P” mode, this method translates pixels through the palette.
 
-
-        # PRINT IMAGES POST 
-        # fig, axes = plt.subplots(2, 2)   
-
-        # fig.add_subplot(2, 2, 1)
-        # plt.imshow(image)
-        # axes[0,0].set_title('raw img')
-
-        # fig.add_subplot(2, 2, 2)
-        # plt.imshow(mask)
-        # axes[0,1].set_title('raw mask')
-       
-        # if self.target_transform:
-        #     image, mask = self.target_transform(image, mask)
-        # if self.transform:
-        #     image = self.transform(image)
-
-        # fig.add_subplot(2, 2, 3)
-        # plt.imshow(torch.permute(image,(1,2,0)))
-        # axes[1,0].set_title('aug img')
-    
-        # fig.add_subplot(2, 2, 4)
-        # plt.imshow(mask)
-        # axes[1,1].set_title('aug mask')
-        
-        # plt.show()
-
-        mask = mask.convert("P") # For the “P” mode, this method translates pixels through the palette.
         mask = np.array(mask)
         mask = torch.tensor(mask, dtype=torch.long)
 
@@ -180,7 +146,7 @@ class MobiousDataset(Dataset):
         # plt.subplot(2,5,3), plt.imshow(mask>30), plt.colorbar()
         # plt.subplot(2,5,4), plt.imshow(mask>180), plt.colorbar()
         # plt.subplot(2,5,5), plt.imshow(mask>200), plt.colorbar()
-        # # plt.show()
+        # plt.show()
 
         encode_mask = torch.tensor(
             np.zeros((mask.shape[0], mask.shape[1])), dtype=torch.long
@@ -189,13 +155,13 @@ class MobiousDataset(Dataset):
         encode_mask[mask > 0] = 1  # sclera (0 to 10)
         # 1: pupil
         encode_mask[mask > 30] = 2  # pupil (20 to 30)
-        # # 2: iris
+        # 2: iris
         encode_mask[mask > 180] = 3  # iris (40 to 180)
-        # # 3: background
+        # 3: background
         # encode_mask[mask>200] = 3 #background (196 to 255)
 
-
         # print(f"************************")
+        # print(encode_mask.type())
         # print(encode_mask.unique())
 
         #TODO add sanity check for plotting encoded masks
@@ -220,6 +186,27 @@ class MobiousDataset(Dataset):
         # print(label)
         # label = label.reshape([4, 400, 640])
         # print(label)
+
+        seed = np.random.randint(2147483647) # make a seed with numpy generator 
+        random.seed(seed) # apply this seed to img tranfsorms
+        torch.manual_seed(seed) # needed for torchvision 0.7
+        if self.transform:
+            image = self.transform(image)#
+
+        random.seed(seed) # apply this seed to target tranfsorms
+        torch.manual_seed(seed) # needed for torchvision 0.7
+        if self.target_transform:
+            encode_mask = self.target_transform(encode_mask)
+
+        #TODO add sanity check for plotting image and encoded masks
+        # plt.subplot(2,1,1), plt.imshow(image.permute(1,2,0)/255), plt.colorbar()
+        # plt.subplot(2,1,2), plt.imshow(encode_mask.permute(1,2,0)/255), plt.colorbar()
+        # plt.show()
+
+        # RuntimeError: only batches of spatial targets supported (3D tensors) but got targets of size: : [5, 1, 400, 640]
+        # print(encode_mask.size()) #torch.Size([1, 400, 640])
+        encode_mask=encode_mask.squeeze(0)
+        # print(encode_mask.size()) #torch.Size([400, 640])
 
         # return image, label
         return image, encode_mask
