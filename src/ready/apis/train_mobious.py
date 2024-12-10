@@ -337,6 +337,20 @@ def main(args):
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
         
 if __name__ == "__main__":
+
+    """
+    Script to train the Mobious model using the READY API.
+
+    Usage:
+        python src/ready/apis/train_mobious.py -df <debug_flag>
+
+    Arguments:
+        -df, --debug_print_flag: Enable or disable debug printing. Use 1 (True) to enable or 0 (False) to disable.
+                                 WARNING: Enabling debug mode slows performance.
+
+    Example:
+        python src/ready/apis/train_mobious.py -df 1
+    """
     # main()
     
     parser = ArgumentParser(description="READY demo application.")
