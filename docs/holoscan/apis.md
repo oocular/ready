@@ -91,11 +91,14 @@ python /workspace/volumes/ready/src/ready/apis/holoscan/webrtc/webrtc_client.py
 http://127.0.0.1:8080/
 ```
 
-* TODO: Conneting from a different machine
+* Conneting from a different machine
 ```
-openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key
-./run launch webrtc_video_client --cert-file MyCertificate.crt --key-file MyKey.key
+cd /workspace/volumes/ready/src/ready/apis/holoscan/webrtc
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key #just pressed enter
+python webrtc_client.py --cert-file MyCertificate.crt --key-file MyKey.key
 ```
+Then in a differen machine go to your browser http://{YOUR HOST IP}:8080
+
 * video-resolution: 320x240, 640x480, 960x540, 1280x720, 1920x1080
 * video-codec: VP8, H264
 
