@@ -1,7 +1,3 @@
-"""
-Train pipeline for UNET
-"""
-
 import os
 import time
 from datetime import datetime
@@ -12,13 +8,11 @@ from torch import nn
 from torch import optim as optim
 import torchvision.transforms.v2 as transforms #https://pytorch.org/vision/main/transforms.html
 
-# from segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
 from src.ready.utils.utils import HOME_PATH, set_data_directory
 
-# from sklearn.metrics import jaccard_score
-from src.ready.utils.metrics import evaluate # mIoU, dice
+from src.ready.utils.metrics import evaluate
 from argparse import ArgumentParser
 
 import json
@@ -88,6 +82,8 @@ def sanity_check(trainloader, neural_network, cuda_available):
 
 def main(args):
     """
+    Train pipeline for UNET
+
     #CHECK epoch = None
     #CHECK if weight_fn is not None:
     #CHECK add checkpoint
@@ -126,7 +122,7 @@ def main(args):
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
-                                            transforms.RandomRotation(10),
+                                            transforms.RandomRotation(40),
                                             ])
     
 
@@ -134,14 +130,10 @@ def main(args):
     trainset = MobiousDataset(
         "sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
        )
-    # Length 5; set_data_directory("ready/data")
-    trainset = MobiousDataset(
-       "sample-frames/test640x400"
-       )
 
     # ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     # trainset = MobiousDataset(
-    #     "train", transform=transforms_img, target_transform=transforms_msk
+    #     "train", transform=transforms_img, target_transform=transforms_rotations
     # )
 
     
@@ -354,7 +346,6 @@ def main(args):
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
         
 if __name__ == "__main__":
-
     """
     Script to train the Mobious model using the READY API.
 
@@ -368,8 +359,6 @@ if __name__ == "__main__":
     Example:
         python src/ready/apis/train_mobious.py -df 1
     """
-    # main()
-    
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument(
         "-df",

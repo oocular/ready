@@ -203,10 +203,7 @@ class MobiousDataset(Dataset):
         # plt.subplot(2,1,2), plt.imshow(encode_mask.permute(1,2,0)/255), plt.colorbar()
         # plt.show()
 
-        # RuntimeError: only batches of spatial targets supported (3D tensors) but got targets of size: : [5, 1, 400, 640]
-        # print(encode_mask.size()) #torch.Size([1, 400, 640])
-        encode_mask=encode_mask.squeeze(0)
-        # print(encode_mask.size()) #torch.Size([400, 640])
+        encode_mask=encode_mask.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])
 
         # return image, label
         return image, encode_mask
