@@ -9,7 +9,6 @@ HOME_PATH = Path.home()
 REPOSITORY_PATH = Path.cwd()
 
 
-
 def set_data_directory(main_path: str = None, data_path: str = None):
     """
     set_data_directory with input variable:
@@ -19,4 +18,6 @@ def set_data_directory(main_path: str = None, data_path: str = None):
     """
     if main_path is None:
         main_path = REPOSITORY_PATH
+    print(f"main_path: {main_path}")
+    print(f"data_path: {data_path}")
     os.chdir(os.path.join(main_path, data_path))
