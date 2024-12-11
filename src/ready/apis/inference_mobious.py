@@ -1,12 +1,5 @@
-"""
-Inference
-See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
-See pixel_accuracy, mIoU:
-https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
-https://medium.com/yodayoda/segmentation-for-creating-maps-92b8d926cf7e
-"""
-
 import os
+from pathlib import Path
 
 import matplotlib.image as mimg
 import matplotlib.pyplot as plt
@@ -17,13 +10,8 @@ import torch.nn.functional as F
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import set_data_directory
 
 from src.ready.utils.metrics import evaluate
-
-# TODO
-# from sklearn.metrics import (
-#    jaccard_score, f1_score, recall_score, precision_score, accuracy_score, fbeta_score)
 
 # TODO
 # Make sure we have a common path for models to avoid looking where the model path is!
@@ -32,21 +20,25 @@ from src.ready.utils.metrics import evaluate
 # Add argument to put path of data and name of model
 
 if __name__ == "__main__":
-    # set_data_directory("datasets/mobious")
-    set_data_directory(
-        # main_path="ready/data/mobious",
-        data_path="data/mobious")
-    print(os.getcwd())
+    """
+    Run this script from the root directory of the project:
+    python src/ready/apis/inference_mobious.py
+
+    Reference inference
+    See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
+    See pixel_accuracy, mIoU:
+    https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
+    https://medium.com/yodayoda/segmentation-for-creating-maps-92b8d926cf7e
+    """
+    CURRENT_PWD = Path().absolute()
+    DATASET_PATH = str(CURRENT_PWD) + "/data/mobious"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # trainset = MobiousDataset("MOBIOUS/train")
-    # #for  set_data_directory("datasets/mobious/MOBIOUS")
-    # trainset = MobiousDataset("sample-frames/test640x400")
-    # #for set_data_directory("ready/data/mobious/sample-frames")
     trainset = MobiousDataset(
-        "sample-frames/test640x400_1frame_1_1i_Ll_1"
-    )  # for set_data_directory("ready/data/mobious/sample-frames")
+        str(DATASET_PATH)+"/sample-frames/test640x400_1frame_1_1i_Ll_1" # 1 frame
+        # str(DATASET_PATH)+"/sample-frames/test640x400" # 5 frames
+    )
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
@@ -91,32 +83,33 @@ if __name__ == "__main__":
     #         # Average loss @ epoch: 0.0006139971665106714
     #         # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     #         # Elapsed time for the training loop: 13.326771756013235 (mins)
-    # model_name = "_weights_10-09-24_06-35-14"
-    model_name = "_weights_08-11-24_16-38-01"
+    # model_name = "_weights_08-11-24_16-38-01"
     # run_epoch = 100 #noweights
     #          #Average loss @ epoch: 0.001589389712471593
     #          #Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
     #          #Elapsed time for the training loop: 47.66647284428279 (mins)
+    model_name = "_weights_10-09-24_06-35-14"
 
-    checkpoint_path = "models/" + str(model_name) + ".pth"
+
+    checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + ".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    # #### ONNX model
-    # onnx_checkpoint_path = "models/" + str(model_name) + "-sim.onnx"
-    # ort_session = onnxruntime.InferenceSession(
-    #     onnx_checkpoint_path, providers=["CPUExecutionProvider"]
-    # )
+    #### ONNX model
+    onnx_checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + "-sim.onnx"
+    ort_session = onnxruntime.InferenceSession(
+        onnx_checkpoint_path, providers=["CPUExecutionProvider"]
+    )
 
-    # # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
-    # def to_numpy(tensor):
-    #     return (
-    #         tensor.detach().cpu().numpy()
-    #         if tensor.requires_grad
-    #         else tensor.cpu().numpy()
-    #     )
+    # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
+    def to_numpy(tensor):
+        return (
+            tensor.detach().cpu().numpy()
+            if tensor.requires_grad
+            else tensor.cpu().numpy()
+        )
 
     ### MAIN LOOP
     f, ax = plt.subplots(7, 6)
@@ -176,6 +169,7 @@ if __name__ == "__main__":
         # tensor_.min 0.0
         # tensor_.max 0.988235354423523
         # tensor_.mean 0.2402516007423401
+
         # image
         print(
             f"tensor.shape={image.shape}"
