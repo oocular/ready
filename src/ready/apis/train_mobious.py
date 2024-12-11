@@ -2,8 +2,10 @@
 Train pipeline for UNET
 """
 
+import json
 import os
 import time
+from argparse import ArgumentParser
 from datetime import datetime
 
 import torch
@@ -14,13 +16,9 @@ from torch import optim as optim
 # from segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import HOME_PATH, set_data_directory
-
 # from sklearn.metrics import jaccard_score
-from src.ready.utils.metrics import evaluate # mIoU, dice
-from argparse import ArgumentParser
-
-import json
+from src.ready.utils.metrics import evaluate  # mIoU, dice
+from src.ready.utils.utils import HOME_PATH, set_data_directory
 
 torch.cuda.empty_cache()
 # import gc
@@ -93,7 +91,7 @@ def main(args):
     #CHECK add execution time
     #CHECK save loss
     """
-# 
+#
     starttime = time.time()  # print(f'Starting training loop at {startt}')
     set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
     # set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
@@ -226,7 +224,7 @@ def main(args):
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
         print("\nEpoch {}:".format(i))
         sum_loss = 0.0
-        num_samples, num_batches = 0, 0        
+        num_samples, num_batches = 0, 0
         # performance_epoch = {key: 0.0 for key in performance.keys()}
 
 
@@ -239,7 +237,7 @@ def main(args):
             # print(f"labels.size() {labels.size()};\
             # type(labels): {type(labels)};\
             # labels.type: {labels.type()} ")
-            # labels.size() torch.Size([5, 400, 640]);   
+            # labels.size() torch.Size([5, 400, 640]);
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
@@ -307,7 +305,7 @@ def main(args):
 
     print("===========================")
 
-        # print 
+        # print
 
     print("Training complete. Saving checkpoint...")
     #TODO
@@ -324,7 +322,7 @@ def main(args):
         text = json.dumps(performance, indent=4)
         with open(path_to_file, "w") as out_file_obj:
             out_file_obj.write(text)
-    else: 
+    else:
         print("Model saving is disabled, set debug_print_flag to False to save model")
 
     # TODO
@@ -335,7 +333,7 @@ def main(args):
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
-        
+
 if __name__ == "__main__":
 
     """
@@ -352,7 +350,7 @@ if __name__ == "__main__":
         python src/ready/apis/train_mobious.py -df 1
     """
     # main()
-    
+
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument(
         "-df",
@@ -364,6 +362,6 @@ if __name__ == "__main__":
                 WARNING: Setting this to True will slow down performance of the app!"
         ),
     )
-    
+
     args = parser.parse_args()
     main(args)

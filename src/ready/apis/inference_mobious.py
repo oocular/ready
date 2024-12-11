@@ -17,9 +17,8 @@ import torch.nn.functional as F
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import set_data_directory
-
 from src.ready.utils.metrics import evaluate
+from src.ready.utils.utils import set_data_directory
 
 # TODO
 # from sklearn.metrics import (
