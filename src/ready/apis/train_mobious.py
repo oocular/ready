@@ -52,7 +52,8 @@ def main(args):
     #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
     # * To train model with 1700x3000
     """
-    HOME_PATH = os.path.join(Path.home(), "Desktop/nystagmus-tracking/")
+    # HOME_PATH = os.path.join(Path.home(), "Desktop/nystagmus-tracking/") #MX_LOCAL_DEVICE
+    HOME_PATH = os.path.join(Path.home(), "") #CRICKET_SERVER
     GITHUB_DATA_PATH = os.path.join(HOME_PATH, "ready/data/mobious") #GITHUB
     FULL_DATA_PATH = os.path.join(HOME_PATH, "datasets/mobious/MOBIOUS") #LOCAL_DEVICE
 
@@ -94,16 +95,16 @@ def main(args):
 
 
     # Length 5; set_data_directory("ready/data")
-    trainset = MobiousDataset(
-        GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
-        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
-       )
-
-    # ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     # trainset = MobiousDataset(
-    #     FULL_DATA_PATH+"/train", transform=None, target_transform=None
-    #     FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
-    # )
+    #    GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
+    #    # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
+    #   )
+
+    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    trainset = MobiousDataset(
+        #FULL_DATA_PATH+"/train", transform=None, target_transform=None
+        FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
+    )
 
     print("Length of trainset:", len(trainset))
 
@@ -135,7 +136,7 @@ def main(args):
         loss_fn.cuda()
 
 
-    run_epoch = 2
+    run_epoch = 10
 
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
@@ -184,6 +185,15 @@ def main(args):
     # Average loss @ epoch: 9.453074308542105
     # Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
     # Elapsed time for the training loop: 96.35676774978637 (mins)
+    #
+    # 2 epochs 10mins
+    # 10 epochs without augmentations
+    #    epoch loss 0.0151
+    #    training time ~50.24 mins
+    # 10 epochs with augmentations (rotations)
+    #    epoch loss 0.0308
+    #    training time ~50.27 mins
+    #
     epoch = None
 
     performance = {
@@ -278,7 +288,7 @@ def main(args):
             for loss in loss_values:
                 out_file_obj.write(f"{loss}\n")
     else:
-        print("Model saving is disabled, set debug_print_flag to False to save model")
+        print("Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
 
     # TODO
     #    batch_size = 1    # just a random number
