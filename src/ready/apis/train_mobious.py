@@ -1,22 +1,20 @@
+import json
 import os
 import time
+from argparse import ArgumentParser
 from datetime import datetime
 
 import torch
 import torch.onnx
+import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
 from torch import nn
 from torch import optim as optim
-import torchvision.transforms.v2 as transforms #https://pytorch.org/vision/main/transforms.html
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import HOME_PATH, set_data_directory
-from src.ready.utils.utils import sanity_check_trainloader
-
 from src.ready.utils.metrics import evaluate
-from argparse import ArgumentParser
-
-import json
+from src.ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
+                                   set_data_directory)
 
 torch.cuda.empty_cache()
 # import gc
@@ -73,19 +71,19 @@ def main(args):
 
     cuda_available = torch.cuda.is_available()
 
-    # set transforms for training images 
+    # set transforms for training images
     transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
                                           transforms.ToImage(),
-                                          transforms.ToDtype(torch.float32, scale=True), # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon 
+                                          transforms.ToDtype(torch.float32, scale=True), # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
                                           transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])# standardisation values taken from ImageNet
- 
+
     transforms_rotations = transforms.Compose([
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
                                             transforms.RandomRotation(40),
                                             ])
-    
+
 
     # Length 5; set_data_directory("ready/data")
     trainset = MobiousDataset(
@@ -97,8 +95,8 @@ def main(args):
     #     "train", transform=transforms_img, target_transform=transforms_rotations
     # )
 
-    
-    print("Length of trainset:", len(trainset))    
+
+    print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
@@ -197,7 +195,7 @@ def main(args):
         print(f"############################################")
         print(f"Train loop at epoch: {i}")
         sum_loss = 0.0
-        num_samples, num_batches = 0, 0        
+        num_samples, num_batches = 0, 0
         # performance_epoch = {key: 0.0 for key in performance.keys()}
 
 
@@ -261,7 +259,7 @@ def main(args):
 
     print("===========================")
 
-        # print 
+        # print
 
     print("Training complete. Saving checkpoint...")
     #TODO
@@ -278,7 +276,7 @@ def main(args):
         text = json.dumps(performance, indent=4)
         with open(path_to_file, "w") as out_file_obj:
             out_file_obj.write(text)
-    else: 
+    else:
         print("Model saving is disabled, set debug_print_flag to False to save model")
 
     # TODO
@@ -289,7 +287,7 @@ def main(args):
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
-        
+
 if __name__ == "__main__":
     """
     Script to train the Mobious model using the READY API.
@@ -315,6 +313,6 @@ if __name__ == "__main__":
                 WARNING: Setting this to True will slow down performance of the app!"
         ),
     )
-    
+
     args = parser.parse_args()
     main(args)

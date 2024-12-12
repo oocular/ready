@@ -3,14 +3,14 @@ datasets
 """
 
 import os
+import random
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.io import read_image
-import matplotlib.pyplot as plt
-import random
 
 
 class EyeDataset(Dataset):
@@ -187,7 +187,7 @@ class MobiousDataset(Dataset):
         # label = label.reshape([4, 400, 640])
         # print(label)
 
-        seed = np.random.randint(2147483647) # make a seed with numpy generator 
+        seed = np.random.randint(2147483647) # make a seed with numpy generator
         random.seed(seed) # apply this seed to img tranfsorms
         torch.manual_seed(seed) # needed for torchvision 0.7
         if self.transform:

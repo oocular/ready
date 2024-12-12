@@ -4,6 +4,7 @@ utils
 
 import os
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 
 HOME_PATH = Path.home()
@@ -53,7 +54,7 @@ def sanity_check(trainloader, neural_network, cuda_available):
         )
 
         # TOSAVE_PLOTS_TEMPORALY?
-        # 
+        #
         # axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
         # print("NLLLL", nl.shape)
         # axarr[1].imshow(labels[0].squeeze(0).cpu())
@@ -78,7 +79,7 @@ def sanity_check_trainloader(trainloader, cuda_available):
         if cuda_available:
             images = images.cuda()
             labels = labels.cuda()
-        
+
         print(f"# images.size() {images.size()};\
         type(images): {type(images)};\
         images.type: {images.type()} ")
