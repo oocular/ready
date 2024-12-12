@@ -4,7 +4,6 @@ from pathlib import Path
 import matplotlib.image as mimg
 import matplotlib.pyplot as plt
 import numpy as np
-import onnxruntime
 import torch
 import torch.nn.functional as F
 
@@ -33,6 +32,10 @@ if __name__ == "__main__":
     DATASET_PATH = str(CURRENT_PWD) + "/data/mobious"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cuda_available = torch.cuda.is_available()
+    if cuda_available:
+        print("CUDA is available")
+        import onnxruntime
 
     trainset = MobiousDataset(
         str(DATASET_PATH)+"/sample-frames/test640x400_1frame_1_1i_Ll_1" # 1 frame
@@ -96,19 +99,21 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    #### ONNX model
-    onnx_checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + "-sim.onnx"
-    ort_session = onnxruntime.InferenceSession(
-        onnx_checkpoint_path, providers=["CPUExecutionProvider"]
-    )
 
-    # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
-    def to_numpy(tensor):
-        return (
-            tensor.detach().cpu().numpy()
-            if tensor.requires_grad
-            else tensor.cpu().numpy()
+    if cuda_available:
+        #### ONNX model
+        onnx_checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + "-sim.onnx"
+        ort_session = onnxruntime.InferenceSession(
+            onnx_checkpoint_path, providers=["CPUExecutionProvider"]
         )
+
+        # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
+        def to_numpy(tensor):
+            return (
+                tensor.detach().cpu().numpy()
+                if tensor.requires_grad
+                else tensor.cpu().numpy()
+            )
 
     ### MAIN LOOP
     f, ax = plt.subplots(7, 6)
@@ -151,16 +156,17 @@ if __name__ == "__main__":
         outputs_argmax = torch.argmax(outputs[0], dim=0)
         # print(outputs_argmax.size()) #torch.Size([400, 640])
 
-        ##ONNX model
-        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(image)}
-        ort_outs = torch.tensor(
-            np.asarray(ort_session.run(None, ort_inputs))
-        )  # print(ort_outs.size()) #torch.Size([1, 1, 4, 400, 640])
-        ort_outs = ort_outs.squeeze(0).squeeze(0)  #
-        # print(ort_outs.size()) #torch.Size([4, 400, 640])
-        ort_outs_argmax = torch.argmax(
-            ort_outs, dim=0
-        )  # print(ort_outs_argmax.size())#torch.Size([400, 640])
+        if cuda_available:
+            ##ONNX model
+            ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(image)}
+            ort_outs = torch.tensor(
+                np.asarray(ort_session.run(None, ort_inputs))
+            )  # print(ort_outs.size()) #torch.Size([1, 1, 4, 400, 640])
+            ort_outs = ort_outs.squeeze(0).squeeze(0)  #
+            # print(ort_outs.size()) #torch.Size([4, 400, 640])
+            ort_outs_argmax = torch.argmax(
+                ort_outs, dim=0
+            )  # print(ort_outs_argmax.size())#torch.Size([400, 640])
 
         ## Details of input image
         ### FROM holoscan-sdk API
@@ -278,17 +284,18 @@ if __name__ == "__main__":
         ax[4, 3].set_title("outputs_argmax>2")
         ax[4, 4].set_title("outputs_argmax>3")
 
-        ##ONNX PREDICTIONS
-        ax[5, 0].imshow(ort_outs_argmax.cpu())
-        ax[5, 1].imshow(ort_outs_argmax.cpu() > 0)
-        ax[5, 2].imshow(ort_outs_argmax.cpu() > 1)
-        ax[5, 3].imshow(ort_outs_argmax.cpu() > 2)
-        ax[5, 4].imshow(ort_outs_argmax.cpu() > 3)
-        ax[5, 0].set_title("ort_outs_argmax")
-        ax[5, 1].set_title("ort_outs_argmax>0")
-        ax[5, 2].set_title("ort_outs_argmax>1")
-        ax[5, 3].set_title("ort_outs_argmax>2")
-        ax[5, 4].set_title("ort_outs_argmax>3")
+        if cuda_available:
+            ##ONNX PREDICTIONS
+            ax[5, 0].imshow(ort_outs_argmax.cpu())
+            ax[5, 1].imshow(ort_outs_argmax.cpu() > 0)
+            ax[5, 2].imshow(ort_outs_argmax.cpu() > 1)
+            ax[5, 3].imshow(ort_outs_argmax.cpu() > 2)
+            ax[5, 4].imshow(ort_outs_argmax.cpu() > 3)
+            ax[5, 0].set_title("ort_outs_argmax")
+            ax[5, 1].set_title("ort_outs_argmax>0")
+            ax[5, 2].set_title("ort_outs_argmax>1")
+            ax[5, 3].set_title("ort_outs_argmax>2")
+            ax[5, 4].set_title("ort_outs_argmax>3")
 
         # #Clipping input data to the valid range for
         # imshow with RGB data ([0..1] for floats or [0..255] for integers).
