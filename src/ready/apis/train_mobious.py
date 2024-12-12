@@ -3,13 +3,13 @@ import os
 import time
 from argparse import ArgumentParser
 from datetime import datetime
+from pathlib import Path
 
 import torch
 import torch.onnx
 import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
 from torch import nn
 from torch import optim as optim
-from pathlib import Path
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
@@ -80,7 +80,7 @@ def main(args):
     # set transforms for training images
     transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
                                           transforms.ToImage(),
-                                          transforms.ToDtype(torch.float32, scale=True), 
+                                          transforms.ToDtype(torch.float32, scale=True),
                                           # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
                                           transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
                                         # standardisation values taken from ImageNet
