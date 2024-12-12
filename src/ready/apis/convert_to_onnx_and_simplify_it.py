@@ -4,8 +4,10 @@ convert_to_onnx
 
 from argparse import ArgumentParser
 
+import onnx
 import torch
 import torch.onnx
+from onnxsim import simplify
 
 from src.ready.models.unet import UNet
 from src.ready.utils.helpers import export_model
@@ -43,18 +45,32 @@ def main(model_path, input_model_name):
 
     export_model(model, device, models_path_output_name, dummy_input)
 
+    #### simplyfing model
+    # https://github.com/daquexian/onnx-simplifier?tab=readme-ov-file
+    #
+    model_path_with_model = model_path + "/" + model_name + ".onnx"
+    model_path_with_simmodel = model_path + "/" + model_name + "-sim.onnx"
+
+    model = onnx.load(model_path_with_model)
+
+    ## convert model
+    model_simp, check = simplify(model)
+    assert check, "Simplified ONNX model could not be validated"
+
+    onnx.save(model_simp, model_path_with_simmodel)
+
+
 
 if __name__ == "__main__":
     """
     Convert pytorch to onnx model
 
-    conda activate readyVE
     export PYTHONPATH=.
-    python src/ready/apis/convert_to_onnx.py -p $MODEL_PATH -i model-5jul2024.pth
+    python src/ready/apis/convert_to_onnx_and_simplify_it.py -p $MODEL_PATH -n model-5jul2024.pth
     """
 
     # Parse args
-    parser = ArgumentParser(description="Convert models to ONNX.")
+    parser = ArgumentParser(description="Convert models to ONNX and simplify it (sim.onnx)")
     parser.add_argument(
         "-p",
         "--model_path",
@@ -62,7 +78,7 @@ if __name__ == "__main__":
         help=("Set the model path"),
     )
     parser.add_argument(
-        "-i",
+        "-n",
         "--input_model_name",
         default="none",
         help=("Set input model name"),
