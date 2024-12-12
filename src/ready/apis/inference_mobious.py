@@ -1,52 +1,91 @@
-"""
-Inference
-See skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
-See pixel_accuracy, mIoU:
-https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
-https://medium.com/yodayoda/segmentation-for-creating-maps-92b8d926cf7e
-"""
-
 import os
+from argparse import ArgumentParser
+from pathlib import Path
 
 import matplotlib.image as mimg
 import matplotlib.pyplot as plt
 import numpy as np
-import onnxruntime
 import torch
 import torch.nn.functional as F
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import set_data_directory
-
 from src.ready.utils.metrics import evaluate
-
-# TODO
-# from sklearn.metrics import (
-#    jaccard_score, f1_score, recall_score, precision_score, accuracy_score, fbeta_score)
 
 # TODO
 # Make sure we have a common path for models to avoid looking where the model path is!
 
-# TODO
-# Add argument to put path of data and name of model
-
 if __name__ == "__main__":
-    # set_data_directory("datasets/mobious")
-    set_data_directory(
-        # main_path="ready/data/mobious",
-        data_path="data/mobious")
-    print(os.getcwd())
+    """
+    Script to test inference of Mobious models
+
+    Usage:
+        Run this script from the root directory of the project:
+        python src/ready/apis/inference_mobious.py -n <model_name.pth>
+
+    Arguments:
+        -n, --input_model_name: Set input model name. Default is none.
+
+    Example:
+        python src/ready/apis/inference_mobious.py -n _weights_10-09-24_06-35-14.pth
+
+
+    Tested models
+        model_name="_weights_04-09-24_16-31"
+            #Epoch 200:
+            #Average loss @ epoch: 9.453074308542105
+            #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
+            #Elapsed time for the training loop: 96.35676774978637 (mins)
+
+        model_name="_weights_10-09-24_03-46-29"
+            # Epoch 100:
+            # Average loss @ epoch: 0.0028544804081320763
+            # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
+            # Elapsed time for the training loop: 2.1838908473650616 (mins)
+        model_name="_weights_10-09-24_04-50-40"
+        run_epoch = 400
+                # Average loss @ epoch: 0.0006139971665106714
+                # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
+                # Elapsed time for the training loop: 13.326771756013235 (mins)
+        model_name = "_weights_08-11-24_16-38-01"
+        run_epoch = 100 #noweights
+                #Average loss @ epoch: 0.001589389712471593
+                #Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
+                #Elapsed time for the training loop: 47.66647284428279 (mins)
+        model_name = "_weights_10-09-24_06-35-14" #BASELINE model
+        model_name = "_weights_12-12-24_10-11-36" #10 epochs without augmentations
+        model_name = "_weights_12-12-24_11-05-12" #10 epochs with augmentations (rotations)
+
+    References
+        skmetrics: https://github.com/MatejVitek/SSBC/blob/master/evaluation/segmentation.py
+        pixel_accuracy, mIoU:
+        https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
+        https://medium.com/yodayoda/segmentation-for-creating-maps-92b8d926cf7e
+    """
+    parser = ArgumentParser(description="Convert models to ONNX and simplify it (sim.onnx)")
+    parser.add_argument(
+        "-n",
+        "--input_model_name",
+        default="none",
+        help=("Set input model name"),
+    )
+    args = parser.parse_args()
+    input_model_name=args.input_model_name
+    model_name = input_model_name[:-4]
+
+    CURRENT_PWD = Path().absolute()
+    DATASET_PATH = str(CURRENT_PWD) + "/data/mobious"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cuda_available = torch.cuda.is_available()
+    if cuda_available:
+        print("CUDA is available")
+        import onnxruntime
 
-    # trainset = MobiousDataset("MOBIOUS/train")
-    # #for  set_data_directory("datasets/mobious/MOBIOUS")
-    # trainset = MobiousDataset("sample-frames/test640x400")
-    # #for set_data_directory("ready/data/mobious/sample-frames")
     trainset = MobiousDataset(
-        "sample-frames/test640x400_1frame_1_1i_Ll_1"
-    )  # for set_data_directory("ready/data/mobious/sample-frames")
+        str(DATASET_PATH)+"/sample-frames/test640x400_1frame_1_1i_Ll_1" # 1 frame
+        # str(DATASET_PATH)+"/sample-frames/test640x400" # 5 frames
+    )
     print("Length of trainset:", len(trainset))
 
     batch_size_ = 8  # 8 original
@@ -55,68 +94,28 @@ if __name__ == "__main__":
     )
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
-    ### PTH model
-    # model_name = "_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset"
-    # model_name = "_weights_02-09-24_21-02"
-    # model_name = "weights_02-09-24_22-24_trained10e_8batch_1143trainset"
-    # model_name="_weights_03-09-24_19-16"
-    # Epoch 100:
-    # Average loss @ epoch: 9.622711725168294
-    # Saved PyTorch Model State to weights/_weights_03-09-24_19-16.pth
-    # Elapsed time for the training loop: 48.18073609670003 (mins)
 
-    # Epoch 20: loss no-weights
-    # Average loss @ epoch: 11.027751895931218
-    # Saved PyTorch Model State to weights/_weights_03-09-24_22-34.pth
-    # Elapsed time for the training loop: 9.677963574727377 (mins)
-
-    # Epoch 20: loss with weights
-    # Average loss @ epoch: 14.233737432039701
-    # Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
-    # Elapsed time for the training loop: 9.664288135369619 (mins)
-
-    # model_name="_weights_04-09-24_16-31"
-    #     #Epoch 200:
-    #     #Average loss @ epoch: 9.453074308542105
-    #     #Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
-    #     #Elapsed time for the training loop: 96.35676774978637 (mins)
-
-    # model_name="_weights_10-09-24_03-46-29"
-    #     # Epoch 100:
-    #     # Average loss @ epoch: 0.0028544804081320763
-    #     # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
-    #     # Elapsed time for the training loop: 2.1838908473650616 (mins)
-    # model_name="_weights_10-09-24_04-50-40"
-    # run_epoch = 400
-    #         # Average loss @ epoch: 0.0006139971665106714
-    #         # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
-    #         # Elapsed time for the training loop: 13.326771756013235 (mins)
-    # model_name = "_weights_10-09-24_06-35-14"
-    model_name = "_weights_08-11-24_16-38-01"
-    # run_epoch = 100 #noweights
-    #          #Average loss @ epoch: 0.001589389712471593
-    #          #Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
-    #          #Elapsed time for the training loop: 47.66647284428279 (mins)
-
-    checkpoint_path = "models/" + str(model_name) + ".pth"
+    checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + ".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    # #### ONNX model
-    # onnx_checkpoint_path = "models/" + str(model_name) + "-sim.onnx"
-    # ort_session = onnxruntime.InferenceSession(
-    #     onnx_checkpoint_path, providers=["CPUExecutionProvider"]
-    # )
 
-    # # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
-    # def to_numpy(tensor):
-    #     return (
-    #         tensor.detach().cpu().numpy()
-    #         if tensor.requires_grad
-    #         else tensor.cpu().numpy()
-    #     )
+    if cuda_available:
+        #### ONNX model
+        onnx_checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + "-sim.onnx"
+        ort_session = onnxruntime.InferenceSession(
+            onnx_checkpoint_path, providers=["CPUExecutionProvider"]
+        )
+
+        # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
+        def to_numpy(tensor):
+            return (
+                tensor.detach().cpu().numpy()
+                if tensor.requires_grad
+                else tensor.cpu().numpy()
+            )
 
     ### MAIN LOOP
     f, ax = plt.subplots(7, 6)
@@ -159,16 +158,17 @@ if __name__ == "__main__":
         outputs_argmax = torch.argmax(outputs[0], dim=0)
         # print(outputs_argmax.size()) #torch.Size([400, 640])
 
-        ##ONNX model
-        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(image)}
-        ort_outs = torch.tensor(
-            np.asarray(ort_session.run(None, ort_inputs))
-        )  # print(ort_outs.size()) #torch.Size([1, 1, 4, 400, 640])
-        ort_outs = ort_outs.squeeze(0).squeeze(0)  #
-        # print(ort_outs.size()) #torch.Size([4, 400, 640])
-        ort_outs_argmax = torch.argmax(
-            ort_outs, dim=0
-        )  # print(ort_outs_argmax.size())#torch.Size([400, 640])
+        if cuda_available:
+            ##ONNX model
+            ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(image)}
+            ort_outs = torch.tensor(
+                np.asarray(ort_session.run(None, ort_inputs))
+            )  # print(ort_outs.size()) #torch.Size([1, 1, 4, 400, 640])
+            ort_outs = ort_outs.squeeze(0).squeeze(0)  #
+            # print(ort_outs.size()) #torch.Size([4, 400, 640])
+            ort_outs_argmax = torch.argmax(
+                ort_outs, dim=0
+            )  # print(ort_outs_argmax.size())#torch.Size([400, 640])
 
         ## Details of input image
         ### FROM holoscan-sdk API
@@ -176,6 +176,7 @@ if __name__ == "__main__":
         # tensor_.min 0.0
         # tensor_.max 0.988235354423523
         # tensor_.mean 0.2402516007423401
+
         # image
         print(
             f"tensor.shape={image.shape}"
@@ -207,15 +208,17 @@ if __name__ == "__main__":
         )  # tensor.min 3.281325626518147e-23
         print(f"pred_softmax max {torch.max(pred_softmax)}")  # tensor.max 1.0
         print(f"pred_softmax mean {torch.mean(pred_softmax)}")  # tensor.mean 0.25
-        # ort_outs
-        print(
-            f"ort_outs.size() {ort_outs.unsqueeze(0).size()}"
-        )  # ort_outs.size() torch.Size([4, 400, 640])
-        print(f"ort_outs min {torch.min(ort_outs)}")  # ort_outs min -35.69083023071289
-        print(f"ort_outs max {torch.max(ort_outs)}")  # ort_outs max 18.10032081604004
-        print(
-            f"ort_outs mean {torch.mean(ort_outs)}"
-        )  # ort_outs mean -4.665435314178467
+
+        if cuda_available:
+            # ort_outs
+            print(
+                f"ort_outs.size() {ort_outs.unsqueeze(0).size()}"
+            )  # ort_outs.size() torch.Size([4, 400, 640])
+            print(f"ort_outs min {torch.min(ort_outs)}")  # ort_outs min -35.69083023071289
+            print(f"ort_outs max {torch.max(ort_outs)}")  # ort_outs max 18.10032081604004
+            print(
+                f"ort_outs mean {torch.mean(ort_outs)}"
+            )  # ort_outs mean -4.665435314178467
 
         # #######################################
         # ##PLOTTING
@@ -285,31 +288,32 @@ if __name__ == "__main__":
         ax[4, 3].set_title("outputs_argmax>2")
         ax[4, 4].set_title("outputs_argmax>3")
 
-        ##ONNX PREDICTIONS
-        ax[5, 0].imshow(ort_outs_argmax.cpu())
-        ax[5, 1].imshow(ort_outs_argmax.cpu() > 0)
-        ax[5, 2].imshow(ort_outs_argmax.cpu() > 1)
-        ax[5, 3].imshow(ort_outs_argmax.cpu() > 2)
-        ax[5, 4].imshow(ort_outs_argmax.cpu() > 3)
-        ax[5, 0].set_title("ort_outs_argmax")
-        ax[5, 1].set_title("ort_outs_argmax>0")
-        ax[5, 2].set_title("ort_outs_argmax>1")
-        ax[5, 3].set_title("ort_outs_argmax>2")
-        ax[5, 4].set_title("ort_outs_argmax>3")
+        if cuda_available:
+            ##ONNX PREDICTIONS
+            ax[5, 0].imshow(ort_outs_argmax.cpu())
+            ax[5, 1].imshow(ort_outs_argmax.cpu() > 0)
+            ax[5, 2].imshow(ort_outs_argmax.cpu() > 1)
+            ax[5, 3].imshow(ort_outs_argmax.cpu() > 2)
+            ax[5, 4].imshow(ort_outs_argmax.cpu() > 3)
+            ax[5, 0].set_title("ort_outs_argmax")
+            ax[5, 1].set_title("ort_outs_argmax>0")
+            ax[5, 2].set_title("ort_outs_argmax>1")
+            ax[5, 3].set_title("ort_outs_argmax>2")
+            ax[5, 4].set_title("ort_outs_argmax>3")
 
-        # #Clipping input data to the valid range for
-        # imshow with RGB data ([0..1] for floats or [0..255] for integers).
-        # Got range [-27.269308..12.142393].
-        ax[6, 0].imshow(ort_outs.permute(1, 2, 0).cpu())
-        ax[6, 1].imshow(ort_outs.permute(1, 2, 0)[:, :, 0].cpu())
-        ax[6, 2].imshow(ort_outs.permute(1, 2, 0)[:, :, 1].cpu())
-        ax[6, 3].imshow(ort_outs.permute(1, 2, 0)[:, :, 2].cpu())
-        ax[6, 4].imshow(ort_outs.permute(1, 2, 0)[:, :, 3].cpu())
-        ax[6, 0].set_title("onnx [400,640,4]")
-        ax[6, 1].set_title("ort_outs[:,:,0]")
-        ax[6, 2].set_title("ort_outs[:,:,1]")
-        ax[6, 3].set_title("ort_outs[:,:,2]")
-        ax[6, 4].set_title("ort_outs[:,:,3]")
+            # #Clipping input data to the valid range for
+            # imshow with RGB data ([0..1] for floats or [0..255] for integers).
+            # Got range [-27.269308..12.142393].
+            ax[6, 0].imshow(ort_outs.permute(1, 2, 0).cpu())
+            ax[6, 1].imshow(ort_outs.permute(1, 2, 0)[:, :, 0].cpu())
+            ax[6, 2].imshow(ort_outs.permute(1, 2, 0)[:, :, 1].cpu())
+            ax[6, 3].imshow(ort_outs.permute(1, 2, 0)[:, :, 2].cpu())
+            ax[6, 4].imshow(ort_outs.permute(1, 2, 0)[:, :, 3].cpu())
+            ax[6, 0].set_title("onnx [400,640,4]")
+            ax[6, 1].set_title("ort_outs[:,:,0]")
+            ax[6, 2].set_title("ort_outs[:,:,1]")
+            ax[6, 3].set_title("ort_outs[:,:,2]")
+            ax[6, 4].set_title("ort_outs[:,:,3]")
 
         if j == 2:
             break

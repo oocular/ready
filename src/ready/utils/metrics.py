@@ -1,7 +1,8 @@
-import numpy as np 
+import numpy as np
 import torch
 import torch.nn.functional as F
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, fbeta_score
+from sklearn.metrics import (accuracy_score, f1_score, fbeta_score,
+                             precision_score, recall_score)
 
 """
 See pixel_accuracy, mIoU :
@@ -13,12 +14,12 @@ def mIoU(pred_mask, mask, smooth=1e-10, n_classes=1):
     """
         Mean Intersection over Union (IoU) over defined number of classes.
         IoU and jaccard score is actually the same! For reference, please see Table 3 below:
-        Maier-Hein, Lena, Annika Reinke, Patrick Godau, Minu D. Tizabi, Florian Buettner, Evangelia Christodoulou, Ben Glocker, et al. 
+        Maier-Hein, Lena, Annika Reinke, Patrick Godau, Minu D. Tizabi, Florian Buettner, Evangelia Christodoulou, Ben Glocker, et al.
         ‘Metrics Reloaded: Recommendations for Image Analysis Validation’. Nature Methods 21, no. 2 (February 2024): 195–212. https://doi.org/10.1038/s41592-023-02151-z.
 
 
         Equation: IoU = (|X & Y|)/ (|X or Y|)
-        
+
         Args:
             pred_mask: predicted mask
             mask: ground truth mask
@@ -51,7 +52,7 @@ def dice(pred_mask, mask, smooth=1e-10, n_classes=1):
     """
         Calculate Dice Coefficient over defined number of classes.
         Equation: Dice = (2*|X & Y|)/ (|X| + |Y|)
-        
+
         Args:
             pred_mask: predicted mask
             mask: ground truth mask
@@ -79,13 +80,13 @@ def dice(pred_mask, mask, smooth=1e-10, n_classes=1):
             dice = 2 * (intersect + smooth) / (total +smooth)
             dice_per_class.append(dice)
     return np.nanmean(dice_per_class)
-    
+
 
 def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
 
     """
         Evaluate model performance using pixel accuracy, f1, recall, precision, fbeta, mIoU, Dice Coefficient.
-        
+
         Args:
             pred_mask: predicted mask
             mask: ground truth mask
@@ -96,32 +97,32 @@ def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
 
         Returns:
             dict: A dictionary containing the following metrics:
-                - **accuracy** (float): 
+                - **accuracy** (float):
                     Pixel-wise accuracy, measuring the percentage of correctly classified pixels.
                     Range: 0 (worst) to 1 (best).
                     Example: If 900 out of 1000 pixels are correct, accuracy = 0.9.
-                - **f1** (float): 
+                - **f1** (float):
                     The F1 score, the harmonic mean of precision and recall.
                     Range: 0 (worst) to 1 (best).
                     Example: If precision = 0.8 and recall = 0.7, F1 = 2 * (0.8 * 0.7) / (0.8 + 0.7) = 0.747.
-                - **recall** (float): 
+                - **recall** (float):
                     The proportion of true positives identified among all actual positives.
                     Range: 0 (worst) to 1 (best).
                     Example: If 70 out of 100 positive pixels are correctly identified, recall = 0.7.
-                - **precision** (float): 
+                - **precision** (float):
                     The proportion of true positives among all predicted positives.
                     Range: 0 (worst) to 1 (best).
                     Example: If 80 out of 100 predicted positive pixels are correct, precision = 0.8.
-                - **fbeta** (float): 
+                - **fbeta** (float):
                     The F-beta score, a weighted harmonic mean of precision and recall, where beta specifies the weight.
                     Range: 0 (worst) to 1 (best).
                     Example: With beta = 1, it equals the F1 score.
-                - **miou** (float): 
+                - **miou** (float):
                     The mean Intersection over Union (IoU) across all classes, measuring overlap between predicted and true regions.
                     It is also called the Jaccard score.
                     Range: 0 (worst) to 1 (best).
                     Example: IoU = intersection / union. If overlap = 30 and union = 70, IoU = 0.429.
-                - **dice** (float): 
+                - **dice** (float):
                     The Dice coefficient, measuring the proportion of overlap between two sets, normalised by their size.
                     Range: 0 (no overlap) to 1 (perfect overlap).
                     Example: Dice = 2 * (intersection) / (size_predicted + size_ground_truth).
@@ -175,4 +176,3 @@ def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
         }
 
         return metrics
-    
