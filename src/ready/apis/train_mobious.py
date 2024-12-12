@@ -9,6 +9,7 @@ import torch.onnx
 import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
 from torch import nn
 from torch import optim as optim
+from pathlib import Path
 
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
@@ -19,9 +20,6 @@ from src.ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
-
-# MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
-MAIN_PATH = os.path.join(HOME_PATH, "") #GITHUB
 
 
 def save_checkpoint(state, path):
@@ -48,18 +46,28 @@ def main(args):
     #CHECK add checkpoint
     #CHECK add execution time
     #CHECK save loss
+    ############
+    # TODO LIST
+    # * setup a shared path to save models when using datafrom repo (to avoid save models in repo)
+    #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
+    # * To train model with 1700x3000
     """
+    HOME_PATH = os.path.join(Path.home(), "Desktop/nystagmus-tracking/")
+    GITHUB_DATA_PATH = os.path.join(HOME_PATH, "ready/data/mobious") #GITHUB
+    FULL_DATA_PATH = os.path.join(HOME_PATH, "datasets/mobious/MOBIOUS") #LOCAL_DEVICE
+
+    # MODEL_PATH = os.path.join(GITHUB_DATA_PATH, "models")
+    # if not os.path.exists("models"):
+    #     os.mkdir("models")
+
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
-    # set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
-    # TODO train with 1700x3000
+    # set_data_directory(data_path="data/mobious") #data in repo
+    # set_data_directory(main_path=DATA_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cuda_available = torch.cuda.is_available()
 
-    if not os.path.exists("models"):
-        os.mkdir("models")
     weight_fn = None  # TO_TEST
-
     if weight_fn is not None:
         raise NotImplemented()
     else:
@@ -69,13 +77,13 @@ def main(args):
             f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
         )
 
-    cuda_available = torch.cuda.is_available()
-
     # set transforms for training images
     transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
                                           transforms.ToImage(),
-                                          transforms.ToDtype(torch.float32, scale=True), # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
-                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])# standardisation values taken from ImageNet
+                                          transforms.ToDtype(torch.float32, scale=True), 
+                                          # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
+                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+                                        # standardisation values taken from ImageNet
 
     transforms_rotations = transforms.Compose([
                                             transforms.ToImage(),
@@ -87,14 +95,13 @@ def main(args):
 
     # Length 5; set_data_directory("ready/data")
     trainset = MobiousDataset(
-        "sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
+        GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
        )
 
     # ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     # trainset = MobiousDataset(
-    #     "train", transform=transforms_img, target_transform=transforms_rotations
+    #     FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
     # )
-
 
     print("Length of trainset:", len(trainset))
 
@@ -103,13 +110,7 @@ def main(args):
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
     print(f"trainloader.batch_size: {trainloader.batch_size}")
-
-    ##################
-    # TODO create a sanity_check module
-    # image, label = next(iter(trainloader))
-    # print(f"image.shape: {image.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
-    # print(f"label.shape: {label.shape}") #torch.Size([batch_size_, 4, 1700, 3000])
-    ################
+    sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
     # model.summary()
@@ -198,10 +199,6 @@ def main(args):
         num_samples, num_batches = 0, 0
         # performance_epoch = {key: 0.0 for key in performance.keys()}
 
-
-        sanity_check_trainloader(trainloader, cuda_available)
-
-
         for j, data in enumerate(trainloader, 1):
             images, labels = data
 
@@ -218,7 +215,6 @@ def main(args):
             # <class 'torch.Tensor'>;
             # torch.cuda.FloatTensor
 
-            # labels = labels.type(torch.LongTensor).cuda()
             loss = loss_fn(output, labels)
             loss.backward()
             optimizer.step()
@@ -262,19 +258,15 @@ def main(args):
         # print
 
     print("Training complete. Saving checkpoint...")
-    #TODO
-    # setup a  shared path to save models when using datafrom repo (to avoid save models in repo)
-    # add argument to say if we want or not save models
+    current_time_stamp= datetime.now().strftime("%d-%m-%y_%H-%M-%S")
     if not args.debug_print_flag:
-        modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
-        torch.save(model.state_dict(), modelname)
-        print(f"Saved PyTorch Model State to {modelname}")
+        model_name = GITHUB_DATA_PATH+"/models/_weights_" + current_time_stamp + ".pth"
+        torch.save(model.state_dict(), model_name)
+        print(f"Saved PyTorch Model State to {model_name}")
 
-        # export performance to json
-        # reference: https://github.com/SciKit-Surgery/cmicHACKS2/blob/19d365ca92aa8f5af3da68d4c27851a1312eae31/export_eval_metrics.py
-        path_to_file = datetime.now().strftime("models/performance_%d-%m-%y_%H-%M-%S.json")
+        json_file = GITHUB_DATA_PATH+"/models/performance_"+current_time_stamp+".json"
         text = json.dumps(performance, indent=4)
-        with open(path_to_file, "w") as out_file_obj:
+        with open(json_file, "w") as out_file_obj:
             out_file_obj.write(text)
     else:
         print("Model saving is disabled, set debug_print_flag to False to save model")
