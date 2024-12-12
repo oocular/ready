@@ -95,11 +95,13 @@ def main(args):
 
     # Length 5; set_data_directory("ready/data")
     trainset = MobiousDataset(
-        GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
+        GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
+        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
        )
 
     # ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     # trainset = MobiousDataset(
+    #     FULL_DATA_PATH+"/train", transform=None, target_transform=None
     #     FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
     # )
 
@@ -110,7 +112,9 @@ def main(args):
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
     print(f"trainloader.batch_size: {trainloader.batch_size}")
-    sanity_check_trainloader(trainloader, cuda_available)
+
+    if args.debug_print_flag:
+        sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
     # model.summary()
@@ -131,7 +135,7 @@ def main(args):
         loss_fn.cuda()
 
 
-    run_epoch = 1 #to_test
+    run_epoch = 2
 
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
@@ -192,10 +196,11 @@ def main(args):
         "dice": 0.0,
     }
 
+    loss_values = []
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
         print(f"############################################")
         print(f"Train loop at epoch: {i}")
-        sum_loss = 0.0
+        running_loss = 0.0
         num_samples, num_batches = 0, 0
         # performance_epoch = {key: 0.0 for key in performance.keys()}
 
@@ -226,7 +231,7 @@ def main(args):
                 performance[key] += value * len(images) # weighted by batch size
 
             num_samples += len(images)
-            sum_loss += loss.item()
+            running_loss += loss.item()
 
             # Log every X batches
             if j % 50 == 0 or j == 1:
@@ -246,16 +251,15 @@ def main(args):
             #     break
             # # performance[key].append(average_metric)
 
-        average_loss = sum_loss / num_samples
-        print(f"\nAverage loss @ epoch: {average_loss:.4f}")
+        epoch_loss = running_loss / num_samples
+        loss_values.append(epoch_loss)
+        print(f"\nEpoch loss: {epoch_loss:.4f}")
 
         for key in performance:
             performance[key] /= num_samples
             print(f"Average {key} @ epoch: {performance[key]:.4f}")
 
     print("===========================")
-
-        # print
 
     print("Training complete. Saving checkpoint...")
     current_time_stamp= datetime.now().strftime("%d-%m-%y_%H-%M-%S")
@@ -268,6 +272,11 @@ def main(args):
         text = json.dumps(performance, indent=4)
         with open(json_file, "w") as out_file_obj:
             out_file_obj.write(text)
+
+        loss_file = GITHUB_DATA_PATH+"/models/loss_values_"+current_time_stamp+".csv"
+        with open(loss_file, "w") as out_file_obj:
+            for loss in loss_values:
+                out_file_obj.write(f"{loss}\n")
     else:
         print("Model saving is disabled, set debug_print_flag to False to save model")
 
