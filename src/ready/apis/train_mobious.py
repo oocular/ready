@@ -11,6 +11,7 @@ import torchvision.transforms.v2 as transforms #https://pytorch.org/vision/main/
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
 from src.ready.utils.utils import HOME_PATH, set_data_directory
+from src.ready.utils.utils import sanity_check_trainloader
 
 from src.ready.utils.metrics import evaluate
 from argparse import ArgumentParser
@@ -38,46 +39,6 @@ def norm_image(hot_img):
     Normalise image
     """
     return torch.argmax(hot_img, 0)
-
-
-def sanity_check(trainloader, neural_network, cuda_available):
-    """
-    Sanity check of trainloader for openEDS
-    #TODO Sanity check for RTI-eyes datasets?
-    """
-    # f, axarr = plt.subplots(1, 3)
-
-    for images, labels in trainloader:
-        if cuda_available:
-            images = images.cuda()
-            labels = labels.cuda()
-
-        # print(images[0].unsqueeze(0).size()) #torch.Size([1, 1, 400, 640])
-        outputs = neural_network(images[0].unsqueeze(0))
-        # print("nl", labels[0], "no", outputs[0])
-        print(
-            f"   CHECK images[0].shape: {images[0].shape}, \
-                labels[0].shape: {labels[0].shape}, outputs.shape: {outputs.shape}"
-        )
-        # nl = norm_image(labels[0].reshape([400, 640, 4]).
-        # swapaxes(0, 2).swapaxes(1, 2)).cpu().squeeze(0)
-        no = norm_image(outputs[0]).cpu().squeeze(0)
-        print(
-            f"   CHECK no[no == 0].size(): {no[no == 0].size()}, \
-                no[no == 1].size(): {no[no == 1].size()}, no[no == 2].size(): \
-                    {no[no == 2].size()}, no[no == 3].size(): {no[no == 3].size()}"
-        )
-
-        # TOSAVE_PLOTS_TEMPORALY?
-        # import matplotlib.pyplot as plt
-        # axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
-        # print("NLLLL", nl.shape)
-        # axarr[1].imshow(labels[0].squeeze(0).cpu())
-        # axarr[2].imshow(no)
-
-        # plt.show()
-
-        break
 
 
 def main(args):
@@ -233,38 +194,22 @@ def main(args):
     }
 
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        print("\nEpoch {}:".format(i))
+        print(f"############################################")
+        print(f"Train loop at epoch: {i}")
         sum_loss = 0.0
         num_samples, num_batches = 0, 0        
         # performance_epoch = {key: 0.0 for key in performance.keys()}
 
 
+        sanity_check_trainloader(trainloader, cuda_available)
+
+
         for j, data in enumerate(trainloader, 1):
             images, labels = data
-            # print(f"images.size() {images.size()};\
-            # type(images): {type(images)};\
-            # images.type: {images.type()} ")
-            # images.size() torch.Size([5, 3, 400, 640])
-            # print(f"labels.size() {labels.size()};\
-            # type(labels): {type(labels)};\
-            # labels.type: {labels.type()} ")
-            # labels.size() torch.Size([5, 400, 640]);   
+
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
-                ## images
-                # print(f"images.size() {images.size()};\
-                # type(labels): {type(images)};\
-                # images.type: {images.type()} ")
-                # torch.Size([batch_size_, 3, 400, 640]);
-                # <class 'torch.Tensor'>;
-                # torch.cuda.FloatTensor
-                ## labels
-                # print(f"labels.size() {labels.size()};\
-                # type(labels): {type(labels)};\
-                # labels.type: {labels.type()} ")
-                # torch.Size([batch_size_, 400, 640]),
-                # <class 'torch.Tensor'>, torch.cuda.LongTensor
 
             optimizer.zero_grad()
             output = model(images)

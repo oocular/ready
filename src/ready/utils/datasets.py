@@ -198,11 +198,6 @@ class MobiousDataset(Dataset):
         if self.target_transform:
             encode_mask = self.target_transform(encode_mask)
 
-        #TODO add sanity check for plotting image and encoded masks
-        # plt.subplot(2,1,1), plt.imshow(image.permute(1,2,0)/255), plt.colorbar()
-        # plt.subplot(2,1,2), plt.imshow(encode_mask.permute(1,2,0)/255), plt.colorbar()
-        # plt.show()
-
         encode_mask=encode_mask.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])
 
         # return image, label
