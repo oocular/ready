@@ -104,8 +104,8 @@ def main(args):
 
     ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        FULL_DATA_PATH+"/train", transform=None, target_transform=None
-        #FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
+        #FULL_DATA_PATH+"/train", transform=None, target_transform=None
+        FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
     )
 
     print("Length of trainset:", len(trainset))
@@ -196,8 +196,8 @@ def main(args):
     #    epoch loss 0.0308
     #    training time ~50.27 mins
     # 100 epochs> without augmegmnation
-    #    epoch loss:0.0016
-    #    training time: 508.15 mins
+    #    epoch loss:0.0016 (first time)/0.0014(2ndtime)
+    #    training time: 508.15 mins/525.88mins
     # 100 epochs> wit augmegmnation
     #    epoch loss:?
     #    training time: ?
@@ -282,17 +282,20 @@ def main(args):
     current_time_stamp= datetime.now().strftime("%d-%m-%y_%H-%M-%S")
     # TODO Save files in MODAL_PATH and 
     # TODO create directory with using current_time_stamp and GPU size
+    # TODO create config file to select paths and other paramters
+    #os.mkdir(FULL_DATA_PATH+current_time_stamp)
+
     if not args.debug_print_flag:
-        model_name = GITHUB_DATA_PATH+"/models/_weights_" + current_time_stamp + ".pth"
+        model_name = FULL_DATA_PATH+"/models/_weights_" + current_time_stamp + ".pth"
         torch.save(model.state_dict(), model_name)
         print(f"Saved PyTorch Model State to {model_name}")
 
-        json_file = GITHUB_DATA_PATH+"/models/performance_"+current_time_stamp+".json"
+        json_file = FULL_DATA_PATH+"/models/performance_"+current_time_stamp+".json"
         text = json.dumps(performance, indent=4)
         with open(json_file, "w") as out_file_obj:
             out_file_obj.write(text)
 
-        loss_file = GITHUB_DATA_PATH+"/models/loss_values_"+current_time_stamp+".csv"
+        loss_file = FULL_DATA_PATH+"/models/loss_values_"+current_time_stamp+".csv"
         with open(loss_file, "w") as out_file_obj:
             for loss in loss_values:
                 out_file_obj.write(f"{loss}\n")
