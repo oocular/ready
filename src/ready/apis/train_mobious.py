@@ -51,7 +51,7 @@ def main(args):
     # * setup a shared path to save models when using datafrom repo (to avoid save models in repo)
     #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
     # * To train model with 1700x3000
-    # * Test import nvidia_smi to create model vresion control: https://stackoverflow.com/questions/59567226
+    # * Test import nvidia_smi to create model version control: https://stackoverflow.com/questions/59567226
     # * Create a config file to train models, indidatcing paths, and other hyperparmeters
     """
     # HOME_PATH = os.path.join(Path.home(), "Desktop/nystagmus-tracking/") #MX_LOCAL_DEVICE
@@ -198,7 +198,7 @@ def main(args):
     # 100 epochs> without augmegmnation
     #    epoch loss:0.0016 (first time)/0.0014(2ndtime)
     #    training time: 508.15 mins/525.88mins
-    # 100 epochs> wit augmegmnation
+    # 100 epochs> with augmegmnation
     #    epoch loss:?
     #    training time: ?
     epoch = None
@@ -280,9 +280,9 @@ def main(args):
 
     print("Training complete. Saving checkpoint...")
     current_time_stamp= datetime.now().strftime("%d-%m-%y_%H-%M-%S")
-    # TODO Save files in MODAL_PATH and 
+    # TODO Save files in MODAL_PATH and
     # TODO create directory with using current_time_stamp and GPU size
-    # TODO create config file to select paths and other paramters
+    # TODO create config file to select paths and other parameters
     #os.mkdir(FULL_DATA_PATH+current_time_stamp)
 
     if not args.debug_print_flag:

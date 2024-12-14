@@ -1,5 +1,12 @@
 # Download holoscan utils
-# Usage: bash download-holohub-utils.sh
+# Usage: bash holohub-utils-dependencies.sh
+
+# (1) LAUNCH PYTHON VIRTUAL ENV
+# pip install nvidia-pyindex
+python -m ensurepip --default-pip
+python -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
+
+#TODO check paths for scripts
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/analyze.py -O analyze.py
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/log_parser.py -O log_parser.py
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/bar_plot_avg_datewise.py -O bar_plot_avg_datewise.py

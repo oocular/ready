@@ -4,9 +4,11 @@
 ```
 #cd ~/datasets/mobious/weights/trained_models_in_cricket
 tree -h
-[4.0K]  .
-└── [ 89M]  _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.pth
-├── [ 89M]  _weights_02-09-24_21-02.pth
+├── [2.1K]  loss_values_14-12-24_19-25-26.csv
+├── [ 235]  performance_14-12-24_19-25-26.json
+├── [ 89M]  _weights_14-12-24_19-25-26.onnx
+├── [ 89M]  _weights_14-12-24_19-25-26.pth
+└── [ 89M]  _weights_14-12-24_19-25-26-sim.onnx
 ```
 
 ## Preparations
@@ -21,36 +23,79 @@ python src/ready/apis/convert_to_onnx_and_simplify_it.py -p <MODEL_PATH> -n <ADD
 ```
 cd $HOME_REPO
 export PYTHONPATH=. 
-python src/ready/apis/inference_mobious.py -n  <ADD_MODEL_NAME>.pth
+python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m  <ADD_MODEL_NAME>.pth
 ```
 
 * inference_mobious__weights_10-09-24_03-46-29
-![fig](../../../docs/figs/inference_mobious__weights_10-09-24_06-35-14.png)
+![fig](../../../docs/figs/inference_mobious_weights_14-12-24_19-25-26.png)
 
 ## Rebinding model to new nodes (NCHW to NHWC)
 ```
-conda activate readyVE
-cd ~/ready/data/mobious/models
-#or cd ~/ready/data/openEDS/models
-
-##TODO add bash to install onnx_graphsurgeon
-##pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
-
-##TODO user one single name
-
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim.onnx _weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset-sim-BHWC.onnx 3 400 640
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_21-02-sim.onnx _weights_02-09-24_21-02-sim-BHWC.onnx 3 400 640
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim.onnx _weights_02-09-24_22-24_trained10e_8batch_1143trainset-sim-BHWC.onnx 3 400 640
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_03-09-24_19-16-sim.onnx _weights_03-09-24_19-16-sim-BHWC.onnx 3 400 640
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 4 400 640 # [error] [core.cpp:106] Load Engine: Error in deserializing cuda engine. 
-python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_04-09-24_16-31-sim.onnx _weights_04-09-24_16-31-sim-BHWC.onnx 3 400 640
-python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_03-46-29-sim.onnx _weights_10-09-24_03-46-29-sim-BHWC.onnx 3 400 640
-python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_04-50-40-sim.onnx _weights_10-09-24_04-50-40-sim-BHWC.onnx 3 400 640
-python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py _weights_10-09-24_06-35-14-sim.onnx _weights_10-09-24_06-35-14-sim-BHWC.onnx 3 400 640
-#python ../../../src/ready/apis/holoscan/utils/graph_surgeon.py <ADD>-sim.onnx <ADD_MODEL>-BHWC.onnx 3 400 640
+cd $HOME_REPO
+export PYTHONPATH=.
+python src/ready/apis/holoscan/utils/graph_surgeon.py -p <MODEL_PATH> -m <model_name.pth> -c <channels> -h <height> -w <width>
 ```
 
 ## Model properties with https://netron.app/
+
+
+### _weights_14-12-24_19-25-26.pth
+* `_weights_14-12-24_19-25-26.onnx`
+```
+format: ONNX v8
+producer: pytorch 2.4.1
+version: 0
+imports: ai.onnx v16
+graph: main_graph
+
+input
+name: input
+tensor: float32[batch_size,3,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+
+```
+* `_weights_14-12-24_19-25-26-sim.onnx`
+```
+
+format: ONNX v8
+producer: pytorch 2.4.1
+version: 0
+imports: ai.onnx v16
+graph: main_graph
+
+input
+name: input
+tensor: float32[batch_size,3,400,640]
+output
+name: output
+tensor: float32[batch_size,4,400,640]
+```
+
+
+* `_weights_14-12-24_19-25-26-sim-BHWC.onnx`
+```
+
+format: ONNX v10
+producer: pytorch 2.4.1
+version: 0
+imports: ai.onnx v16
+graph: main_graph
+
+INPUT__0
+name: INPUT__0
+tensor: float32[1,400,640,3]
+output_old
+name: output_old
+tensor: float32[batch_size,4,400,640]
+```
+
+
+<details>
+
+<summary>See various examples of model properties</summary>
+
 ### 27-08-24_05-23
 * `_weights_27-08-24_05-23_trained_10epochs_8batch_1143lentrainset.onnx`
 
@@ -190,3 +235,4 @@ tensor: float32[batch_size,4,400,640]
 
 ```
 
+</details>

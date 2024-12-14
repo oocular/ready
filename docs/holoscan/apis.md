@@ -14,6 +14,7 @@ bash launch_dev_container.bash
 cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
 
 clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
+clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_14-12-24_19-25-26-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
 ```
 
 * Debug application in local host device
