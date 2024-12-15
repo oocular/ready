@@ -26,14 +26,20 @@ export PYTHONPATH=.
 python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m  <ADD_MODEL_NAME>.pth
 ```
 
-* inference_mobious__weights_10-09-24_03-46-29
-![fig](../../../docs/figs/inference_mobious_weights_14-12-24_19-25-26.png)
+* inference_mobious_weights_14-12-24_19-25-26.pth and _weights_15-12-24_07-00-10.pth
+![fig](../../../docs/figs/inference_mobious_2models.svg)
+
+* plot losses 
+```
+python src/ready/apis/plot_losses.py -p <PATH> -lf1 <*.csv> -lf2 <*.csv>
+```
+![fig](../../../docs/figs/losses_for_TRAINe100-80gbGPU.png)
 
 ## Rebinding model to new nodes (NCHW to NHWC)
 ```
 cd $HOME_REPO
 export PYTHONPATH=.
-python src/ready/apis/holoscan/utils/graph_surgeon.py -p <MODEL_PATH> -m <model_name.pth> -c <channels> -h <height> -w <width>
+python src/ready/apis/holoscan/utils/graph_surgeon.py -p <MODEL_PATH> -m <model_name.pth> -c 3 -he 400 -wi 640
 ```
 
 ## Model properties with https://netron.app/

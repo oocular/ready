@@ -199,8 +199,8 @@ def main(args):
     #    epoch loss:0.0016 (first time)/0.0014(2ndtime)
     #    training time: 508.15 mins/525.88mins
     # 100 epochs> with augmegmnation
-    #    epoch loss:?
-    #    training time: ?
+    #    epoch loss:0.0081
+    #    training time: 505.00 mins
     epoch = None
 
     performance = {

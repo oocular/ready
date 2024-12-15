@@ -25,14 +25,14 @@ if __name__ == "__main__":
 
     Usage:
         Run this script from the root directory of the project:
-        python  -p <MODEL_PATH> -m <model_name.pth> -c <channels> -h <height> -w <width>
+        python  -p <MODEL_PATH> -m <model_name.pth> -c <channels> -hw <height> -wi <width>
 
     Arguments:
         -p, --model_path: Set the model path. Default is none.
         -m, --input_model_name: Set input model name. Default is none.
         -c, --channel: Set the number of channels. Default is none.
-        -h, --height: Set the height. Default is none.
-        -w, --width: Set the width. Default is none.
+        -he, --height: Set the height. Default is none.
+        -wi, --width: Set the width. Default is none.
 
     Reference:
     https://github.com/nvidia-holoscan/holohub/blob/main/applications/ssd_detection_endoscopy_tools/scripts/graph_surgeon_ssd.py
