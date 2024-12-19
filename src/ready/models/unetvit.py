@@ -231,8 +231,6 @@ class ViT(nn.Module):
 
 #########################################################################
 ## UNetViT Model
-
-
 class UNetViT(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=True):
         super(UNetViT, self).__init__()
