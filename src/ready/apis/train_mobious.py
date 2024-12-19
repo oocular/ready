@@ -1,27 +1,25 @@
-"""
-Train pipeline for UNET
-"""
-
+import json
 import os
 import time
+from argparse import ArgumentParser
 from datetime import datetime
+from pathlib import Path
 
 import torch
 import torch.onnx
+import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
 from torch import nn
 from torch import optim as optim
 
-# from segnet import SegNet
 from src.ready.models.unet import UNet
 from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.utils import HOME_PATH, set_data_directory
+from src.ready.utils.metrics import evaluate
+from src.ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
+                                   set_data_directory)
 
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
-
-#MAIN_PATH = os.path.join(HOME_PATH, "Desktop/nystagmus-tracking/") #LOCAL
-MAIN_PATH = os.path.join(HOME_PATH, "") #SERVER
 
 
 def save_checkpoint(state, path):
@@ -39,66 +37,38 @@ def norm_image(hot_img):
     return torch.argmax(hot_img, 0)
 
 
-def sanity_check(trainloader, neural_network, cuda_available):
+def main(args):
     """
-    Sanity check of trainloader for openEDS
-    #TODO Sanity check for RTI-eyes datasets?
-    """
-    # f, axarr = plt.subplots(1, 3)
+    Train pipeline for UNET
 
-    for images, labels in trainloader:
-        if cuda_available:
-            images = images.cuda()
-            labels = labels.cuda()
-
-        # print(images[0].unsqueeze(0).size()) #torch.Size([1, 1, 400, 640])
-        outputs = neural_network(images[0].unsqueeze(0))
-        # print("nl", labels[0], "no", outputs[0])
-        print(
-            f"   CHECK images[0].shape: {images[0].shape}, \
-                labels[0].shape: {labels[0].shape}, outputs.shape: {outputs.shape}"
-        )
-        # nl = norm_image(labels[0].reshape([400, 640, 4]).
-        # swapaxes(0, 2).swapaxes(1, 2)).cpu().squeeze(0)
-        no = norm_image(outputs[0]).cpu().squeeze(0)
-        print(
-            f"   CHECK no[no == 0].size(): {no[no == 0].size()}, \
-                no[no == 1].size(): {no[no == 1].size()}, no[no == 2].size(): \
-                    {no[no == 2].size()}, no[no == 3].size(): {no[no == 3].size()}"
-        )
-
-        # TOSAVE_PLOTS_TEMPORALY?
-        # import matplotlib.pyplot as plt
-        # axarr[0].imshow((images[0] * 255).to(torch.long).squeeze(0).cpu())
-        # print("NLLLL", nl.shape)
-        # axarr[1].imshow(labels[0].squeeze(0).cpu())
-        # axarr[2].imshow(no)
-
-        # plt.show()
-
-        break
-
-
-def main():
-    """
     #CHECK epoch = None
     #CHECK if weight_fn is not None:
     #CHECK add checkpoint
     #CHECK add execution time
     #CHECK save loss
+    ############
+    # TODO LIST
+    # * setup a shared path to save models when using datafrom repo (to avoid save models in repo)
+    #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
+    # * To train model with 1700x3000
     """
+    # HOME_PATH = os.path.join(Path.home(), "Desktop/nystagmus-tracking/") #MX_LOCAL_DEVICE
+    HOME_PATH = os.path.join(Path.home(), "") #CRICKET_SERVER
+    GITHUB_DATA_PATH = os.path.join(HOME_PATH, "ready/data/mobious") #GITHUB
+    FULL_DATA_PATH = os.path.join(HOME_PATH, "datasets/mobious/MOBIOUS") #LOCAL_DEVICE
+
+    # MODEL_PATH = os.path.join(GITHUB_DATA_PATH, "models")
+    # if not os.path.exists("models"):
+    #     os.mkdir("models")
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    #set_data_directory(data_path="data/mobious") #data in repo #change>trainset!
-    set_data_directory(main_path=MAIN_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
-    # TODO train with 1700x3000
+    # set_data_directory(data_path="data/mobious") #data in repo
+    # set_data_directory(main_path=DATA_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cuda_available = torch.cuda.is_available()
 
-    if not os.path.exists("models"):
-        os.mkdir("models")
     weight_fn = None  # TO_TEST
-
     if weight_fn is not None:
         raise NotImplemented()
     else:
@@ -108,33 +78,44 @@ def main():
             f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
         )
 
-    cuda_available = torch.cuda.is_available()
+    # set transforms for training images
+    transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
+                                          transforms.ToImage(),
+                                          transforms.ToDtype(torch.float32, scale=True),
+                                          # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
+                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+                                        # standardisation values taken from ImageNet
 
-    ## Length 5; set_data_directory("ready/data")
-    #trainset = MobiousDataset(
-    #    "sample-frames/test640x400"
-    #    )
+    transforms_rotations = transforms.Compose([
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(40),
+                                            ])
+
+
+    # Length 5; set_data_directory("ready/data")
+    # trainset = MobiousDataset(
+    #    GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
+    #    # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
+    #   )
 
     ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        "train"
+        #FULL_DATA_PATH+"/train", transform=None, target_transform=None
+        FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
     )
 
     print("Length of trainset:", len(trainset))
 
-    # batch_size_ = 3 #to_test
     batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
-    print(f"trainloader.batch_size {trainloader.batch_size}")
+    print(f"trainloader.batch_size: {trainloader.batch_size}")
 
-    ##################
-    # TODO create a sanity_check module
-    # image, label = next(iter(trainloader))
-    # print(f"image.shape: {image.shape}") #torch.Size([batch_size_, 3, 1700, 3000])
-    # print(f"label.shape: {label.shape}") #torch.Size([batch_size_, 4, 1700, 3000])
-    ################
+    if args.debug_print_flag:
+        sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
     # model.summary()
@@ -155,8 +136,7 @@ def main():
         loss_fn.cuda()
 
 
-    run_epoch = 1 #to_test
-    # run_epoch = ?
+    run_epoch = 10
 
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
@@ -205,49 +185,67 @@ def main():
     # Average loss @ epoch: 9.453074308542105
     # Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
     # Elapsed time for the training loop: 96.35676774978637 (mins)
+    #
+    # 2 epochs 10mins
+    # 10 epochs without augmentations
+    #    epoch loss 0.0151
+    #    training time ~50.24 mins
+    # 10 epochs with augmentations (rotations)
+    #    epoch loss 0.0308
+    #    training time ~50.27 mins
+    #
     epoch = None
 
+    performance = {
+        "accuracy": 0.0,
+        "f1": 0.0,
+        "recall": 0.0,
+        "precision": 0.0,
+        "fbeta": 0.0,
+        "miou": 0.0,
+        "dice": 0.0,
+    }
+
+    loss_values = []
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        print("Epoch {}:".format(i))
-        sum_loss = 0.0
+        print(f"############################################")
+        print(f"Train loop at epoch: {i}")
+        running_loss = 0.0
+        num_samples, num_batches = 0, 0
+        # performance_epoch = {key: 0.0 for key in performance.keys()}
 
         for j, data in enumerate(trainloader, 1):
             images, labels = data
+
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
-                ## images
-                # print(f"images.size() {images.size()};
-                # type(labels): {type(images)};
-                # images.type: {images.type()} ")
-                # torch.Size([batch_size_, 3, 400, 640]);
-                # <class 'torch.Tensor'>;
-                # torch.cuda.FloatTensor
-                ## labels
-                # print(f"labels.size() {labels.size()};
-                # type(labels): {type(labels)};
-                # labels.type: {labels.type()} ")
-                # torch.Size([batch_size_, 400, 640]),
-                # <class 'torch.Tensor'>, torch.cuda.LongTensor
 
             optimizer.zero_grad()
             output = model(images)
-            # print(f"output.size() {output.size()};
-            # type(output): {type(output)};
+            # print(f"output.size() {output.size()};\
+            # type(output): {type(output)};\
             # pred.type: {output.type()} ")
             # torch.Size([batch_size_, 4, 400, 640]);
             # <class 'torch.Tensor'>;
             # torch.cuda.FloatTensor
 
-            # labels = labels.type(torch.LongTensor).cuda()
             loss = loss_fn(output, labels)
             loss.backward()
             optimizer.step()
 
-            sum_loss += loss.item()
+            batch_metrics = evaluate(output, labels)
+
+            for key, value in batch_metrics.items():
+                # print(f"{key}: {value:.4f}")
+                performance[key] += value * len(images) # weighted by batch size
+
+            num_samples += len(images)
+            running_loss += loss.item()
+
             # Log every X batches
             if j % 50 == 0 or j == 1:
-                print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
+                print(f"Loss at {j} mini-batch {loss.item():.4f}")
             # TODO
             #                sanity_check(trainloader, model, cuda_available)
             #                save_checkpoint(
@@ -259,17 +257,38 @@ def main():
             #                    "models/o.pth",
             #                )
             #
-            if j == 300:
-                break
-        print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
+            # if j == 300:
+            #     break
+            # # performance[key].append(average_metric)
+
+        epoch_loss = running_loss / num_samples
+        loss_values.append(epoch_loss)
+        print(f"\nEpoch loss: {epoch_loss:.4f}")
+
+        for key in performance:
+            performance[key] /= num_samples
+            print(f"Average {key} @ epoch: {performance[key]:.4f}")
+
+    print("===========================")
 
     print("Training complete. Saving checkpoint...")
-    #TODO
-    # setup a  shared path to save models when using datafrom repo (to avoid save models in repo)
-    # add argument to say if we want or not save models
-    modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
-    torch.save(model.state_dict(), modelname)
-    print(f"Saved PyTorch Model State to {modelname}")
+    current_time_stamp= datetime.now().strftime("%d-%m-%y_%H-%M-%S")
+    if not args.debug_print_flag:
+        model_name = GITHUB_DATA_PATH+"/models/_weights_" + current_time_stamp + ".pth"
+        torch.save(model.state_dict(), model_name)
+        print(f"Saved PyTorch Model State to {model_name}")
+
+        json_file = GITHUB_DATA_PATH+"/models/performance_"+current_time_stamp+".json"
+        text = json.dumps(performance, indent=4)
+        with open(json_file, "w") as out_file_obj:
+            out_file_obj.write(text)
+
+        loss_file = GITHUB_DATA_PATH+"/models/loss_values_"+current_time_stamp+".csv"
+        with open(loss_file, "w") as out_file_obj:
+            for loss in loss_values:
+                out_file_obj.write(f"{loss}\n")
+    else:
+        print("Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
 
     # TODO
     #    batch_size = 1    # just a random number
@@ -280,6 +299,31 @@ def main():
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
 
-
 if __name__ == "__main__":
-    main()
+    """
+    Script to train the Mobious model using the READY API.
+
+    Usage:
+        python src/ready/apis/train_mobious.py -df <debug_flag>
+
+    Arguments:
+        -df, --debug_print_flag: Enable or disable debug printing. Use 1 (True) to enable or 0 (False) to disable.
+                                 WARNING: Enabling debug mode slows performance.
+
+    Example:
+        python src/ready/apis/train_mobious.py -df 1
+    """
+    parser = ArgumentParser(description="READY demo application.")
+    parser.add_argument(
+        "-df",
+        "--debug_print_flag",
+        type=lambda s: s.lower() in ["true", "t", "yes", "1"],
+        default=True,
+        help=(
+            "Set debug flag either False or True (default). \
+                WARNING: Setting this to True will slow down performance of the app!"
+        ),
+    )
+
+    args = parser.parse_args()
+    main(args)

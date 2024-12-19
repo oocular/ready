@@ -22,6 +22,12 @@ scp MOBIUS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #MOBIUS.zip #3.3G
 scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   1.9MB/s   00:17
 ```
 
+## Copying files (models) to local host
+```
+zip -r models12-12-24.zip models/
+scp ccaemxo@cricket.rc.ucl.ac.uk:~/ready/data/mobious/models12-12-24.zip ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
+```
+
 ## Container
 
 ### Setting up /opt/nvidia/containers (Optional)

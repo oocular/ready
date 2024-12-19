@@ -3,7 +3,9 @@ datasets
 """
 
 import os
+import random
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from PIL import Image
@@ -144,7 +146,7 @@ class MobiousDataset(Dataset):
         # plt.subplot(2,5,3), plt.imshow(mask>30), plt.colorbar()
         # plt.subplot(2,5,4), plt.imshow(mask>180), plt.colorbar()
         # plt.subplot(2,5,5), plt.imshow(mask>200), plt.colorbar()
-        # # plt.show()
+        # plt.show()
 
         encode_mask = torch.tensor(
             np.zeros((mask.shape[0], mask.shape[1])), dtype=torch.long
@@ -153,12 +155,13 @@ class MobiousDataset(Dataset):
         encode_mask[mask > 0] = 1  # sclera (0 to 10)
         # 1: pupil
         encode_mask[mask > 30] = 2  # pupil (20 to 30)
-        # # 2: iris
+        # 2: iris
         encode_mask[mask > 180] = 3  # iris (40 to 180)
-        # # 3: background
+        # 3: background
         # encode_mask[mask>200] = 3 #background (196 to 255)
 
         # print(f"************************")
+        # print(encode_mask.type())
         # print(encode_mask.unique())
 
         #TODO add sanity check for plotting encoded masks
@@ -184,10 +187,18 @@ class MobiousDataset(Dataset):
         # label = label.reshape([4, 400, 640])
         # print(label)
 
+        seed = np.random.randint(2147483647) # make a seed with numpy generator
+        random.seed(seed) # apply this seed to img tranfsorms
+        torch.manual_seed(seed) # needed for torchvision 0.7
         if self.transform:
-            image = self.transform(image)
+            image = self.transform(image)#
+
+        random.seed(seed) # apply this seed to target tranfsorms
+        torch.manual_seed(seed) # needed for torchvision 0.7
         if self.target_transform:
             encode_mask = self.target_transform(encode_mask)
+
+        encode_mask=encode_mask.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])
 
         # return image, label
         return image, encode_mask

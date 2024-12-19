@@ -17,6 +17,7 @@ log_parser.py
 app_perf_graph.py
 
 ## videos, models, and files
+*.json
 **.gxf_entities
 **.gxf_index
 **.mp4
@@ -32,4 +33,4 @@ logger.log
 ##webrtc_client
 MyCertificate.crt
 MyKey.key
-
+data/mobious/models/loss_values_**

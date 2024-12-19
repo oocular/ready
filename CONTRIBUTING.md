@@ -61,7 +61,7 @@ git checkout ISSUE_NUMBER-FEATURE_BRANCH #(e.g. git checkout 422-my-feature-bran
 git fetch
 git rebase main
 #git status
-#edit conflicting files with your editor
+#edit conflicting files with your editor (vim in the terminal is strightforward but might like to use a different text editor)
 #git rebase --continue
 #git add .
 git merge main
