@@ -21,13 +21,14 @@ if __name__ == "__main__":
 
     Usage:
         Run this script from the root directory of the project:
-        python src/ready/apis/inference_mobious.py -n <model_name.pth>
+        python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m <model_name.pth>
 
     Arguments:
-        -n, --input_model_name: Set input model name. Default is none.
+        -p, --model_path: Set the model path. Default is none.
+        -m, --input_model_name: Set input model name. Default is none.
 
     Example:
-        python src/ready/apis/inference_mobious.py -n _weights_10-09-24_06-35-14.pth
+        python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m _weights_10-09-24_06-35-14.pth
 
 
     Tested models
@@ -64,12 +65,20 @@ if __name__ == "__main__":
     """
     parser = ArgumentParser(description="Convert models to ONNX and simplify it (sim.onnx)")
     parser.add_argument(
-        "-n",
+        "-p",
+        "--model_path",
+        default="none",
+        help=("Set the model path"),
+    )
+    parser.add_argument(
+        "-m",
         "--input_model_name",
         default="none",
         help=("Set input model name"),
     )
     args = parser.parse_args()
+
+    MODELS_PATH=args.model_path
     input_model_name=args.input_model_name
     model_name = input_model_name[:-4]
 
@@ -95,7 +104,7 @@ if __name__ == "__main__":
     print(f"trainloader.batch_size {trainloader.batch_size}")
 
 
-    checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + ".pth"
+    checkpoint_path = str(MODELS_PATH) + '/' + str(model_name) + ".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
@@ -104,7 +113,7 @@ if __name__ == "__main__":
 
     if cuda_available:
         #### ONNX model
-        onnx_checkpoint_path = str(DATASET_PATH)+"/models/" + str(model_name) + "-sim.onnx"
+        onnx_checkpoint_path = str(MODELS_PATH) + '/' + str(model_name) + "-sim.onnx"
         ort_session = onnxruntime.InferenceSession(
             onnx_checkpoint_path, providers=["CPUExecutionProvider"]
         )

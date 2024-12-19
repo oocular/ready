@@ -66,7 +66,7 @@ if __name__ == "__main__":
     Convert pytorch to onnx model
 
     export PYTHONPATH=.
-    python src/ready/apis/convert_to_onnx_and_simplify_it.py -p $MODEL_PATH -n model-5jul2024.pth
+    python src/ready/apis/convert_to_onnx_and_simplify_it.py -p $MODEL_PATH -m model-5jul2024.pth
     """
 
     # Parse args
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         help=("Set the model path"),
     )
     parser.add_argument(
-        "-n",
+        "-m",
         "--input_model_name",
         default="none",
         help=("Set input model name"),
