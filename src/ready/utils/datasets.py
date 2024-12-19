@@ -289,41 +289,39 @@ class segDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.IMG_NAMES)
 
-
 class MOBIOUSDataset_unetvit(Dataset):
-    """
-        Dataset class for MOBIUS data with numbered folders.
-        Handles numbered folders (1-35) in Images/Masks directories
-        Adds explicit mask normalization (0/255 → 0/1)
-
-        DATASET_PATH = "/data/test-samples/MOBIUS"
-        Images/1..35, Masks/1..35
-
-        image = Image.open(img_path).convert("RGB")
-        mask = Image.open(mask_path)
-        mask = np.array(mask)
-        if len(mask.shape) == 3:
-        mask = mask[:, :, 0]  # Handle multi-channel masks
-        mask = (mask > 0).astype(np.int64)  # Normalize to binary 0/1
-    """
-    def __init__(self, data_dir, training=True, transform=None):
-        """
-        Args:
-            data_dir (str): Root directory of MOBIUS dataset
-            training (bool): Whether this is training data
-            transform (callable, optional): Transform to be applied to images
-        """
+    def __init__(self, data_dir, training=True, transform=None, target_size=(512, 512)):
         self.data_dir = Path(data_dir)
-        self.transform = transform
         self.training = training
+        self.target_size = target_size
+        
+        # Base transforms - always convert to tensor last
+        base_transforms = [
+            transforms.Resize(target_size, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.ToTensor(),
+        ]
+        
+        # Add custom transforms before ToTensor if provided
+        if transform is not None:
+            if isinstance(transform, transforms.Compose):
+                # Insert custom transforms before ToTensor
+                base_transforms = transform.transforms + base_transforms[-1:]
+            else:
+                base_transforms.insert(-1, transform)
+        
+        self.transform = transforms.Compose(base_transforms)
+        
+        # Mask transforms
+        self.mask_transform = transforms.Compose([
+            transforms.Resize(target_size, interpolation=transforms.InterpolationMode.NEAREST),
+        ])
 
-        # Get all numbered folders
+        # Get all numbered folders and paths (keep existing code)
         self.folder_numbers = []
-        for i in range(1, 36):  # 1 to 35
+        for i in range(1, 36):
             if (self.data_dir / "Images" / str(i)).exists():
                 self.folder_numbers.append(str(i))
 
-        # Collect all image paths and corresponding mask paths
         self.img_paths = []
         self.mask_paths = []
 
@@ -331,15 +329,13 @@ class MOBIOUSDataset_unetvit(Dataset):
             img_folder = self.data_dir / "Images" / folder_num
             mask_folder = self.data_dir / "Masks" / folder_num
 
-            # Get all image files in this folder
             img_files = sorted(glob.glob(str(img_folder / "*")))
             mask_files = sorted(glob.glob(str(mask_folder / "*")))
 
-            # Verify matching pairs
             for img_path, mask_path in zip(img_files, mask_files):
                 img_name = Path(img_path).stem
                 mask_name = Path(mask_path).stem
-                if img_name == mask_name:  # Only add if names match
+                if img_name == mask_name:
                     self.img_paths.append(img_path)
                     self.mask_paths.append(mask_path)
 
@@ -358,24 +354,116 @@ class MOBIOUSDataset_unetvit(Dataset):
 
         # Load and process image
         image = Image.open(img_path).convert("RGB")
-        to_tensor = transforms.ToTensor()
-        image = to_tensor(image)
+        
+        # Apply transforms (includes conversion to tensor)
+        image = self.transform(image)
 
-        # Load and process mask - should be binary mask with values 0 and 1
+        # Load and process mask
         mask = Image.open(mask_path)
         mask = np.array(mask)
         if len(mask.shape) == 3:
             mask = mask[:, :, 0]  # Take first channel
-        # Convert from 0/255 to 0/1
-        mask = (mask > 0).astype(np.int64)  # Convert to long for PyTorch
-        mask = torch.from_numpy(mask)
-
-        # Apply transforms
-        if self.transform:
-            image = self.transform(image)
-            # Make sure mask is also resized to match image size if resize is part of transforms
-            if any(isinstance(t, transforms.Resize) for t in self.transform.transforms):
-                resize = next(t for t in self.transform.transforms if isinstance(t, transforms.Resize))
-                mask = transforms.Resize(resize.size, interpolation=transforms.InterpolationMode.NEAREST)(mask.unsqueeze(0)).squeeze(0)
+        
+        # Convert mask to binary
+        mask = (mask > 0).astype(np.uint8)
+        
+        # Apply resize transform if needed
+        if self.mask_transform:
+            mask = Image.fromarray(mask, mode='L')
+            mask = self.mask_transform(mask)
+            mask = np.array(mask)
+        
+        # Convert mask to tensor
+        mask = torch.from_numpy(mask).long()
 
         return image, mask
+    
+# class MOBIOUSDataset_unetvit(Dataset):
+#     """
+#         Dataset class for MOBIUS data with numbered folders.
+#         Handles numbered folders (1-35) in Images/Masks directories
+#         Adds explicit mask normalization (0/255 → 0/1)
+
+#         DATASET_PATH = "/data/test-samples/MOBIUS"
+#         Images/1..35, Masks/1..35
+
+#         image = Image.open(img_path).convert("RGB")
+#         mask = Image.open(mask_path)
+#         mask = np.array(mask)
+#         if len(mask.shape) == 3:
+#         mask = mask[:, :, 0]  # Handle multi-channel masks
+#         mask = (mask > 0).astype(np.int64)  # Normalize to binary 0/1
+#     """
+#     def __init__(self, data_dir, training=True, transform=None):
+#         """
+#         Args:
+#             data_dir (str): Root directory of MOBIUS dataset
+#             training (bool): Whether this is training data
+#             transform (callable, optional): Transform to be applied to images
+#         """
+#         self.data_dir = Path(data_dir)
+#         self.transform = transform
+#         self.training = training
+
+#         # Get all numbered folders
+#         self.folder_numbers = []
+#         for i in range(1, 36):  # 1 to 35
+#             if (self.data_dir / "Images" / str(i)).exists():
+#                 self.folder_numbers.append(str(i))
+
+#         # Collect all image paths and corresponding mask paths
+#         self.img_paths = []
+#         self.mask_paths = []
+
+#         for folder_num in self.folder_numbers:
+#             img_folder = self.data_dir / "Images" / folder_num
+#             mask_folder = self.data_dir / "Masks" / folder_num
+
+#             # Get all image files in this folder
+#             img_files = sorted(glob.glob(str(img_folder / "*")))
+#             mask_files = sorted(glob.glob(str(mask_folder / "*")))
+
+#             # Verify matching pairs
+#             for img_path, mask_path in zip(img_files, mask_files):
+#                 img_name = Path(img_path).stem
+#                 mask_name = Path(mask_path).stem
+#                 if img_name == mask_name:  # Only add if names match
+#                     self.img_paths.append(img_path)
+#                     self.mask_paths.append(mask_path)
+
+#         if len(self.img_paths) == 0:
+#             raise RuntimeError(f"No images found in {data_dir}")
+
+#         print(f"Found {len(self.img_paths)} images in {len(self.folder_numbers)} folders")
+
+#     def __len__(self):
+#         return len(self.img_paths)
+
+#     def __getitem__(self, idx):
+#         # Load image
+#         img_path = self.img_paths[idx]
+#         mask_path = self.mask_paths[idx]
+
+#         # Load and process image
+#         image = Image.open(img_path).convert("RGB")
+#         to_tensor = transforms.ToTensor()
+#         image = to_tensor(image)
+
+#         # Load and process mask - should be binary mask with values 0 and 1
+#         mask = Image.open(mask_path)
+#         mask = np.array(mask)
+#         if len(mask.shape) == 3:
+#             mask = mask[:, :, 0]  # Take first channel
+#         # Convert from 0/255 to 0/1
+#         mask = (mask > 0).astype(np.int64)  # Convert to long for PyTorch
+#         mask = torch.from_numpy(mask)
+
+#         # Apply transforms
+#         if self.transform:
+#             image = self.transform(image)
+#             # Make sure mask is also resized to match image size if resize is part of transforms
+#             if any(isinstance(t, transforms.Resize) for t in self.transform.transforms):
+#                 resize = next(t for t in self.transform.transforms if isinstance(t, transforms.Resize))
+#                 mask = transforms.Resize(resize.size, interpolation=transforms.InterpolationMode.NEAREST)(mask.unsqueeze(0)).squeeze(0)
+
+#         return image, mask
