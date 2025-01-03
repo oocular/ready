@@ -16,12 +16,14 @@ tree -h
 ```
 cd $HOME_REPO
 python src/ready/apis/convert_to_onnx_and_simplify_it.py -p <MODEL_PATH> -n <ADD_MODEL_NAME>.pth
+
+bash scripts/models/convert_to_onnx_and_simplify_it.bash
 ```
 
 ## Inference in local device (NVIDIARTXA20008GBLaptopGPU)
 ```
 cd $HOME_REPO
-bash scripts/models/inference_unet_with_mobious.bash 
+bash scripts/models/inference_unet_with_mobious.bash
 ```
 
 * inference_mobious_weights_14-12-24_19-25-26.pth and _weights_15-12-24_07-00-10.pth

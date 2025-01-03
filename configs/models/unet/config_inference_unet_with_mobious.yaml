@@ -6,4 +6,3 @@ dataset:
     github_data_path: "data/mobious"
     data_path: "datasets/ready/mobious/MOBIOUS"
     checkpoint_path: "datasets/?"
-

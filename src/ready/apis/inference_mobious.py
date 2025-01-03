@@ -23,15 +23,10 @@ if __name__ == "__main__":
 
     Usage:
         Run this script from the root directory of the project:
-        python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m <model_name.pth>
+        python src/ready/apis/inference_mobious.py -c config/config.yaml
 
     Arguments:
-        -p, --model_path: Set the model path. Default is none.
-        -m, --input_model_name: Set input model name. Default is none.
-
-    Example:
-        python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m _weights_10-09-24_06-35-14.pth
-
+        -p, --confi_file: Set config filename with path. Default is none.
 
     Tested models
         model_name="_weights_04-09-24_16-31"
