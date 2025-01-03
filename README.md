@@ -13,6 +13,18 @@ This repository contains documentation and code for the project `READY: REal-tim
 * :computer: [holoscan-sdk](docs/holoscan/)
 * :recycle: [CONTRIBUTING](CONTRIBUTING.md)
 
+## :nut_and_bolt: Installation
+
+### Dev installation
+```
+uv venv --python 3.12 # Create a virtual environment at .venv.
+source .venv/bin/activate #To activate the virtual environment
+uv pip install -e ".[test,learning,model_optimisation]" # Install the package in editable mode
+uv pip list --verbose #check versions
+pre-commit run -a #pre-commit hooks
+```
+See further details for installation [here](docs).
+
 ## :clapper: Demos
 Python-based application, [ready.py](src/ready/apis/holoscan/ready/python/ready.py), was implemented with [holoscan-sdk](docs/holoscan/README.md), where  holoscan-sdk was built on host Laptop computer with NVIDIARTXA2000-8GB.
 The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-80GB, using either [~27K images of 1 channel](data/openEDS/README.md) or [~1K colour images of 3 channels](data/mobious/README.md). See [apis](docs/holoscan/apis.md) for detailed instructions on running the application.

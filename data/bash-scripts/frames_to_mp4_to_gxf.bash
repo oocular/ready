@@ -1,4 +1,5 @@
 #!/bin/bash
+set -Eeuxo pipefail
 
 ### USAGE
 #cd ~/ready/data/bash-scripts

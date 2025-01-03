@@ -1,0 +1,17 @@
+model:
+    debug_print_flag: False #Use 1 (True) to enable or 0 (False) to disable. 
+    weight_fn: None #True #False #TOTEST
+
+dataset:
+    github_data_path: "data/mobious"
+    data_path: "datasets/ready/mobious/MOBIOUS"
+    models_path: "datasets/ready/mobious/models"
+    checkpoint_path: "datasets/?"
+
+model_hyperparameters:
+    batch_size: 8
+    num_workers: 4
+    image_size: 1
+    epochs: 100
+    learning_rate: 0.003
+
