@@ -9,8 +9,8 @@ import torch
 import torch.onnx
 from onnxsim import simplify
 
-from src.ready.models.unet import UNet
-from src.ready.utils.helpers import export_model
+from ready.models.unet import UNet
+from ready.utils.helpers import export_model
 
 
 def main(model_path, input_model_name):
