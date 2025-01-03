@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn.functional as F
+from loguru import logger
+from omegaconf import OmegaConf
 
-from src.ready.models.unet import UNet
-from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.metrics import evaluate
+from ready.models.unet import UNet
+from ready.utils.datasets import MobiousDataset
+from ready.utils.metrics import evaluate
 
 # TODO
 # Make sure we have a common path for models to avoid looking where the model path is!
@@ -21,15 +23,10 @@ if __name__ == "__main__":
 
     Usage:
         Run this script from the root directory of the project:
-        python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m <model_name.pth>
+        python src/ready/apis/inference_mobious.py -c config/config.yaml
 
     Arguments:
-        -p, --model_path: Set the model path. Default is none.
-        -m, --input_model_name: Set input model name. Default is none.
-
-    Example:
-        python src/ready/apis/inference_mobious.py -p <MODEL_PATH> -m _weights_10-09-24_06-35-14.pth
-
+        -p, --confi_file: Set config filename with path. Default is none.
 
     Tested models
         model_name="_weights_04-09-24_16-31"
@@ -63,57 +60,52 @@ if __name__ == "__main__":
         https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/semantic-segmentation-pytorch.ipynb
         https://medium.com/yodayoda/segmentation-for-creating-maps-92b8d926cf7e
     """
-    parser = ArgumentParser(description="Convert models to ONNX and simplify it (sim.onnx)")
-    parser.add_argument(
-        "-p",
-        "--model_path",
-        default="none",
-        help=("Set the model path"),
-    )
-    parser.add_argument(
-        "-m",
-        "--input_model_name",
-        default="none",
-        help=("Set input model name"),
-    )
+    parser = ArgumentParser(description="Plot inference for models pth and ONNX")
+    parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
     args = parser.parse_args()
 
-    MODELS_PATH=args.model_path
-    input_model_name=args.input_model_name
-    model_name = input_model_name[:-4]
+    config_file = args.config_file
+    config = OmegaConf.load(config_file)
+    DATA_PATH = config.dataset.data_path
+    MODEL_PATH = config.dataset.models_path
+    GITHUB_DATA_PATH = config.dataset.github_data_path
 
-    CURRENT_PWD = Path().absolute()
-    DATASET_PATH = str(CURRENT_PWD) + "/data/mobious"
+    FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
+    FULL_GITHUB_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
+    FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+
+    input_model_name=config.model.input_model_name
+    model_name = input_model_name[:-4]
+    logger.info(f"model_name {model_name}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cuda_available = torch.cuda.is_available()
     if cuda_available:
-        print("CUDA is available")
+        logger.info(f"CUDA is available")
         import onnxruntime
 
     trainset = MobiousDataset(
-        str(DATASET_PATH)+"/sample-frames/test640x400_1frame_1_1i_Ll_1" # 1 frame
-        # str(DATASET_PATH)+"/sample-frames/test640x400" # 5 frames
+        str(FULL_GITHUB_DATA_PATH)+"/sample-frames/test640x400_1frame_1_1i_Ll_1" # 1 frame
+        # str(FULL_GITHUB_DATA_PATH)+"/sample-frames/test640x400" # 5 frames
     )
-    print("Length of trainset:", len(trainset))
+    logger.info(f"Length of trainset: {len(trainset)}")
 
     batch_size_ = 8  # 8 original
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=batch_size_, shuffle=True, num_workers=4
     )
-    print(f"trainloader.batch_size {trainloader.batch_size}")
+    logger.info(f"trainloader.batch_size {trainloader.batch_size}")
 
 
-    checkpoint_path = str(MODELS_PATH) + '/' + str(model_name) + ".pth"
+    checkpoint_path = FULL_MODEL_PATH + '/' + str(model_name) + ".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-
     if cuda_available:
         #### ONNX model
-        onnx_checkpoint_path = str(MODELS_PATH) + '/' + str(model_name) + "-sim.onnx"
+        onnx_checkpoint_path = str(FULL_MODEL_PATH) + '/' + str(model_name) + "-sim.onnx"
         ort_session = onnxruntime.InferenceSession(
             onnx_checkpoint_path, providers=["CPUExecutionProvider"]
         )
