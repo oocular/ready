@@ -11,6 +11,5 @@ dataset:
 model_hyperparameters:
     batch_size: 8
     num_workers: 4
-    image_size: 100
-    epochs: 1
+    epochs: 100
     learning_rate: 0.003
