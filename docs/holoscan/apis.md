@@ -2,7 +2,7 @@
 
 ## Launch dev container
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan
+cd $HOME/repositories/ready/docs/holoscan
 bash launch_dev_container.bash
 ```
 
@@ -20,7 +20,7 @@ clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/
 
 * Debug application in local host device
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/ready/python
+cd $HOME/repositories/ready/src/ready/apis/holoscan/ready/python
 vim -O ready.py ready-mobious.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
@@ -57,7 +57,7 @@ python v4l2_camera.py
 
 * On local device host
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/v4l2_camera/python/
+cd $HOME/repositories/ready/src/ready/apis/holoscan/v4l2_camera/python/
 vim -O v4l2_camera.py v4l2_camera.yaml
 ```
 
@@ -77,7 +77,7 @@ python byom.py -d /workspace/volumes/ready/data/openEDS -m identity_model.onnx -
 
 * Debug application in local host device
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/bring_your_own_model/python
+cd $HOME/repositories/ready/src/ready/apis/holoscan/bring_your_own_model/python
 vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 

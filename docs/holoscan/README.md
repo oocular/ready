@@ -4,29 +4,35 @@
 ```
 #install cuda 
 https://github.com/mxochicale/code/blob/main/gpu/installation/installing_cuda.bash
-sudo apt-get update
-sudo apt-get install -y nvidia-container-toolkit
 #checking driver version
 nvidia-smi
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit #solves 2025-01-04 22:20:45 [FATAL] nvidia-ctk not found. Please install the NVIDIA Container Toolkit.
+#docker: Error response from daemon: could not select device driver "" with capabilities: [[gpu]].
+sudo apt install -y nvidia-docker2
+sudo systemctl daemon-reload
+sudo systemctl restart dock
 ```
 
 ## Build
 ```
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
-git pull
+cd holohub && git pull
 #git checkout 1a67c53 #holoscan-sdk-2.0.0
 #git checkout 3834a7b #holoscan-sdk-2.5.0 #WORKS! pointing to "holohub:ngc-v2.4.0" > https://github.com/nvidia-holoscan/holohub/blob/3834a7b057501d6dbc564df05692866d2b775324/dev_container#L472
 #git checkout f7f561f #holoscan-sdk-2.6.0 #WORKS! pointing to "holohub:ngc-v2.5.0" [+] Building holoscan-sdk-2.6.0 2997.6s (8/8) FINISHED #~50mins
 #git checkout 9554bd3 #holoscan-sdk-2.7.0 #ISSUES! Wed Dec 4 10:26:06 2024 -0500
+#git checkout 9ce2638 #holoscan-sdk-2.8.0 Thu Jan 2 16:32:07 2025 -0500
 ./run clear_cache
-./dev_container build --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile #Building 1602.1s (8/8) FINISHED  2.7.0
+./dev_container build --docker_file $HOME/repositories/ready/docs/holoscan/Dockerfile #Building 1901.6s (10/10)  FINISHED  sdk2.8.0
 #TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
 ```
 
 ## Launch and quick test app
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan
+cd $HOME/repositories/ready/docs/holoscan
 bash launch_dev_container.bash
 # inside container
 cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
