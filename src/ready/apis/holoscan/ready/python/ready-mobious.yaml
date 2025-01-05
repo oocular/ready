@@ -69,7 +69,7 @@ model:
   #TODO add args to __init__ in READYapp class
   #
   #
-  width: 640 
+  width: 640
   height: 400
   video_path: "/workspace/volumes/datasets/ready/videos/novel"
   model_path: "/workspace/volumes/datasets/ready/mobious/models"

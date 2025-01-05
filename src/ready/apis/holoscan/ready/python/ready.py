@@ -365,22 +365,20 @@ class PostInferenceOp(Operator):
 
 
 class READYApp(Application):
-    def __init__(self, source=None, video_path=None, data=None, model_name=None, debug_print_flag=None):
+    def __init__(self, source=None, debug_print_flag=None):
         """Initialize the application
         Parameters
         ----------
         data : Location to the data
         model_name : Model name
-        """        
+        """
         super().__init__()
 
         self.name = "READY App"
         self.source = source
         self.debug_print_flag = debug_print_flag
-        self.data_path = data
-        self.video_path = video_path
 
-        #TODO: check if thes paths are needed
+        #TODO: check if these paths are needed
         # if data == "none":
         #     data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
         # else:
@@ -650,5 +648,5 @@ if __name__ == "__main__":
     )
     app.config(config_file)
 
-    with Tracker(app, filename=args.logger_filename) as tracker:    
+    with Tracker(app, filename=args.logger_filename) as tracker:
         app.run()
