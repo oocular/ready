@@ -11,11 +11,8 @@ bash launch_dev_container.bash
 
 * Run app using your own repository in `dev_container` of clara-agx
 ```
-cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
-#TODO create a config file to comment/uncomment models paths and names
-clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
-clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_14-12-24_19-25-26-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
-clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_15-12-24_07-00-10-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
+cd /workspace/volumes/ready/scripts/apis
+bash ready_py.bash
 ```
 
 * Debug application in local host device
