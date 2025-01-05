@@ -1,5 +1,20 @@
 %YAML 1.2
 ---
+model:
+  #
+  #
+  #TODO add args to __init__ in READYapp class
+  #
+  #
+  width: 640
+  height: 400
+  # video_path: "/workspace/volumes/datasets/ready/videos/novel"
+  video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
+  model_path: "/workspace/volumes/datasets/ready/mobious/models"
+  # model_name: "_weights_10-09-24_06-35-14-sim-BHWC.onnx"
+  model_name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+
+
 replayer:
   #
   #
@@ -17,7 +32,8 @@ replayer:
   # basename: "cut_video_640x400_cc6b03"
   # basename: "cropped_cut_video_640x400_cc6b03"
   # basename: "cut_video_640x400_bf7bf0"
-  basename: "cropped_cut_video_640x400_bf7bf0"
+  # basename: "cropped_cut_video_640x400_bf7bf0"
+  basename: "cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis"
   frame_rate: 0.0 # as specified in timestamps
   realtime: True # default: true
   repeat: True # default: false
@@ -61,20 +77,6 @@ v4l2_source:
   # | See this app's readme file for details.
   # exposure_time: 500
   # gain: 100
-
-
-model:
-  #
-  #
-  #TODO add args to __init__ in READYapp class
-  #
-  #
-  width: 640
-  height: 400
-  video_path: "/workspace/volumes/datasets/ready/videos/novel"
-  model_path: "/workspace/volumes/datasets/ready/mobious/models"
-  # model_name: "_weights_10-09-24_06-35-14-sim-BHWC.onnx"
-  model_name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
 
 
 inference:
