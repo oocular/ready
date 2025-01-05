@@ -14,34 +14,65 @@
 # limitations under the License.
 
 import sys
+from argparse import ArgumentParser
 
 import onnx
 import onnx_graphsurgeon as gs
 
-
-def main():
+if __name__ == "__main__":
     """
-    Rebinding model to new nodes (NCHW to NHWC)
+    Script to rebind model to new nodes (NCHW to NHWC)
 
-    Input model: sys.argv[1]
-    Output model: sys.argv[2]
-    Channels: sys.argv[3]
-    High: sys.argv[4]
-    Width: sys.argv[5]
-    :return:
+    Usage:
+        Run this script from the root directory of the project:
+        python  -p <MODEL_PATH> -m <model_name.pth> -c <channels> -hw <height> -wi <width>
 
+    Arguments:
+        -p, --model_path: Set the model path. Default is none.
+        -m, --input_model_name: Set input model name. Default is none.
+        -c, --channel: Set the number of channels. Default is none.
+        -he, --height: Set the height. Default is none.
+        -wi, --width: Set the width. Default is none.
+
+    Reference:
     https://github.com/nvidia-holoscan/holohub/blob/main/applications/ssd_detection_endoscopy_tools/scripts/graph_surgeon_ssd.py
     """
-    # TODO use only path and input model, instead of input model and output model
-    graph = gs.import_onnx(onnx.load(sys.argv[1]))
+    parser = ArgumentParser(description="READY demo application.")
+    parser.add_argument("-p",
+                        "--model_path",
+                        type=str,
+                        help="Set the model path.")
+    parser.add_argument("-m",
+                        "--input_model_name",
+                        type=str,
+                        help="Set input model name.")
+    parser.add_argument("-ch",
+                        "--channel",
+                        type=int,
+                        help="Set the number of channels.")
+    parser.add_argument("-he",
+                        "--height",
+                        type=int,
+                        help="Set the height.")
+    parser.add_argument("-wi",
+                        "--width",
+                        type=int,
+                        help="Set the width.")
+    args = parser.parse_args()
+
+    MODEL_PATH = args.model_path
+    INPUT_MODEL_NAME = args.input_model_name
+    channel = args.channel
+    height = args.height
+    width = args.width
+    MODEL_NAME = INPUT_MODEL_NAME[:-4]
+
+    graph = gs.import_onnx(onnx.load(MODEL_PATH+"/"+ MODEL_NAME+"-sim.onnx"))
 
     # Update graph input/output names
     graph.inputs[0].name += "_old"
     graph.outputs[0].name += "_old"
 
-    channel = int(sys.argv[3])
-    height = int(sys.argv[4])
-    width = int(sys.argv[5])
 
     # Insert a transpose at the network input tensor [1, 3, width, height] and rebind it to the
     # new node [1, height, width, 3] be careful which one is h and which one is w
@@ -59,8 +90,4 @@ def main():
     graph.nodes.extend([nhwc_to_nchw_in])
     graph.toposort().cleanup()
 
-    onnx.save(gs.export_onnx(graph), sys.argv[2])
-
-
-if __name__ == "__main__":
-    main()
+    onnx.save(gs.export_onnx(graph), MODEL_PATH+"/"+ MODEL_NAME+"-sim-BHWC.onnx")

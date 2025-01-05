@@ -1,3 +1,6 @@
+#!/bin/bash
+set -Eeuxo pipefail
+
 #USAGE
 #bash conver_grayscale_to_rgb.bash val-000160-640wX400h
 

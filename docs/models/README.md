@@ -22,7 +22,7 @@ vim -O apis/train.py utils/datasets.py
 * train/debug unet with mobious
 ```
 #train
-python src/ready/apis/train_mobious.py
+python src/ready/apis/train_mobious.py -df #0or1
 
 #debug model
 cd src/ready

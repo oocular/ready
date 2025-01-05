@@ -25,6 +25,7 @@ dependencies = [
     "pandas",
     "PyQt6",
     "loguru",
+    "omegaconf",
     "scikit-learn",
 ]
 [project.optional-dependencies]

@@ -1,7 +1,11 @@
 # Data
 
 ## Local datasets path
-cd $HOME/datasets/openEDS
+It is important to keep data separate from the main repository. We suggest creating a dedicated path for datasets and models, along with associated files such as checkpoints and videos, to ensure organisation and accessibility.
+```
+mkdir -p $HOME/datasets/ready
+cd $HOME/datasets/ready
+```
 
 ## References
 * This work adopts ["Checklist for Artificial Intelligence in Medical Imaging (CLAIM): 2024 Update"](https://doi.org/10.1148/ryai.240300)

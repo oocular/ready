@@ -1,8 +1,8 @@
-# Cricket machine: ARM CPU with A100 Nvidia GPU
+# Cricket machine: ARM CPU with A100 Nvidia GPU (80GB)
 
 ## Features
 * HD: 5TB
-* GPU: NVIDIA A100, A100 , 40 GB HBM2, 1.6 TB/sec https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet.pdf
+* GPU: NVIDIA A100, A100 , 80 GB HBM2, 1.6 TB/sec https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet.pdf
 * https://www.ucl.ac.uk/advanced-research-computing/coming-soon-platforms
 
 ## Connect
@@ -25,7 +25,7 @@ scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   
 ## Copying files (models) to local host
 ```
 zip -r models12-12-24.zip models/
-scp ccaemxo@cricket.rc.ucl.ac.uk:~/ready/data/mobious/models12-12-24.zip ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
+scp ccaemxo@cricket.rc.ucl.ac.uk:/home/ready/datasets/mobious/MOBIOUS/models/_weights_15-12-24_07-00-10_TRAINe100_GPUa100_80gb.zip ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
 ```
 
 ## Container

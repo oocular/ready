@@ -8,14 +8,16 @@ from pathlib import Path
 import torch
 import torch.onnx
 import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
+from loguru import logger
+from omegaconf import OmegaConf
 from torch import nn
 from torch import optim as optim
 
-from src.ready.models.unet import UNet
-from src.ready.utils.datasets import MobiousDataset
-from src.ready.utils.metrics import evaluate
-from src.ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
-                                   set_data_directory)
+from ready.models.unet import UNet
+from ready.utils.datasets import MobiousDataset
+from ready.utils.metrics import evaluate
+from ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
+                               set_data_directory)
 
 torch.cuda.empty_cache()
 # import gc
@@ -45,21 +47,29 @@ def main(args):
     #CHECK if weight_fn is not None:
     #CHECK add checkpoint
     #CHECK add execution time
-    #CHECK save loss
     ############
     # TODO LIST
     # * setup a shared path to save models when using datafrom repo (to avoid save models in repo)
     #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
     # * To train model with 1700x3000
+    # * Test import nvidia_smi to create model version control: https://stackoverflow.com/questions/59567226
+    # * Create a config file to train models, indidatcing paths, and other hyperparmeters
     """
-    # HOME_PATH = os.path.join(Path.home(), "Desktop/nystagmus-tracking/") #MX_LOCAL_DEVICE
-    HOME_PATH = os.path.join(Path.home(), "") #CRICKET_SERVER
-    GITHUB_DATA_PATH = os.path.join(HOME_PATH, "ready/data/mobious") #GITHUB
-    FULL_DATA_PATH = os.path.join(HOME_PATH, "datasets/mobious/MOBIOUS") #LOCAL_DEVICE
+    config_file = args.config_file
+    config = OmegaConf.load(config_file)
+    DATA_PATH = config.dataset.data_path
+    MODEL_PATH = config.dataset.models_path
+    GITHUB_DATA_PATH = config.dataset.github_data_path
+    debug_print_flag = config.model.debug_print_flag
 
-    # MODEL_PATH = os.path.join(GITHUB_DATA_PATH, "models")
-    # if not os.path.exists("models"):
-    #     os.mkdir("models")
+    # TOCHECK
+    # HOME_PATH = os.path.join(Path.home(), "") #CRICKET_SERVER
+
+    FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
+    FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
+    FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+    if not os.path.exists(FULL_MODEL_PATH):
+        os.mkdir(FULL_MODEL_PATH)
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
     # set_data_directory(data_path="data/mobious") #data in repo
@@ -68,15 +78,17 @@ def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cuda_available = torch.cuda.is_available()
 
-    weight_fn = None  # TO_TEST
-    if weight_fn is not None:
-        raise NotImplemented()
-    else:
-        print(f"Starting new checkpoint. {weight_fn}""")
-        weight_fn = os.path.join(
-            os.getcwd(),
-            f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
-        )
+    #TOTEST
+    # weight_fn = config.model.weight_fn
+    # logger.info(f"weight_fn: {weight_fn}")
+    # if weight_fn is not None:
+    #     raise NotImplementedError()
+    # else:
+    #     logger.info(f"Starting new checkpoint. {weight_fn}")
+    #     weight_fn = os.path.join(
+    #         os.getcwd(),
+    #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
+    #     )
 
     # set transforms for training images
     transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
@@ -94,33 +106,34 @@ def main(args):
                                             ])
 
 
-    # Length 5; set_data_directory("ready/data")
-    # trainset = MobiousDataset(
-    #    GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
-    #    # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
-    #   )
-
-    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        #FULL_DATA_PATH+"/train", transform=None, target_transform=None
-        FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
+        ## Length 5; set_data_directory("ready/data")
+        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
+        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
+        ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+        FULL_DATA_PATH+"/train", transform=None, target_transform=None
+        # FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
     )
 
-    print("Length of trainset:", len(trainset))
+    logger.info(f"Length of trainset: {len(trainset)}")
 
-    batch_size_ = 8  # 8 original
+    batch_size = config.model_hyperparameters.batch_size
+    num_workers = config.model_hyperparameters.num_workers
+    learning_rate = config.model_hyperparameters.learning_rate
+    run_epoch = config.model_hyperparameters.epochs
+
     trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size_, shuffle=True, num_workers=4
+        trainset, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
-    print(f"trainloader.batch_size: {trainloader.batch_size}")
+    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
 
-    if args.debug_print_flag:
+    if debug_print_flag:
         sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
     # model.summary()
 
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     # TODO: check which criterium properties to setup
     loss_fn = nn.CrossEntropyLoss()
     # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
@@ -134,9 +147,6 @@ def main(args):
     if cuda_available:
         model.cuda()
         loss_fn.cuda()
-
-
-    run_epoch = 10
 
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
@@ -159,7 +169,7 @@ def main(args):
 
 
     ##############################################
-    # REMOTE A100 40GB
+    # REMOTE A100 80GB
     #
     #
     # 10epochs:
@@ -186,16 +196,23 @@ def main(args):
     # Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
     # Elapsed time for the training loop: 96.35676774978637 (mins)
     #
-    # 2 epochs 10mins
-    # 10 epochs without augmentations
-    #    epoch loss 0.0151
-    #    training time ~50.24 mins
-    # 10 epochs with augmentations (rotations)
+    # 001 epcohs> time: 5mins; loss:0.0668
+    # 002 epochs> 10mins
+    # 010 epochs> without augmentations
+    #     epoch loss 0.0151
+    #     training time ~50.24 mins
+    # 010 epochs> with augmentations (rotations)
     #    epoch loss 0.0308
     #    training time ~50.27 mins
-    #
-    epoch = None
+    # 100 epochs> without augmegmnation
+    #    epoch loss:0.0016 (first time)/0.0014(2ndtime)
+    #    training time: 508.15 mins/525.88mins
+    # 100 epochs> with augmegmnation
+    #    epoch loss:0.0081
+    #    training time: 505.00 mins
 
+    epoch = None
+    loss_values = []
     performance = {
         "accuracy": 0.0,
         "f1": 0.0,
@@ -206,17 +223,16 @@ def main(args):
         "dice": 0.0,
     }
 
-    loss_values = []
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        print(f"############################################")
-        print(f"Train loop at epoch: {i}")
+        logger.info(f"#########################")
+        logger.info(f"Train loop at epoch: {i}")
         running_loss = 0.0
         num_samples, num_batches = 0, 0
         # performance_epoch = {key: 0.0 for key in performance.keys()}
 
         for j, data in enumerate(trainloader, 1):
-            images, labels = data
 
+            images, labels = data
             if cuda_available:
                 images = images.cuda()
                 labels = labels.cuda()
@@ -269,26 +285,35 @@ def main(args):
             performance[key] /= num_samples
             print(f"Average {key} @ epoch: {performance[key]:.4f}")
 
-    print("===========================")
+    logger.info(f"#########################")
+    logger.info(f"Training complete. Saving checkpoint...")
 
-    print("Training complete. Saving checkpoint...")
-    current_time_stamp= datetime.now().strftime("%d-%m-%y_%H-%M-%S")
-    if not args.debug_print_flag:
-        model_name = GITHUB_DATA_PATH+"/models/_weights_" + current_time_stamp + ".pth"
+    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+    # TODO create directory with using current_time_stamp and GPU size
+    # TODO create config file to select paths and other parameters
+
+
+    if not debug_print_flag:
+        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y")
+        print(PATH)
+        if not os.path.exists(PATH):
+            os.mkdir(PATH)
+
+        model_name = PATH+"/_weights_" + current_time_stamp + ".pth"
         torch.save(model.state_dict(), model_name)
-        print(f"Saved PyTorch Model State to {model_name}")
+        logger.info(f"Saved PyTorch Model State to {model_name}")
 
-        json_file = GITHUB_DATA_PATH+"/models/performance_"+current_time_stamp+".json"
+        json_file = PATH+"/performance_"+current_time_stamp+".json"
         text = json.dumps(performance, indent=4)
         with open(json_file, "w") as out_file_obj:
             out_file_obj.write(text)
 
-        loss_file = GITHUB_DATA_PATH+"/models/loss_values_"+current_time_stamp+".csv"
+        loss_file = PATH+"/loss_values_"+current_time_stamp+".csv"
         with open(loss_file, "w") as out_file_obj:
             for loss in loss_values:
                 out_file_obj.write(f"{loss}\n")
     else:
-        print("Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
+        logger.info(f"Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
 
     # TODO
     #    batch_size = 1    # just a random number
@@ -297,7 +322,7 @@ def main(args):
 
     endtime = time.time()
     elapsedtime = endtime - starttime
-    print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
+    logger.info(f"Elapsed time for the training loop: {elapsedtime} (sec)")
 
 if __name__ == "__main__":
     """
@@ -307,23 +332,12 @@ if __name__ == "__main__":
         python src/ready/apis/train_mobious.py -df <debug_flag>
 
     Arguments:
-        -df, --debug_print_flag: Enable or disable debug printing. Use 1 (True) to enable or 0 (False) to disable.
-                                 WARNING: Enabling debug mode slows performance.
-
+        -c, --config_file: Config filename with path.
     Example:
-        python src/ready/apis/train_mobious.py -df 1
+        python src/ready/apis/train_mobious.py -c src/ready/configs/mobious_config.yaml
     """
     parser = ArgumentParser(description="READY demo application.")
-    parser.add_argument(
-        "-df",
-        "--debug_print_flag",
-        type=lambda s: s.lower() in ["true", "t", "yes", "1"],
-        default=True,
-        help=(
-            "Set debug flag either False or True (default). \
-                WARNING: Setting this to True will slow down performance of the app!"
-        ),
-    )
+    parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
 
     args = parser.parse_args()
     main(args)

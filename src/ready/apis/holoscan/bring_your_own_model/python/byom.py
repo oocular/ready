@@ -98,7 +98,11 @@ class BYOMApp(Application):
 
 
 if __name__ == "__main__":
-    # Parse args
+    """BYOM application entry point
+
+    model identity_model.onnx can be downloaded from:
+    https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/examples/bring_your_own_model/model/identity_model.onnx
+    """
     parser = ArgumentParser(description="BYOM demo application.")
     parser.add_argument(
         "-d",

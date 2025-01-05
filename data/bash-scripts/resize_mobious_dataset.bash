@@ -1,3 +1,6 @@
+#!/bin/bash
+set -Eeuxo pipefail
+
 #cd ~/ready/data/bash-scripts
 #bash resize_mobious_dataset.bash $HOME/Desktop/nystagmus-tracking/datasets/mobious/MOBIOUS
 

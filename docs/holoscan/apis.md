@@ -2,7 +2,7 @@
 
 ## Launch dev container
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan
+cd $HOME/repositories/ready/docs/holoscan
 bash launch_dev_container.bash
 ```
 
@@ -11,14 +11,13 @@ bash launch_dev_container.bash
 
 * Run app using your own repository in `dev_container` of clara-agx
 ```
-cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
-
-clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
+cd /workspace/volumes/ready/scripts/apis
+bash ready_py.bash replayer #or v4l2
 ```
 
 * Debug application in local host device
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/ready/python
+cd $HOME/repositories/ready/src/ready/apis/holoscan/ready/python
 vim -O ready.py ready-mobious.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
@@ -55,7 +54,7 @@ python v4l2_camera.py
 
 * On local device host
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/v4l2_camera/python/
+cd $HOME/repositories/ready/src/ready/apis/holoscan/v4l2_camera/python/
 vim -O v4l2_camera.py v4l2_camera.yaml
 ```
 
@@ -75,7 +74,7 @@ python byom.py -d /workspace/volumes/ready/data/openEDS -m identity_model.onnx -
 
 * Debug application in local host device
 ```
-cd $HOME/Desktop/nystagmus-tracking/ready/src/ready/apis/holoscan/bring_your_own_model/python
+cd $HOME/repositories/ready/src/ready/apis/holoscan/bring_your_own_model/python
 vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
