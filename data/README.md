@@ -1,7 +1,7 @@
 # Data
 
 ## Local datasets path
-It is important to keep data separate from the main repository. We suggest creating a dedicated path for datasets and models, along with associated files such as checkpoints and videos, to ensure organization and accessibility.
+It is important to keep data separate from the main repository. We suggest creating a dedicated path for datasets and models, along with associated files such as checkpoints and videos, to ensure organisation and accessibility.
 ```
 mkdir -p $HOME/datasets/ready
 cd $HOME/datasets/ready

@@ -15,12 +15,12 @@
 ## Download and process videos
 bash [download_and_process_welgampola_videos.bash](../bash-scripts/download_and_process_welgampola_videos.bash)
 ```
-bash ../bash-scripts/download_and_process_welgampola_videos.bash 
+bash ../../bash-scripts/download_and_process_welgampola_videos.bash 
 ```
 
 ## Convert mp4 to gxf files 
 ```
-bash ../bash-scripts/mp4_to_gxf.bash $HOME/datasets/ready/videos/benign-positional-vertigo cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis.mp4 640 400 3 30
+bash ../../bash-scripts/mp4_to_gxf.bash $HOME/datasets/ready/videos/benign-positional-vertigo cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis.mp4 640 400 3 30
 ```
 
 ## Reference
