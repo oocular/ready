@@ -23,6 +23,7 @@ from threading import Thread
 
 import holoscan
 from aiohttp import web
+from holoscan.core import Tracker
 from operators.webrtc_client.webrtc_client_op import WebRTCClientOp
 
 ROOT = os.path.dirname(__file__)
@@ -127,6 +128,12 @@ if __name__ == "__main__":
         "--port", type=int, default=8080, help="Port for HTTP server (default: 8080)"
     )
     parser.add_argument("--verbose", "-v", action="store_true")
+    parser.add_argument(
+        "-l",
+        "--logger_filename",
+        default="logger.log",
+        help=("Set logger filename"),
+    )
     cmdline_args = parser.parse_args()
 
     if cmdline_args.verbose:
@@ -135,4 +142,6 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.INFO)
 
     app = WebRTCClientApp(cmdline_args)
-    app.run()
+
+    with Tracker(app, filename=cmdline_args.logger_filename) as tracker:
+        app.run()
