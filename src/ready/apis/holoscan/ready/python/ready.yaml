@@ -1,44 +1,92 @@
 %YAML 1.2
 ---
-replayer:  # VideoStreamReplayer
+model:
   #
-  # openEDS
   #
-  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1"
-    #'preprocessor' - Failed to resize image.
-  # FAIL basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1"
-    #'preprocessor' - Failed to resize image.
-  ## Single frames
-  #basename: "video_30_duplicated_frames_of_validation-026580-640widthx400height_channels3"
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
-  #basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
+  #TODO add args to __init__ in READYapp class
+  #
+  #
+  width: 640
+  height: 400
+  ###################
+  ##UNET with openEDS
+  # video_path: "/workspace/volumes/datasets/ready/videos/openEDS"
+  # model_path: "/workspace/volumes/datasets/ready/openEDS/models"
+  # model_name: "model3ch-23jul2024t0716-sim-BHWC.onnx"
+  # model_name: "_weights_10-09-24_23-53-45-sim-BHWC.onnx"
+  ###################
+  ## others
+  video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
+  # video_path: "/workspace/volumes/datasets/ready/videos/novel"
+  ###################
+  ##UNET with mobious
+  model_path: "/workspace/volumes/datasets/ready/mobious/models"
+  # model_name: "_weights_10-09-24_06-35-14-sim-BHWC.onnx"
+  model_name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+
+replayer:
+  #
+  #
+  # VideoStreamReplayer
+  #
+  #
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/video_stream_replayer/video_stream_replayer.hpp
+  #
+  #
+  ########################
+  ## OpenEDS from video_path: "/workspace/volumes/datasets/videos/openEDS"
+  ### Single frames
+  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1"
+  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
+  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1"
+  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
   ## Various re-scaled frames
-  #basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
-  #basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
+  basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
+  # basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
   ## Multiple frames
-  #basename: "video_3frames"
-  #basename: "video_multiple_frames"
-  ## Do we need them?
-  #?basename: "cut_video_640x400"
-  #?basename: "cut_video_640x400_grayscale"
-  #
-  frame_rate: 0 # as specified in timestamps
-  repeat: true # default: false
-  realtime: true # default: true
+  # basename: "video_frames"
+  ########################
+  ## Novel from video_path: "/workspace/volumes/datasets/ready/videos/novel"
+  # basename: "cut_video_640x400_7117d0"
+  # basename: "cut_video_640x400_cc6b03"
+  # basename: "cropped_cut_video_640x400_cc6b03"
+  # basename: "cut_video_640x400_bf7bf0"
+  # basename: "cropped_cut_video_640x400_bf7bf0"
+  ########################
+  ## Welgampola from video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
+  basename: "cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis"
+  ## Details
+  frame_rate: 0.0 # as specified in timestamps
+  realtime: True # default: true
+  repeat: True # default: false
   count: 0 # default: 0 (no frame count restriction)
 
-source:  # V4L2VideoCaptureOp
+v4l2_source:
+  #
+  #
+  # V4L2VideoCaptureOp
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/python/holoscan/operators/v4l2_video_capture/pydoc.hpp
+  #
+  #
+  # TODO: add device arg to python script
+  #         source_device = source_args["device"]
+  #
+  #
   # | Input device. /dev/video0 is generally the default input
   device: "/dev/video0"
-  #device: "/dev/video4"
+  #USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
+  # device: "/dev/video4"
 
   # | App will auto-select default width and height if not provided
   # | For performance, you may want to specify these parameters yourself.
-  # | See this app's readme file for details.
+  #  See terminal output for v4l2-ctl -d /dev/video4 --list-formats-ext
+  #
   width: 640
   height: 480
-  # width: 640
-  # height: 360
+  #width: 320
+  #height: 240
+  #width: 160
+  #height: 120
 
   # | App will auto-select the default "pixel_format" for your device if not provided.
   # | See this app's readme file for details.
@@ -66,26 +114,33 @@ inference:
   inference_map:
     "ready_model": ["unet_out"]
   enable_fp16: False #Use 16-bit floating point computations. Optional (default: `false`).
-  parallel_inference: true # optional param, default to true
-  infer_on_cpu: false # optional param, default to false
-  input_on_cuda: true # optional param, default to true
-  output_on_cuda: true # optional param, default to true
-  transmit_on_cuda: true # optional param, default to true
-  is_engine_path: false # optional param, default to false
+  parallel_inference: True # optional param, default to true
+  infer_on_cpu: False # optional param, default to false
+  input_on_cuda: True # optional param, default to true
+  output_on_cuda: True # optional param, default to true
+  transmit_on_cuda: True # optional param, default to true
+  # is_engine_path: false # optional param, default to false
 
 
-preprocessor_replayer:  # FormatConverter
+preprocessor_replayer:
+  #
+  #
+  # FormatConverter
+  #
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/format_converter/format_converter.hpp
+  #
+  #
   #in_tensor_name: #- **in_tensor_name**: The name of the input tensor. Optional (default: `""`).
   out_tensor_name: "out_preprocessor"
-  scale_min: 0.0
-  scale_max: 1.0
-  #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use
-                #when converting from RGB to RGBA. Optional (default: `255`).
+  scale_min: 1.0
+  scale_max: 252.0
+  #alpha_value: #Unsigned integer in range [0, 255], indicating the alpha channel value to use#when converting from RGB to RGBA. Optional (default: `255`).
   #in_dtype: "rgba8888" #for four channels
   #in_dtype: "float32" ?
-  resize_width: 640 #320
-  resize_height: 400 #200
+  # resize_width: defined with `model_width` #640 #320
+  # resize_height: defined with `model_height` #400 #200
   out_dtype: "float32"
+  # tested out_channel_order
   #out_channel_order: [0, 1, 2, 3]
   #out_channel_order: [0, 1, 2]
   #out_channel_order: [0, 2, 1]
@@ -104,10 +159,10 @@ preprocessor_v4l2:
   out_tensor_name: out_preprocessor
   in_dtype: "rgba8888" #for four channels
   out_dtype: "float32"
-  resize_width: 640
-  resize_height: 400
-  scale_min: 0.0
-  scale_max: 1.0
+  scale_min: 1.0
+  scale_max: 252.0
+  # resize_width: defined with `model_width` #640
+  # resize_height: defined with `model_height` #400
 
 pre_info_op_replayer:  #Pre Info Operator
 format_input:  #FormatInferenceInputOp
@@ -129,10 +184,16 @@ segpostprocessor:
   #data_format: nhwc
 
 
-viz:  # Holoviz
+viz:
+  #
+  #
+  # Holoviz
+  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/holoviz/holoviz.hpp
+  #
+  #
   window_title: "READY demo"
-  width: 640
-  height: 400
+  # width: defined with `model_width` #640 #320
+  # height: defined with `model_height` #400
   tensors:
     - name: ""
       type: color
@@ -145,11 +206,17 @@ viz:  # Holoviz
       line_width: 5.0 #for crosses only
       point_size: 10.0 #for points only
       priority: 2
-    - name: "point_coords"
+    - name: "x_coords_varing_array"
       type: points
-      opacity: 0.85
-      color: [0.9, 0.9, 0.9, 0.8] #RGB for purple with alpha 0.8
-      point_size: 3.0 #for points only
+      opacity: 0.95
+      color: [1.0, 0.0, 0.0, 1.0]
+      point_size: 5.0
+      priority: 2
+    - name: "y_coords_varing_array"
+      type: points
+      opacity: 0.95
+      color: [0.0, 1.0, 0.0, 1.0]
+      point_size: 5.0
       priority: 2
     - name: "out_tensor"
       type: color_lut

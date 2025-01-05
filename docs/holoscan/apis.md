@@ -12,7 +12,7 @@ bash launch_dev_container.bash
 * Run app using your own repository in `dev_container` of clara-agx
 ```
 cd /workspace/volumes/ready/scripts/apis
-bash ready_py.bash
+bash ready_py.bash replayer #or v4l2
 ```
 
 * Debug application in local host device

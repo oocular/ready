@@ -123,7 +123,7 @@ def main(args):
     run_epoch = config.model_hyperparameters.epochs
 
     trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size, shuffle=True, num_workers=4
+        trainset, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
     logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
 
