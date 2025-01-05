@@ -15,8 +15,6 @@ tree -h
 ### Conversion to ONNX (using .pth models) and ONNX symplification 
 ```
 cd $HOME_REPO
-python src/ready/apis/convert_to_onnx_and_simplify_it.py -p <MODEL_PATH> -n <ADD_MODEL_NAME>.pth
-
 bash scripts/models/convert_to_onnx_and_simplify_it.bash
 ```
 

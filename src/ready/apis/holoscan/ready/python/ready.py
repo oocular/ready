@@ -365,47 +365,48 @@ class PostInferenceOp(Operator):
 
 
 class READYApp(Application):
-    def __init__(
-        self, source=None, data=None, model_name=None, debug_print_flag=None, **kwargs
-    ):
+    def __init__(self, source=None, debug_print_flag=None):
         """Initialize the application
-
         Parameters
         ----------
         data : Location to the data
         model_name : Model name
         """
-
-        super().__init__(**kwargs)
-        # super().__init__()
+        super().__init__()
 
         self.name = "READY App"
         self.source = source
         self.debug_print_flag = debug_print_flag
-        self.data_path = data
 
-        if data == "none":
-            data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
-        else:
-            self.video_dir = os.path.join(self.data_path, "videos")
-            if not os.path.exists(self.video_dir):
-                raise ValueError(f"Could not find video data: {self.video_dir=}")
-            self.models_path = os.path.join(self.data_path, "models")
-            if not os.path.exists(self.models_path):
-                raise ValueError(f"Could not find models data: {self.models_path=}")
+        #TODO: check if these paths are needed
+        # if data == "none":
+        #     data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
+        # else:
+        #     self.video_dir = self.video_path #os.path.join(self.video_path, "")
+        #     if not os.path.exists(self.video_dir):
+        #         raise ValueError(f"Could not find video data: {self.video_dir=}")
+        #     self.models_path = os.path.join(self.data_path, "")
+        #     if not os.path.exists(self.models_path):
+        #         raise ValueError(f"Could not find models data: {self.models_path=}")
 
-        self.model_name = model_name
-        self.models_path_map = {
-            "ready_model": os.path.join(self.models_path, self.model_name),
-        }
+        # self.model_name = model_name
+        # self.models_path_map = {
+        #     "ready_model": os.path.join(self.models_path, self.model_name),
+        # }
 
     def compose(self):
-        # TO DEBUG
-        source_args = self.kwargs("v4l2_source")
-        # self.kwargs; check __init__ settings
-        # width = source_args["width"]
-        # height = source_args["height"]
-        # print(f'xxxxxxxxxxxxxxxxx {width} {height}')
+        v4l2_source_args = self.kwargs("v4l2_source")
+        v4l2_width = v4l2_source_args["width"]
+        v4l2_height = v4l2_source_args["height"]
+        model_args = self.kwargs("model")
+        model_width = model_args["width"]
+        model_height = model_args["height"]
+        video_path = model_args["video_path"]
+        model_name = model_args["model_name"]
+        models_path_map = model_args["model_path"]
+        self.models_path_map = {
+            "ready_model": os.path.join(models_path_map, model_name),
+        }
 
         host_allocator = UnboundedAllocator(self, name="host_allocator")
         # the RMMAllocator supported since v2.6 is much faster than the default UnboundAllocator
@@ -415,14 +416,10 @@ class READYApp(Application):
         except Exception:
             pass
 
-
-        width = 640  # TODO source_args["width"]
-        height = 400  # TODO source_args["height"]
-
         if self.source.lower() == "replayer":
             n_channels = 1
             bpp = 1  # bytes per pixel
-            block_size = width * height * n_channels * bpp
+            block_size = model_width * model_height * n_channels * bpp
             num_blocks = 1
             source = VideoStreamReplayerOp(
                 self,
@@ -438,29 +435,20 @@ class READYApp(Application):
                 # ),
                 # allocator=host_allocator,
                 allocator=rmm_allocator,
-                # basename= "video_3framesx10",
-                # basename= "cut_video_640x400_7117d0",
-                # basename= "cut_video_640x400_cc6b03",
-                # basename= "cropped_cut_video_640x400_cc6b03",
-                # basename= "cut_video_640x400_bf7bf0",
-                basename= "cropped_cut_video_640x400_bf7bf0",
-                directory=self.video_dir,
-                frame_rate=0.0,
-                realtime=True, # default: true
-                repeat=True, # default: false
-                count=0, # default: 0 (no frame count restriction)
-                # **self.kwargs("replayer"),
+                # directory=self.video_dir,
+                directory=video_path,
+                **self.kwargs("replayer"),
             )
 
         elif self.source.lower() == "v4l2":
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
-            drop_alpha_block_size = width * height * n_channels * bpp
+            drop_alpha_block_size = v4l2_width * v4l2_height * n_channels * bpp
             drop_alpha_num_blocks = 2
             source = V4L2VideoCaptureOp(
                 self,
                 name="v4l2_source",
-                # allocator=rmm_allocator,
+                # allocator=rmm_allocator, #TOTEST
                 allocator=BlockMemoryPool(
                     self,
                     name="v4l2_replayer_pool",
@@ -469,11 +457,7 @@ class READYApp(Application):
                     block_size=drop_alpha_block_size,
                     num_blocks=drop_alpha_num_blocks,
                 ),
-                device="/dev/video0",
-                width=640,
-                height=480,
-                pixel_format="YUYV",
-                # **self.kwargs("v4l2_source"),
+                **self.kwargs("v4l2_source"),
             )
 
         else:
@@ -508,35 +492,26 @@ class READYApp(Application):
                 self,
                 name="preprocessor_replayer_pool",
                 storage_type=MemoryStorageType.DEVICE,
-                block_size=width * height * bytes_per_float32 * in_components,
+                block_size=model_width * model_height * bytes_per_float32 * in_components,
                 num_blocks=2*3,
             ),
-            out_tensor_name="out_preprocessor",
-            scale_min=1.0,
-            scale_max=252.0,
-            resize_width=width,
-            resize_height=height,
-            out_dtype="float32",
+            resize_width=model_width,
+            resize_height=model_height,
             cuda_stream_pool=formatter_cuda_stream_pool,
-            # **self.kwargs("preprocessor_replayer"),
+            **self.kwargs("preprocessor_replayer"),
         )
 
         preprocessor_v4l2 = FormatConverterOp(
             self,
             name="preprocessor_v4l2",
-            out_tensor_name="out_preprocessor",
-            in_dtype="rgba8888", #for four channels
-            out_dtype="float32",
-            scale_min=1.0,
-            scale_max=252.0,
-            resize_width=width,
-            resize_height=height,
-            # pool=rmm_allocator,
+            resize_width=model_width,
+            resize_height=model_height,
+            # pool=rmm_allocator, #TOTEST
             pool=BlockMemoryPool(
                 self,
                 name="preprocessor_replayer_pool",
                 storage_type=MemoryStorageType.DEVICE,
-                block_size=width * height * bytes_per_float32 * in_components,
+                block_size=model_width * model_height * bytes_per_float32 * in_components,
                 num_blocks=2*3,
             ),
             cuda_stream_pool=formatter_cuda_stream_pool,
@@ -553,23 +528,13 @@ class READYApp(Application):
 
         n_channels_inference = 4
         bpp_inference = 4
-        inference_block_size = width * height * n_channels_inference * bpp_inference
+        inference_block_size = model_width * model_height * n_channels_inference * bpp_inference
         inference_num_blocks = 2
 
         inference = InferenceOp(
             self,
             name="inference",
-            backend="trt",
-            pre_processor_map={"ready_model": ["out_preprocessor"]},
-            inference_map={"ready_model": ["unet_out"]},
-            enable_fp16=False,
-            parallel_inference=True,
-            infer_on_cpu=False,
-            input_on_cuda=True,
-            output_on_cuda=True,
-            transmit_on_cuda=True,
-            is_engine_path=False,
-            # allocator=rmm_allocator,
+            # allocator=rmm_allocator, #TOTEST
             allocator=BlockMemoryPool(
                 self,
                 storage_type=MemoryStorageType.DEVICE,
@@ -577,15 +542,16 @@ class READYApp(Application):
                 num_blocks=inference_num_blocks,
             ),
             model_path_map=self.models_path_map,
-            # **self.kwargs("inference"),
+            # model_path_map=path_model,
+            **self.kwargs("inference"),
         )
 
         post_inference_op = PostInferenceOp(
             self,
             name="post_inference_op",
             allocator=UnboundedAllocator(self, name="post_inference_allocator"),
-            width=width,
-            height=height,
+            width=model_width,
+            height=model_height,
             **self.kwargs("post_inference_op"),
         )
 
@@ -593,56 +559,19 @@ class READYApp(Application):
             self,
             name="segpostprocessor",
             allocator=UnboundedAllocator(self, name="segpostprocessor_allocator"),
-            in_tensor_name="unet_out",
-            network_output_type="softmax",
-            data_format="nchw",
-            # **self.kwargs("segpostprocessor"),
+            # in_tensor_name="unet_out",
+            # network_output_type="softmax",
+            # data_format="nchw",
+            **self.kwargs("segpostprocessor"),
         )
 
         viz = HolovizOp(
             self,
             name="viz",
-            window_title="READY demo",
-            width=width,
-            height=height,
-            tensors=[
-                dict(
-                    name="",
-                    type="color",
-                    opacity=1.0,
-                    priority= 0,
-                ),
-                dict(
-                    name="pupil_cXcY",
-                    type="crosses",
-                    color=[0.6, 0.1, 0.6, 0.8],
-                    opacity=0.85,
-                    priority=2,
-                    line_width=5.0, #for crosses only
-                ),
-                dict(
-                    name="x_coords_varing_array",
-                    type="points",
-                    color=[1.0, 0.0, 0.0, 1.0],
-                    point_size=5.0,
-                    priority=2,
-                ),
-                dict(
-                    name="y_coords_varing_array",
-                    type="points",
-                    color=[0.0, 1.0, 0.0, 1.0],
-                    point_size=5.0,
-                    priority=2,
-                ),
-                dict(
-                    name="out_tensor",
-                    type="color_lut",
-                    opacity=1.0,
-                    priority=0,
-                ),
-            ],
-            color_lut=[[0.65, 0.81, 0.89, 0.01],[0.3, 0.3, 0.9, 0.5],[0.1, 0.8, 0.2, 0.5],[0.9, 0.9, 0.3, 0.8],]
-            # **self.kwargs("viz"),
+            # window_title="READY demo",
+            width=model_width,
+            height=model_height,
+            **self.kwargs("viz"),
         )
 
         if self.source.lower() == "replayer":
@@ -679,11 +608,10 @@ class READYApp(Application):
 
 
 if __name__ == "__main__":
-    # Parse args
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument(
-        "-c",
-        "--config",
+        "-cf",
+        "--config_file",
         default="ready.yaml",
         help=("configuration file (e.g. ready.yaml)"),
     )
@@ -693,18 +621,6 @@ if __name__ == "__main__":
         choices=["replayer", "v4l2"],
         default="replayer",
         help=("If 'replayer', replay a prerecorded video. If 'v4l2' use an v4l2"),
-    )
-    parser.add_argument(
-        "-d",
-        "--data",
-        default="none",
-        help=("Set the data path"),
-    )
-    parser.add_argument(
-        "-m",
-        "--model_name",
-        default="none",
-        help=("Set model name"),
     )
     parser.add_argument(
         "-l",
@@ -724,15 +640,13 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    config_file = os.path.join(os.path.dirname(__file__), args.config)
+    config_file = os.path.join(os.path.dirname(__file__), args.config_file)
 
     app = READYApp(
         source=args.source,
-        data=args.data,
-        model_name=args.model_name,
         debug_print_flag=args.debug_print_flag,
     )
+    app.config(config_file)
 
     with Tracker(app, filename=args.logger_filename) as tracker:
-        app.config(config_file)
         app.run()

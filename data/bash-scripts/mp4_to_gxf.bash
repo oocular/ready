@@ -1,15 +1,16 @@
 #!/bin/bash
-set -Eeuxo pipefail
+# set -Eeuxo pipefail
 
 ### USAGE
-#cd ~/ready
-#source .venv/bin/activate
-#cd ~/ready/data/bash-scripts
+GITHUB_REPOSITORY_PATH=$HOME/repositories/ready
+cd ${GITHUB_REPOSITORY_PATH}
+source .venv/bin/activate
 
 # bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cut_video_640x400_7117d0.mp4 640 400 3 24
 # bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cut_video_640x400_cc6b03.mp4 640 400 3 24
 # bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cropped_cut_video_640x400_cc6b03.mp4 640 400 3 30
 # bash mp4_to_gxf.bash $HOME/Desktop/nystagmus-tracking/ready/data/mobious/videos cropped_cut_video_640x400_bf7bf0.mp4 640 400 3 30
+# bash mp4_to_gxf.bash $HOME/datasets/ready/videos/benign-positional-vertigo cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis.mp4 640 400 3 30
 
 ### INPUT ARGUMENTS
 VIDEOPATH=$1 # Path to the video
@@ -29,7 +30,7 @@ echo ${VIDEOPATH}/${VIDEONAME}
 ##${FILE#*.} extension
 
 ### Converting mp4 to gxf (Graph Execution Framework) using `ffmeg` and `convert_video_to_gxf_entities.py` in local host device
-#### run #bash download-holohub-utils.bash at /src/ready/apis/holoscan/utils
-ffmpeg -i ${VIDEOPATH}/${VIDEONAME} -pix_fmt rgb24 -f rawvideo pipe:1 | python ../../src/ready/apis/holoscan/utils/convert_video_to_gxf_entities.py --width ${WIDTH} --height ${HEIGHT} --channels ${CHANNELS} --framerate ${NNframes} --basename ${VIDEOPATH}/${VIDEONAME%%.*}
+#### run #bash holohub-utils-dependencies.bash; cd src/ready/apis/holoscan/utils
+ffmpeg -i ${VIDEOPATH}/${VIDEONAME} -pix_fmt rgb24 -f rawvideo pipe:1 | python ${GITHUB_REPOSITORY_PATH}/src/ready/apis/holoscan/utils/convert_video_to_gxf_entities.py --width ${WIDTH} --height ${HEIGHT} --channels ${CHANNELS} --framerate ${NNframes} --basename ${VIDEOPATH}/${VIDEONAME%%.*}
 
 echo Conversion completed ${VIDEONAME}!!

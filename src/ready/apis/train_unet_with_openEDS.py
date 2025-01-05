@@ -4,18 +4,21 @@ Train pipeline for UNET
 
 import os
 import time
+from argparse import ArgumentParser
 from datetime import datetime
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.onnx
 import torch.optim as optim
+from loguru import logger
+from omegaconf import OmegaConf
 
-# from segnet import SegNet
-from src.ready.models.unet import UNet
-from src.ready.utils.datasets import EyeDataset
-from src.ready.utils.utils import set_data_directory
+from ready.models.unet import UNet
+from ready.utils.datasets import EyeDataset
+from ready.utils.utils import set_data_directory
 
 torch.cuda.empty_cache()
 
@@ -91,8 +94,7 @@ def sanity_check(trainloader, neural_network, cuda_available):
 
         break
 
-
-def main():
+if __name__ == "__main__":
     """
     #CHECK epoch = None
     #CHECK if weight_fn is not None:
@@ -100,41 +102,44 @@ def main():
     #CHECK add execution time
     #CHECK save loss
     """
+    parser = ArgumentParser(description="READY demo application.")
+    parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
 
+    args = parser.parse_args()
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    # print(get_working_directory())
-    # set_data_directory("datasets/openEDS")
-    set_data_directory("ready/data/openEDS")
+    config_file = args.config_file
+    config = OmegaConf.load(config_file)
+    DATA_PATH = config.dataset.data_path
+    MODEL_PATH = config.dataset.models_path
+    GITHUB_DATA_PATH = config.dataset.github_data_path
 
-    #####
-    # TODO
-    # add general path for $DATASETPATH
-    # set_data_directory("datasets/DATASETPATH")
-    # Split data into train, test and val (currently data
-    # is just in folders synthetic and mask-withskin)
-    # RetrainUNET
+    FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
+    FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
+    FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+    if not os.path.exists(FULL_MODEL_PATH):
+        os.mkdir(FULL_MODEL_PATH)
 
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    if not os.path.exists("models"):
-        os.mkdir("models")
-    weight_fn = None  # TO_TEST
     cuda_available = torch.cuda.is_available()
-    # print(cuda_available)
-    # trainset = EyeDataset("openEDS/openEDS/train/")
+    logger.info(f"cuda_available: {cuda_available}")
+
     trainset = EyeDataset(
-        "sample-frames/val3frames"
-    )  # for set_data_directory("ready/data/openEDS")
-
-    # TODO trainset = RITeye_dataset("RIT-eyes/")
-    # print("Length of trainset:", len(trainset))
-
-    batch_size_ = 8  # 8 original
-    trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size_, shuffle=True, num_workers=4
+        # FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
+        FULL_DATA_PATH+"/openEDS/openEDS/test"
     )
-    print(f"trainloader.batch_size {trainloader.batch_size}")
+    logger.info(f"Length of trainset: {len(trainset)}")
+
+    batch_size = config.model_hyperparameters.batch_size
+    num_workers = config.model_hyperparameters.num_workers
+    learning_rate = config.model_hyperparameters.learning_rate
+    run_epoch = config.model_hyperparameters.epochs
+
+
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+    )
+    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
 
     # model = UNet(nch_in=1, nch_out=4) # for openEDS with one channel and four mask
     # input_image shape torch.Size([1, 400, 640])
@@ -143,14 +148,12 @@ def main():
     model = UNet(nch_in=3, nch_out=4)  # for openEDS with 3 channels and four mask
     # input_image shape torch.Size([3, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
-
     # model.summary()
 
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-    # CHECK: do we need default loss? loss_fn = nn.CrossEntropyLoss()
-
     # TOCHECK TESTS
+    # do we need default loss? loss_fn = nn.CrossEntropyLoss()
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
     # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
     # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
@@ -174,7 +177,7 @@ def main():
     # Epoch 10:
     # Average loss @ epoch: 0.08453492075204849
     # Elapsed time for the training loop: 0.14809249639511107 (mins)
-    run_epoch = 100
+    # run_epoch = 100
     # Average loss @ epoch: 0.0025765099562704563
     # Saved PyTorch Model State to models/_weights_10-09-24_23-53-45.pth
     # Elapsed time for the training loop: 1.3849741021792095 (mins)
@@ -187,14 +190,15 @@ def main():
 
     epoch = None
 
-    if weight_fn is not None:
-        raise NotImplemented()
-    else:
-        print(f"Starting new checkpoint. {weight_fn}")
-        weight_fn = os.path.join(
-            os.getcwd(),
-            f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
-        )
+    # TOTEST weight_fn
+    # if weight_fn is not None:
+    #     raise NotImplemented()
+    # else:
+    #     print(f"Starting new checkpoint. {weight_fn}")
+    #     weight_fn = os.path.join(
+    #         os.getcwd(),
+    #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
+    #     )
 
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
         print(f"Epoch {i}:")
@@ -206,8 +210,8 @@ def main():
                 images = images.cuda()
                 labels = labels.cuda()
 
-            # print(images.shape) #torch.Size([8, 1, 400, 640])
-            # print(labels.shape) #torch.Size([8, 400, 640])
+            # logger.info(f"{images.shape = }") #torch.Size([8, 3, 400, 640])
+            # logger.info(f"{labels.shape = }") #torch.Size([8, 400, 640])
 
             optimizer.zero_grad()
             output = model(images)  # torch.Size([8, 4, 400, 640])
@@ -233,11 +237,16 @@ def main():
         print(f"Average loss @ epoch: {sum_loss / (j*trainloader.batch_size)}")
 
     print("Training complete. Saving checkpoint...")
-    modelname = datetime.now().strftime("models/_weights_%d-%m-%y_%H-%M-%S.pth")
-    torch.save(model.state_dict(), modelname)
-    print(f"Saved PyTorch Model State to {modelname}")
+    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+    PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y")
+    if not os.path.exists(PATH):
+        os.mkdir(PATH)
 
-    # TOCHECK
+    model_name = PATH+"/_weights_" + current_time_stamp + ".pth"
+    torch.save(model.state_dict(), model_name)
+    logger.info(f"Saved PyTorch Model State to {model_name}")
+
+    # TODO
     # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
     # batch_size = 1    # just a random number
     # dummy_input = torch.randn((batch_size, 1, 400, 640)).to(DEVICE)
@@ -246,7 +255,3 @@ def main():
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
-
-
-if __name__ == "__main__":
-    main()
