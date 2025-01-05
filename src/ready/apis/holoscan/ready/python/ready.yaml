@@ -16,8 +16,9 @@ model:
   # model_name: "_weights_10-09-24_23-53-45-sim-BHWC.onnx"
   ###################
   ## others
-  video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
-  # video_path: "/workspace/volumes/datasets/ready/videos/novel"
+  # video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
+  #video_path: "/workspace/volumes/datasets/ready/videos/novel"
+  video_path: "/workspace/volumes/datasets/ready/videos/shared"
   ###################
   ##UNET with mobious
   model_path: "/workspace/volumes/datasets/ready/mobious/models"
@@ -41,7 +42,7 @@ replayer:
   # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1"
   # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
   ## Various re-scaled frames
-  basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
+  # basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
   # basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
   ## Multiple frames
   # basename: "video_frames"
@@ -53,8 +54,12 @@ replayer:
   # basename: "cut_video_640x400_bf7bf0"
   # basename: "cropped_cut_video_640x400_bf7bf0"
   ########################
+  ## Shared from video_path: "/workspace/volumes/datasets/ready/videos/shared"
+  #basename: "video_640x400_Acute_VN_Left"
+  basename: "cropped_video_640x400_Acute_VN_Left"
+  ########################
   ## Welgampola from video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
-  basename: "cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis"
+  # basename: "cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis"
   ## Details
   frame_rate: 0.0 # as specified in timestamps
   realtime: True # default: true

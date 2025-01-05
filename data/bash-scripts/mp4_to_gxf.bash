@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeuxo pipefail
+# set -Eeuxo pipefail
 
 ### USAGE
 GITHUB_REPOSITORY_PATH=$HOME/repositories/ready

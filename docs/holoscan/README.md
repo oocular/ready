@@ -30,15 +30,6 @@ cd holohub && git pull
 #TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
 ```
 
-## Launch and quick test app
-```
-cd $HOME/repositories/ready/docs/holoscan
-bash launch_dev_container.bash
-# inside container
-cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
-clear && python ready.py -c ready-mobious.yaml -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_06-35-14-sim-BHWC.onnx -l logger.log -df TRUE -s replayer #v4l2
-```
-
 ## Run and debug
 
 See [apis](apis.md)
