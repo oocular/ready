@@ -3,5 +3,4 @@ set -Eeuxo pipefail
 
 export PYTHONPATH=${PYTHONPATH}:/workspace/holohub
 cd /workspace/volumes/ready/src/ready/apis/holoscan/webrtc
-clear && python webrtc_client.py
-
+clear && python webrtc_client.py --cert-file MyCertificate.crt --key-file MyKey.key
