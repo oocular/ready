@@ -6,9 +6,9 @@ import torchvision.transforms as transforms
 from loguru import logger
 from pathlib import Path
 
-from src.ready.models.unetvit import UNetViT
-from src.ready.utils.datasets import segDataset
-from src.ready.utils.utils import (
+from ready.models.unetvit import UNetViT
+from ready.utils.datasets import segDataset
+from ready.utils.utils import (
     DATASET_PATH,
     MODELS_PATH,
     DeviceDataLoader,
