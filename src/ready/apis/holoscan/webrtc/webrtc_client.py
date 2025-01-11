@@ -19,14 +19,253 @@ import json
 import logging
 import os
 import ssl
-from threading import Thread
+from threading import Condition, Event, Thread
 
+import cupy as cp
 import holoscan
 from aiohttp import web
-from holoscan.core import Tracker
-from operators.webrtc_client.webrtc_client_op import WebRTCClientOp
+from aiortc import RTCPeerConnection, RTCSessionDescription
+from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
+from holoscan import as_tensor
+from holoscan.core import Application, Operator, OperatorSpec, Tracker
+from holoscan.gxf import Entity
+from holoscan.operators import HolovizOp
+from holoscan.resources import CudaStreamPool, UnboundedAllocator
 
 ROOT = os.path.dirname(__file__)
+
+
+class InfoOp(Operator):
+    """
+    Information Operator
+
+    Input:
+        in: source_video
+
+    Output:
+        out: 'dynamic_text': array([[ x_coord, y_coord, font_size)  ])
+        output_specs: holoscan.operators.holoviz._holoviz.HolovizOp.InputSpec object
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Initialize Operator"""
+        self.frame_count = 1
+        super().__init__(*args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        """Setting up specifications of Operator"""
+        spec.input("in")
+        spec.output("out")
+        spec.output("output_specs")
+
+    def compute(self, op_input, op_output, context):
+        """Computing method to receive input message and emit output message"""
+        print(f"---------- InfoOp  ------------")
+        in_message = op_input.receive("in")
+        print(f"in_message={in_message}")
+        tensor = cp.asarray(in_message.get("frame"))
+        print(f"tensor.shape={tensor.shape}")
+        print(f"tensor.min()={cp.min(tensor)}")
+        print(f"tensor.max()={cp.max(tensor)}")
+        print(f"tensor.mean()={cp.mean(tensor)}")
+        # tensor_without_alpha = tensor[:, :, :3]
+        # print(f"tensor_without_alpha.shape={tensor_without_alpha.shape}")
+        # print(f"tensor_without_alpha.min()={cp.min(tensor_without_alpha)}")
+        # print(f"tensor_without_alpha.max()={cp.max(tensor_without_alpha)}")
+        # print(f"tensor_without_alpha.mean()={cp.mean(tensor_without_alpha)}")
+
+        dynamic_text = cp.asarray(
+            [
+                (0.01, 0.01, 0.035),  # (x, y, font_size)
+            ],
+        )
+        out_message = {
+            "dynamic_text": dynamic_text,
+        }
+        print(f"out_message: {out_message}")
+        op_output.emit(out_message, "out")
+
+        specs = []
+        spec = HolovizOp.InputSpec("dynamic_text", HolovizOp.InputType.TEXT)
+        view = HolovizOp.InputSpec.View()
+        view.offset_x = 0.0
+        view.offset_y = 0.0
+        view.width = 1.25
+        view.height = 1.25
+
+        spec.text = [
+            "Frame "
+            + str(self.frame_count)
+            + " tensor.min()="
+            + str(cp.min(tensor))
+            + " tensor.max()="
+            + str(cp.max(tensor))
+            + " tensor.mean()="
+            + str(cp.mean(tensor))
+        ]
+        spec.color = [
+            1,
+            1,
+            1,
+            0.99,
+        ]
+
+        spec.views = [view]
+        specs.append(spec)
+        print(f"specs: {specs}")
+        op_output.emit(specs, "output_specs")
+
+        self.frame_count += 1
+
+
+
+class VideoStreamReceiverContext:
+    def __init__(self):
+        self.task = None
+
+
+class VideoStreamReceiver:
+    """
+    Video Stream Receiver
+    https://github.com/nvidia-holoscan/holohub/blob/main/operators/webrtc_client/webrtc_client_op.py
+    """
+    def __init__(self, video_frame_available: Condition, video_frames: list):
+        self._video_frame_available = video_frame_available
+        self._video_frames = video_frames
+        self._receiver_contexts = {}
+
+    def add_track(self, track: MediaStreamTrack):
+        context = VideoStreamReceiverContext()
+        context.task = asyncio.ensure_future(self._run_track(track, context))
+        self._receiver_contexts[track] = context
+
+    def remove_track(self, track: MediaStreamTrack):
+        context = self._receiver_contexts[track]
+        if context:
+            if context.task is not None:
+                context.task.cancel()
+                context.task = None
+            self._receiver_contexts.pop(track)
+
+    async def stop(self):
+        for context in self._receiver_contexts:
+            if context.task is not None:
+                context.task.cancel()
+                context.task = None
+        self._receiver_contexts.clear()
+
+    async def _run_track(self, track: MediaStreamTrack, context: VideoStreamReceiverContext):
+        while True:
+            try:
+                frame = await track.recv()
+            except MediaStreamError:
+                return
+
+            with self._video_frame_available:
+                self._video_frames.append(frame)
+                self._video_frame_available.notify_all()
+
+
+class WebRTCClientOp(Operator):
+    """
+    WebRTC Client Operator
+    The webrtc_client operator receives video frames through a WebRTC connection.
+    The application using this operator needs to call the offer method of the operator when a new WebRTC connection is available.
+
+    Methods
+
+    Start a connection between the local computer and the peer.
+    async def offer(self, sdp, type) -> (local_sdp, local_type)
+
+    Parameters
+        sdp peer Session Description Protocol object
+        type peer session type
+        Return values
+
+        sdp local Session Description Protocol object
+        type local session type
+
+    Outputs
+        output: Tensor with 8 bit per component RGB data
+        type: Tensor
+
+    https://github.com/nvidia-holoscan/holohub/blob/main/operators/webrtc_client/webrtc_client_op.py
+    """
+    def __init__(self, *args, **kwargs):
+        self._connected = False
+        self._connected_event = Event()
+        self._video_frame_available = Condition()
+        self._video_frames = []
+        self._pcs = set()
+        self._receiver = VideoStreamReceiver(self._video_frame_available, self._video_frames)
+        super().__init__(*args, **kwargs)
+
+    async def offer(self, sdp, type):
+        offer = RTCSessionDescription(sdp, type)
+
+        pc = RTCPeerConnection()
+        self._pcs.add(pc)
+
+        @pc.on("connectionstatechange")
+        async def on_connectionstatechange():
+            logging.info(f"Connection state {pc.connectionState}")
+            if pc.connectionState == "connected":
+                self._connected = True
+                self._connected_event.set()
+            elif pc.connectionState == "failed":
+                await pc.close()
+                self._pcs.discard(pc)
+                self._connected = False
+                self._connected_event.set()
+
+        @pc.on("track")
+        def on_track(track):
+            if track.kind == "video":
+                self._receiver.add_track(track)
+
+            @track.on("ended")
+            async def on_ended():
+                self._receiver.remove_track(track)
+
+        # handle offer
+        await pc.setRemoteDescription(offer)
+
+        # send answer
+        answer = await pc.createAnswer()
+        await pc.setLocalDescription(answer)
+
+        return (pc.localDescription.sdp, pc.localDescription.type)
+
+    async def shutdown(self):
+        # close peer connections
+        coros = [pc.close() for pc in self._pcs]
+        await asyncio.gather(*coros)
+        self._pcs.clear()
+
+    def setup(self, spec: OperatorSpec):
+        spec.output("output")
+
+    def start(self):
+        self._connected_event.wait()
+        if not self._connected:
+            exit(-1)
+
+    def stop(self):
+        self._receiver.stop()
+
+    def compute(self, op_input, op_output, context):
+        video_frame = None
+        with self._video_frame_available:
+            while not self._video_frames:
+                self._video_frame_available.wait()
+            video_frame = self._video_frames.pop(0)
+
+        rgb_frame = video_frame.to_rgb()
+        array = rgb_frame.to_ndarray()
+
+        entity = Entity(context)
+        entity.add(as_tensor(array), "frame")
+        op_output.emit(entity, "output")
 
 
 class WebAppThread(Thread):
@@ -81,31 +320,52 @@ class WebAppThread(Thread):
         loop.run_forever()
 
 
-class WebRTCClientApp(holoscan.core.Application):
+class WebRTCClientApp(Application):
     def __init__(self, cmdline_args):
         super().__init__()
         self._cmdline_args = cmdline_args
 
     def compose(self):
+        cuda_stream_pool = CudaStreamPool(
+            self,
+            name="cuda_stream_pool",
+            dev_id=0,
+            stream_flags=0,
+            stream_priority=0,
+            reserved_size=1,
+            max_size=5,
+        )
+        host_allocator = UnboundedAllocator(self, name="host_allocator")
+
         webrtc_client = WebRTCClientOp(self, name="WebRTC Client")
-        video_sink = holoscan.operators.HolovizOp(
+        visualizer_sink = HolovizOp(
             self,
             name="Video Sink",
             window_title="WebRTC Client",
             width=640, #TODO pass this as a width and height from index.html video-resolution
             height=480,
-            cuda_stream_pool=holoscan.resources.CudaStreamPool(
-                self,
-                name="cuda_stream_pool",
-                dev_id=0,
-                stream_flags=0,
-                stream_priority=0,
-                reserved_size=1,
-                max_size=5,
-            ),
+            cuda_stream_pool=cuda_stream_pool,
+            # tensors=[
+            #     dict(
+            #         name="dynamic_text",
+            #         type="text",
+            #         opacity=1.0,
+            #         color=[1.0, 1.0, 1.0, 1.0],
+            #         text=["dynamic_text"],
+            #     ),
+            # ],
+        )
+        info_op = InfoOp(
+            self,
+            name="info_op",
+            allocator=host_allocator,
         )
 
-        self.add_flow(webrtc_client, video_sink, {("output", "receivers")})
+        self.add_flow(webrtc_client, visualizer_sink, {("output", "receivers")})
+        self.add_flow(webrtc_client, info_op, {("", "in")})
+        self.add_flow(info_op, visualizer_sink, {("out", "receivers")})
+        self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
+
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established

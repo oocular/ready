@@ -48,8 +48,8 @@ clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10
 
 * On dev container
 ```
-cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
-python v4l2_camera.py
+cd /workspace/volumes/ready/scripts/apis #cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
+bash v4l2_cam.bash
 ```
 
 * On local device host
@@ -82,7 +82,7 @@ vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 * Launching `webrtc_video_client`
 ```
 cd /workspace/volumes/ready/scripts/apis
-bash webrtc.bash
+bash webrtc.bash LOCAL #PUBLIC
 ```
 
 * Open browser
