@@ -55,7 +55,7 @@ class InfoOp(Operator):
     def setup(self, spec: OperatorSpec):
         """Setting up specifications of Operator"""
         spec.input("in")
-        spec.output("out")
+        spec.output("outputs")
         spec.output("output_specs")
 
     def compute(self, op_input, op_output, context):
@@ -68,25 +68,20 @@ class InfoOp(Operator):
         print(f"tensor.min()={cp.min(tensor)}")
         print(f"tensor.max()={cp.max(tensor)}")
         print(f"tensor.mean()={cp.mean(tensor)}")
-        # tensor_without_alpha = tensor[:, :, :3]
-        # print(f"tensor_without_alpha.shape={tensor_without_alpha.shape}")
-        # print(f"tensor_without_alpha.min()={cp.min(tensor_without_alpha)}")
-        # print(f"tensor_without_alpha.max()={cp.max(tensor_without_alpha)}")
-        # print(f"tensor_without_alpha.mean()={cp.mean(tensor_without_alpha)}")
 
-        dynamic_text = cp.asarray(
+        dynamic_text_coord = cp.asarray(
             [
                 (0.01, 0.01, 0.035),  # (x, y, font_size)
             ],
         )
         out_message = {
-            "dynamic_text": dynamic_text,
+            "dynamic_text_coord": dynamic_text_coord,
         }
         print(f"out_message: {out_message}")
-        op_output.emit(out_message, "out")
+        op_output.emit(out_message, "outputs")
 
         specs = []
-        spec = HolovizOp.InputSpec("dynamic_text", HolovizOp.InputType.TEXT)
+        spec = HolovizOp.InputSpec("dynamic_text_coord", HolovizOp.InputType.TEXT)
         view = HolovizOp.InputSpec.View()
         view.offset_x = 0.0
         view.offset_y = 0.0
@@ -363,7 +358,7 @@ class WebRTCClientApp(Application):
 
         self.add_flow(webrtc_client, visualizer_sink, {("output", "receivers")})
         self.add_flow(webrtc_client, info_op, {("", "in")})
-        self.add_flow(info_op, visualizer_sink, {("out", "receivers")})
+        self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
         self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
 
 
