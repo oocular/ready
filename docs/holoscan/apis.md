@@ -78,8 +78,25 @@ cd $HOME/repositories/ready/src/ready/apis/holoscan/bring_your_own_model/python
 vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
-## WebRTC Video Client
-* Launching `webrtc_video_client`
+## WebRTC Video Client [:link:](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client)
+
+* Graph structure for [webrtc_client.py](../../src/ready/apis/holoscan/webrtc/webrtc_client.py)
+```mermaid
+flowchart LR
+    subgraph Server
+        WebRTCClientOp --> HolovizOp
+        WebRTCClientOp --> InfoOp
+        InfoOp --> HolovizOp
+        WebServer
+    end
+    subgraph Client
+        Webcam --> Browser
+        Browser <--> WebRTCClientOp
+        Browser <--> WebServer
+    end
+```
+
+* Launching `webrtc_client`
 ```
 cd /workspace/volumes/ready/scripts/apis
 bash webrtc.bash LOCAL #PUBLIC

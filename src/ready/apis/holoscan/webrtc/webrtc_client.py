@@ -49,7 +49,7 @@ class InfoOp(Operator):
 
     def __init__(self, *args, **kwargs):
         """Initialize Operator"""
-        self.frame_count = 1
+        self.frame_count = 0
         super().__init__(*args, **kwargs)
 
     def setup(self, spec: OperatorSpec):
@@ -63,6 +63,7 @@ class InfoOp(Operator):
         print(f"---------- InfoOp  ------------")
         in_message = op_input.receive("in")
         print(f"in_message={in_message}")
+        print(f"frame count={self.frame_count}")
         tensor = cp.asarray(in_message.get("frame"))
         print(f"tensor.shape={tensor.shape}")
         print(f"tensor.min()={cp.min(tensor)}")
@@ -271,7 +272,7 @@ class WebAppThread(Thread):
         self._port = port
 
         if cert_file:
-            self._ssl_context = ssl.SSLContext()
+            self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             self._ssl_context.load_cert_chain(cert_file, key_file)
         else:
             self._ssl_context = None
