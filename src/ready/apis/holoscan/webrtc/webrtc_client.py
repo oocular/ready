@@ -343,6 +343,13 @@ class WebRTCClientApp(Application):
             height=480,
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
+                dict(
+                    name="frame",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
             ],
         )
         info_op = InfoOp(
