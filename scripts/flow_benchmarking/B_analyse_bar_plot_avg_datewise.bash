@@ -19,8 +19,8 @@ python src/ready/apis/holoscan/utils/analyze.py --stddev -m -a --save-csv --draw
 
 
 mv avg_values.csv $PATHLOG && mv stddev_values.csv $PATHLOG && mv max_values.csv $PATHLOG
-mv cdf_curve.png $PATHLOG/cdf_curve_$LOGF01.png 
-#rm avg_values.csv max_values.csv stddev_values.csv  
+mv cdf_curve.png $PATHLOG/cdf_curve_$LOGF01.png
+#rm avg_values.csv max_values.csv stddev_values.csv
 
 
 ###for two logs
@@ -31,5 +31,3 @@ mv avg_* $PATHLOG/avg_plot_$LOGF01.png
 #$PATHLOG/avg_values_$LOGF02.csv \
 #$PATHLOG/stddev_values_$LOGF01.csv \
 #$PATHLOG/stddev_values_$LOGF02.csv
-
-

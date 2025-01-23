@@ -8,4 +8,3 @@ cd $SCRIPT_PATH/../../
 source .venv/bin/activate #To activate the virtual environment
 
 python src/ready/apis/holoscan/utils/app_perf_graph.py -o live_app_graph.dot -l $PATHLOGS
-

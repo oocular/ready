@@ -11,4 +11,3 @@ source .venv/bin/activate #To activate the virtual environment
 
 python src/ready/apis/holoscan/utils/analyze.py -g $PATHLOG/$LOGFILENAME.log group_$LOGFILENAME --stddev -m -a --save-csv
 mv avg_values.csv $PATHLOG/avg_values_$LOGFILENAME.csv && mv stddev_values.csv $PATHLOG/stddev_values_$LOGFILENAME.csv && mv max_values.csv $PATHLOG/max_values_$LOGFILENAME.csv
-

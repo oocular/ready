@@ -105,6 +105,7 @@ class InfoOp(Operator):
             1,
             0.99,
         ]
+        spec.priority = 1
 
         spec.views = [view]
         specs.append(spec)
@@ -341,15 +342,8 @@ class WebRTCClientApp(Application):
             width=640, #TODO pass this as a width and height from index.html video-resolution
             height=480,
             cuda_stream_pool=cuda_stream_pool,
-            # tensors=[
-            #     dict(
-            #         name="dynamic_text",
-            #         type="text",
-            #         opacity=1.0,
-            #         color=[1.0, 1.0, 1.0, 1.0],
-            #         text=["dynamic_text"],
-            #     ),
-            # ],
+            tensors=[
+            ],
         )
         info_op = InfoOp(
             self,
