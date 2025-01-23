@@ -34,3 +34,13 @@ logger.log
 MyCertificate.crt
 MyKey.key
 data/mobious/models/loss_values_**
+
+## flow_benchmarking
+**avg_values**.csv
+**max_values**.csv
+**stddev_values**.csv
+**logger**.log
+**cdf_curve**.png
+**avg_values**.png
+**avg_plot_**.png
+**live_app_graph**.dot

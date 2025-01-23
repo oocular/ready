@@ -27,6 +27,7 @@ dependencies = [
     "loguru",
     "omegaconf",
     "scikit-learn",
+    "pydot",
 ]
 [project.optional-dependencies]
 # development dependency groups

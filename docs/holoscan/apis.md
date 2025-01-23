@@ -99,7 +99,7 @@ flowchart LR
 * Launching `webrtc_client`
 ```
 cd /workspace/volumes/ready/scripts/apis
-bash webrtc.bash LOCAL #PUBLIC
+bash webrtc.bash LOCAL logger_name.log #PUBLIC
 ```
 
 * Open browser
