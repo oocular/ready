@@ -3,14 +3,15 @@ python rois.py
 https://pyimagesearch.com/2017/04/10/detect-eyes-nose-lips-jaw-dlib-opencv-python/
 https://github.com/PyImageSearch/imutils/blob/master/imutils/face_utils/helpers.py
 """
+import argparse
 import os
 import time
-import numpy as np
-import argparse
-import dlib
-import cv2
 from collections import OrderedDict
 from pathlib import Path
+
+import cv2
+import dlib
+import numpy as np
 from omegaconf import OmegaConf
 
 parser = argparse.ArgumentParser()
@@ -99,7 +100,7 @@ while True:
                 roi0 = frame[y_rect:y_rect + h + threshold, x_rect:x_rect + w + threshold]
                 roi0 = cv2.resize(roi0, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
                 cv2.imshow("ROI_rigtheye", roi0)
-    
+
             if name == "left_eye":
                 for (x,y) in shape[i:j]:
                     cv2.circle(clone, (x,y), 1, (0,0,255),-1)
@@ -124,4 +125,3 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         print("q pressed")
         break
-
