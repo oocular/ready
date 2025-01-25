@@ -1,0 +1,6 @@
+##path to facial landmark predictor
+
+datapath: "datasets/ready/facelandmarks"
+shape_predictor: "shape_predictor_68_face_landmarks.dat"
+#shape_predictor: "shape_predictor_81_face_landmarks.dat"
+

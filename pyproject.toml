@@ -28,6 +28,8 @@ dependencies = [
     "omegaconf",
     "scikit-learn",
     "pydot",
+    "opencv-pytho",
+    "dlib",
 ]
 [project.optional-dependencies]
 # development dependency groups
