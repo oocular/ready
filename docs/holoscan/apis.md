@@ -48,8 +48,8 @@ clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10
 
 * On dev container
 ```
-cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
-python v4l2_camera.py
+cd /workspace/volumes/ready/scripts/apis #cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
+bash v4l2_cam.bash
 ```
 
 * On local device host
@@ -78,6 +78,47 @@ cd $HOME/repositories/ready/src/ready/apis/holoscan/bring_your_own_model/python
 vim -O byom.py byom.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
+## WebRTC Video Client [:link:](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client)
+
+* Graph structure for [webrtc_client.py](../../src/ready/apis/holoscan/webrtc/webrtc_client.py)
+```mermaid
+flowchart LR
+    subgraph Server
+        WebRTCClientOp --> HolovizOp
+        WebRTCClientOp --> InfoOp
+        InfoOp --> HolovizOp
+        WebServer
+    end
+    subgraph Client
+        Webcam --> Browser
+        Browser <--> WebRTCClientOp
+        Browser <--> WebServer
+    end
+```
+
+* Launching `webrtc_client`
+```
+cd /workspace/volumes/ready/scripts/apis
+bash webrtc.bash LOCAL logger_name.log #PUBLIC
+```
+
+* Open browser
+```
+firefox http://127.0.0.1:8080/
+```
+
+* Conneting from a different machine
+```
+export PYTHONPATH=${PYTHONPATH}:/workspace/holohub
+cd /workspace/volumes/ready/src/ready/apis/holoscan/webrtc
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key #just pressed enter
+python webrtc_client.py --cert-file MyCertificate.crt --key-file MyKey.key
+```
+* Go to `chrome://flags`, search for the flag `unsafely-treat-insecure-origin-as-secure`, enter the origin you want to treat as secure such as `http://{YOUR HOST IP}:8080`, enable the feature and relaunch the browser.
+See further details [here](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client)
+
+* video-resolution: 320x240, 640x480, 960x540, 1280x720, 1920x1080
+* video-codec: VP8, H264
 
 ## References
 * Visit the [SDK User Guide](https://docs.nvidia.com/holoscan/sdk-user-guide/examples/byom.html) for step-by-step documentation of this example.
