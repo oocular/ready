@@ -24,17 +24,16 @@ DATA_PATH = config.datapath
 PREDICTOR = config.shape_predictor
 FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
 
+#loop over all facial landmarks and convert them to a 2-tuple of (x, y)-coordinates
 def shape_to_np(shape, dtype="int"):
-	# initialize the list of (x, y)-coordinates
-	coords = np.zeros((shape.num_parts, 2), dtype=dtype)
+	xycoords = np.zeros((shape.num_parts, 2), dtype=dtype)
 
 	# loop over all facial landmarks and convert them
 	# to a 2-tuple of (x, y)-coordinates
 	for i in range(0, shape.num_parts):
-		coords[i] = (shape.part(i).x, shape.part(i).y)
+		xycoords[i] = (shape.part(i).x, shape.part(i).y)
 
-	# return the list of (x, y)-coordinates
-	return coords
+	return xycoords
 
 # define a dictionary that maps the indexes of the facial
 # landmarks to specific face regions
@@ -50,20 +49,19 @@ FACIAL_LANDMARKS_IDXS = OrderedDict([
 ])
 
 
-# initialize dlib's face detector (HOG-based) and then create
-# the facial landmark predictor
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor(FULL_DATA_PATH+"/"+PREDICTOR)
+detector = dlib.get_frontal_face_detector() # dlib's face detector (HOG-based)
+predictor = dlib.shape_predictor(FULL_DATA_PATH+"/"+PREDICTOR) # the facial landmark predictor
 
-# initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
 vs = cv2.VideoCapture(0)
 # time.sleep(2.0)
 
-
 # frame_i=0
 new_width, new_height = 600, 480
-threshold=0
+threshold_x_rect=-5
+threshold_y_rect=-5
+threshold_hight=10
+threshold_width=10
 
 while True:
     # grab the frame from the threaded video stream, resize it to
@@ -94,20 +92,27 @@ while True:
                 for (x,y) in shape[i:j]:
                     cv2.circle(clone, (x,y), 1, (0,0,255),-1)
                 # print(f"np.array([shape: {np.array([shape[i:j]])}")
-                (x_rect, y_rect, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
                 # (x_cir,y_cir),radius = cv2.minEnclosingCircle(np.array([shape[i:j]]))
-                # print(x_rect, int(x_cir), y_rect, int(y_cir))
-                roi0 = frame[y_rect:y_rect + h + threshold, x_rect:x_rect + w + threshold]
+                (x_rect, y_rect, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
+                x_rect = x_rect + threshold_x_rect
+                y_rect = y_rect + threshold_y_rect
+                roi0 = frame[y_rect:y_rect + h + threshold_hight, x_rect:x_rect + w + threshold_width]
+                # print(x_rect, y_rect, int(x_cir), int(y_cir), int(radius))
+
                 roi0 = cv2.resize(roi0, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
                 cv2.imshow("ROI_rigtheye", roi0)
 
             if name == "left_eye":
                 for (x,y) in shape[i:j]:
                     cv2.circle(clone, (x,y), 1, (0,0,255),-1)
-                (x, y, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
-                roi1 = frame[y:y + h, x:x + w]
+                (x_rect, y_rect, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
+                x_rect = x_rect + threshold_x_rect
+                y_rect = y_rect + threshold_y_rect
+                # roi1 = frame[y:y + h, x:x + w]
+                roi1 = frame[y_rect:y_rect + h + threshold_hight, x_rect:x_rect + w + threshold_width]
+
                 roi1 = cv2.resize(roi1, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
-                cv2.imshow("ROI_left_eye", roi1)
+                cv2.imshow("ROI_lefteye", roi1)
 
 
         # # loop over the (x, y)-coordinates for the facial landmarks
@@ -120,7 +125,7 @@ while True:
 
     # print(f"frame: {frame_i}")
     # frame_i = frame_i + 1
-    # show the frame
+
     cv2.imshow("Frame", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         print("q pressed")
