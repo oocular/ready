@@ -8,6 +8,16 @@
 source .venv/bin/activate #To activate the virtual environment:
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
+* Prototyping unetvit
+```
+# test dataset
+pytest -vs tests/test_unetvit.py::test_segDataset
+# train, optimise and test inference
+python src/ready/apis/train_unetvit.py
+python src/ready/apis/pytorch2onnx.py -i <model_name>.pth
+pytest -vs tests/test_unetvit.py::test_inference
+```
+
 ### Train models in server
 * train/debug unet with openEDS 
 ```

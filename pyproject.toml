@@ -28,6 +28,9 @@ dependencies = [
     "omegaconf",
     "scikit-learn",
     "pydot",
+    "scipy",
+    "opencv-python-headless",
+    "pillow",
 ]
 [project.optional-dependencies]
 # development dependency groups
@@ -42,6 +45,7 @@ test = [
 learning = [
     "torch", #2.4.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
     "torchvision", #0.19.1 local
+    "einops", #
 ]
 model_optimisation = [
     "onnx", #1.16.2  local
