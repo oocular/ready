@@ -4,6 +4,7 @@ convert pytorch to onnx model
 
 import os
 from argparse import ArgumentParser
+from pathlib import Path
 
 import onnx
 import torch
@@ -11,11 +12,10 @@ import torch.nn as nn
 import torch.onnx
 from loguru import logger
 from onnxsim import simplify
-from pathlib import Path
 
 from src.ready.models.unetvit import UNetViT
-from src.ready.utils.utils import get_default_device
 from src.ready.utils.helpers import export_model
+from src.ready.utils.utils import get_default_device
 
 
 def main(input_model_name):

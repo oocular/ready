@@ -1,0 +1,3 @@
+ABS_DATA_PATH: "Desktop/nystagmus-tracking/datasets/mobious/MOBIOUS/images-masks"
+# ABS_DATA_PATH: "data/test-samples/MOBIUS"
+# ABS_DATA_PATH: "data/mobious/sample-frames/test640x400"

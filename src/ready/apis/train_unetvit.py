@@ -19,7 +19,8 @@ from torch.autograd import Variable
 
 from src.ready.models.unetvit import UNetViT
 from src.ready.utils.datasets import segDataset
-from src.ready.utils.utils import get_default_device, DeviceDataLoader, precision, recall, acc
+from src.ready.utils.utils import (DeviceDataLoader, acc, get_default_device,
+                                   precision, recall)
 
 # paths for full dataset
 # MAIN_DATASET_PATH = str(Path.home()) + "/datasets/unetvit"

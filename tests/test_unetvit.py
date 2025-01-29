@@ -1,57 +1,60 @@
+import glob
+import os
+from pathlib import Path
+from random import randrange
+
 import matplotlib.pyplot as plt
 import numpy as np
 import onnxruntime
 import torch
 import torchvision.transforms as transforms
+import yaml
 from loguru import logger
-from pathlib import Path
+from PIL import Image
+from torch.utils.data import Dataset
 
 from ready.models.unetvit import UNetViT
-from ready.utils.datasets import segDataset
-from ready.utils.utils import (
-    DATASET_PATH,
-    MODELS_PATH,
-    DeviceDataLoader,
-    get_default_device,
-    precision,
-    recall,
-)
+from ready.utils.datasets import MOBIOUSDataset_unetvit
+from ready.utils.utils import (DATASET_PATH, MODELS_PATH, DeviceDataLoader,
+                               get_default_device, precision, recall)
 
+with open(str(Path().absolute())+"/tests/config_test.yml", "r") as file:
+    config_yaml = yaml.load(file, Loader=yaml.FullLoader)
 
-def test_segDataset():
+def test_MOBIOUSDataset_unetvit():
     """
-    Test segDataset class
-    pytest -vs tests/test_unetvit.py::test_segDataset
-
-    References
-    https://www.youtube.com/watch?v=jvZm8REF2KY
-
+    Test MOBIOUSDataset_unetvit class
+    pytest -vs tests/test_unetvit.py::test_MOBIOUSDataset_unetvit
     """
+    # Define transforms - note we do ToTensor in the dataset class
     color_shift = transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)
     blurriness = transforms.GaussianBlur(3, sigma=(0.1, 2.0))
-    t = transforms.Compose([color_shift, blurriness])
+    resize = transforms.Resize((512, 512))  # Standard size for UNet-ViT
+    t = transforms.Compose([resize, color_shift, blurriness])
 
-    CURRENT_PWD = Path().absolute()
-    DATASET_PATH = str(CURRENT_PWD) + "/data/test-samples/semantic-segmentation-aerial-imagery"
+    DATASET_PATH = os.path.join(str(Path.home()), config_yaml['ABS_DATA_PATH'])
 
-    dataset = segDataset(DATASET_PATH, training=True, transform=t)
-    single_set = dataset[0]
+    # Use the new dataset class
+    dataset = MOBIOUSDataset_unetvit(DATASET_PATH, training=True, transform=t)
+    single_set = dataset[ randrange(len(dataset)) ]
 
+    # Print detailed shape information
     logger.info(f"")
     logger.info(f"len(dataset) : {len(dataset)}")
-    logger.info(f"len(single_set) : {len(single_set)}")
     logger.info(f"single_set[0].shape (IMAGE): {single_set[0].shape}")
-    logger.info(f"single_set[1].shape (MASK) : {single_set[1].shape}")
+    logger.info(f"single_set[1].shape (MASK): {single_set[1].shape}")
+    logger.info(f"Mask unique values: {torch.unique(single_set[1])}")
+    logger.info(f"Mask dtype: {single_set[1].dtype}")
 
     assert single_set[0].shape == (
         3,
         512,
         512,
-    ), f"Expected image shape (3, 512, 512), but got {d[0].shape}"
+    ), f"Expected image shape (3, 512, 512), but got {single_set[0].shape}"
     assert single_set[1].shape == (
         512,
         512,
-    ), f"Expected mask shape (512, 512), but got {d[1].shape}"
+    ), f"Expected mask shape (512, 512), but got {single_set[1].shape}"
 
     # plot image and mask
     plt.figure(figsize=(15, 15))
@@ -66,22 +69,22 @@ def test_segDataset():
 
 def test_inference():
     """
-    Test inference
+    Test inference with MOBIOUS dataset
     pytest -vs tests/test_unetvit.py::test_inference
     """
-    CURRENT_PWD = Path().absolute()
-    DATASET_PATH = str(CURRENT_PWD) + "/data/test-samples/semantic-segmentation-aerial-imagery"
-    MODELS_PATH = DATASET_PATH + "/models"
+    DATASET_PATH = os.path.join(str(Path.home()), config_yaml['ABS_DATA_PATH'])
+    MODELS_PATH = DATASET_PATH + "/models" #TODO add an absolute model path
 
     device = get_default_device()
 
     color_shift = transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)
     blurriness = transforms.GaussianBlur(3, sigma=(0.1, 2.0))
-    t = transforms.Compose([color_shift, blurriness])
-    dataset = segDataset(DATASET_PATH, training=True, transform=t)
+    resize = transforms.Resize((512, 512))
+    t = transforms.Compose([resize, color_shift, blurriness])
+
+    dataset = MOBIOUSDataset_unetvit(DATASET_PATH, training=True, transform=t)
 
     test_num = int(0.1 * len(dataset))
-    # print(f'test data : {test_num}')#7
 
     train_dataset, test_dataset = torch.utils.data.random_split(
         dataset,
@@ -89,26 +92,24 @@ def test_inference():
         generator=torch.Generator().manual_seed(101),
     )
 
-    BACH_SIZE = 4
+    BATCH_SIZE = 4
     train_dataloader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=BACH_SIZE, shuffle=True, num_workers=0
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0
     )
 
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=BACH_SIZE, shuffle=False, num_workers=0
+        test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0
     )
 
     train_dataloader = DeviceDataLoader(train_dataloader, device)
     test_dataloader = DeviceDataLoader(test_dataloader, device)
 
-    assert (
-        len(test_dataloader) == 1
-    ), f"Expected 1 batches, but got {len(test_dataloader)}"
-    assert (
-        len(train_dataloader) == 5
-    ), f"Expected 5 batches, but got {len(train_dataloader)}"
+    logger.info(f"Number of test batches: {len(test_dataloader)}")
+    logger.info(f"Number of train batches: {len(train_dataloader)}")
 
-    #TODO: Add argument to select model (https://stackoverflow.com/questions/40880259/)
+    #########################
+    ###  TOTEST below lines
+    #########################
     input_model_name = "unetvit_epochs_0_valloss_2.07737.pth"
     model_name = input_model_name[:-4]
     model = UNetViT(n_channels=3, n_classes=6, bilinear=True).to(device)
@@ -121,7 +122,6 @@ def test_inference():
         onnx_checkpoint_path, providers=["CPUExecutionProvider"]
     )
 
-    # UserWarning: Specified provider 'CUDAExecutionProvider' is not in available
     def to_numpy(tensor):
         return (
             tensor.detach().cpu().numpy()
@@ -129,7 +129,6 @@ def test_inference():
             else tensor.cpu().numpy()
         )
 
-    # TODO: Add condition to plot this section
     for i, (image_batch, ground_truth_masks) in enumerate(test_dataloader):
         for batch_j in range(len(image_batch)):
             image_batch_j = image_batch[batch_j : batch_j + 1]
@@ -153,11 +152,6 @@ def test_inference():
             plt.figure(figsize=(12, 12))
 
             plt.subplot(1, 4, 1)
-            im = (
-                np.moveaxis(image_batch[batch_j].cpu().detach().numpy(), 0, -1).copy()
-                * 255
-            )
-            im = im.astype(int)
             plt.imshow(im)
             plt.title("image")
 

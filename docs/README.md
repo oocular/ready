@@ -8,21 +8,29 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ## Create venv
 ```
 uv venv --python 3.12 # Create a virtual environment at .venv.
+```
+
+## Acvivate venv
+```
 source .venv/bin/activate #To activate the virtual environment:
 deactivate
-
-#uv venv 2nd_env --python 3.13 #create with a diff python version
-#rm -rf 2nd_env #to remove 2nd_env
 ```
 
 ## Install python package deps
 ```
 uv pip install --editable . # Install the package in editable mode
-uv pip install .[test]
-uv pip install .[learning]
-uv pip install .[model_optimisation]
+uv pip install ."[test]"
+uv pip install ."[learning]"
+uv pip install ."[model_optimisation]"
 uv pip install -e ".[test,learning,model_optimisation]" # Install the package in editable mode
 #uv pip uninstall ready
+```
+
+## Clean up any existing installation and reinstall:
+```
+uv pip uninstall ready
+uv pip install -e ".[test,learning]"
+>>>>>>> bea6bb1 (solve conflict)
 ```
 
 ## Debugging
@@ -47,6 +55,7 @@ python -m pytest -v -s tests/test_data_paths.py::test_tif_with_matplotlib
 ## Pre-commit
 ```
 pre-commit run -a
+# SKIP=pylint pre-commit run --all-files
 ```
 
 
@@ -61,6 +70,12 @@ pre-commit run -a
 
 
 ## References
+
+### uv
+```
+uv venv 2nd_env --python 3.13 #create with a diff python version
+rm -rf 2nd_env #to remove 2nd_env
+```
 
 ### Code
 
