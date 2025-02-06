@@ -40,5 +40,5 @@ See more demos [here](docs/README.md#demos)
 * Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 * Clone the repository by typing (or copying) the following lines in a terminal
 ```
-git clone git@github.com:UCL/ready.git
+git clone git@github.com:oocular/ready.git
 ```
