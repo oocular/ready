@@ -55,21 +55,22 @@ git push origin ISSUENUMBER-branch-name
 It is recommended that you use [Squashing and merging a long-running branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squashing-and-merging-a-long-running-branch).
 Otherwise, you have the option to rebase your `{ISSUE_NUMBER-FEATURE_BRANCH_NAME}` branch with the base branch (e.g. `main`).
 ```
+## MERGING using merge main
+git fetch
+git merge main
+git push origin ISSUE_NUMBER_FEATURE_BRANCH
+## MERGING using rebase
 git checkout main
 git pull origin main
 git checkout ISSUE_NUMBER_FEATURE_BRANCH #(e.g. git checkout 422-my-feature-branch)
 git fetch
 git rebase main
-## RESOLVE CONFLICTS IN THE TERMINAL
+## RESOLVING CONFLICTS IN THE TERMINAL
 # git status
 # edit conflicting files with `vim` editor
 # git add .
 # git rebase --continue
 git push --force origin ISSUE_NUMBER_FEATURE_BRANCH
-## JUST MERGE changes from main
-git fetch
-git merge main
-git push origin ISSUE_NUMBER_FEATURE_BRANCH
 ## OTHER COMMANDS
 git push --force origin ISSUE_NUMBER_FEATURE_BRANCH
 git pull --rebase origin ISSUE_NUMBER_FEATURE_BRANCH
