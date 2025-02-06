@@ -9,11 +9,11 @@ Please note we have a [code of conduct](CODE_OF_CONDUCT.md), please follow it in
 1. Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 2. Clone the repository by typing (or copying) the following lines in a terminal
 ```
-git clone git@github.com:UCL/ready.git
+git clone git@github.com:oocular/ready.git
 ```
 
 ## New issues
-* Open an issue (bug report, feature request, or something is not working): https://github.com/UCL/ready/issues/new/choose
+* Open an issue (bug report, feature request, or something is not working): https://github.com/oocular/ready/issues/new/choose
 * Workflow for issue management 
 ```mermaid
   flowchart TD;
@@ -33,7 +33,7 @@ Alternatively, you can use the features of your integrated development environme
 
 1. Clone this repo 
 ```
-git clone git@github.com:UCL/ready.git
+git clone git@github.com:oocular/ready.git
 ``` 
 2. Create new branch `{FEATURE_BRANCH_NAME}` using issue number `{ISSUE_NUMBER}`
 ```
@@ -55,21 +55,22 @@ git push origin ISSUENUMBER-branch-name
 It is recommended that you use [Squashing and merging a long-running branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squashing-and-merging-a-long-running-branch).
 Otherwise, you have the option to rebase your `{ISSUE_NUMBER-FEATURE_BRANCH_NAME}` branch with the base branch (e.g. `main`).
 ```
+## MERGING using merge main
+git fetch
+git merge main
+git push origin ISSUE_NUMBER_FEATURE_BRANCH
+## MERGING using rebase
 git checkout main
 git pull origin main
 git checkout ISSUE_NUMBER_FEATURE_BRANCH #(e.g. git checkout 422-my-feature-branch)
 git fetch
 git rebase main
-## RESOLVE CONFLICTS IN THE TERMINAL
+## RESOLVING CONFLICTS IN THE TERMINAL
 # git status
 # edit conflicting files with `vim` editor
 # git add .
 # git rebase --continue
 git push --force origin ISSUE_NUMBER_FEATURE_BRANCH
-## JUST MERGE changes from main
-git fetch
-git merge main
-git push origin ISSUE_NUMBER_FEATURE_BRANCH
 ## OTHER COMMANDS
 git push --force origin ISSUE_NUMBER_FEATURE_BRANCH
 git pull --rebase origin ISSUE_NUMBER_FEATURE_BRANCH
@@ -80,7 +81,7 @@ git pull --rebase origin ISSUE_NUMBER_FEATURE_BRANCH
 See [collaborating-with-pull-requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests) for further details.
 8. Once your PRs has been approved, procced to merge it to main. See [Merging a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/merging-a-pull-request)
 9. Delete and remove your merged branch   
-9.1 You can navigate branches in https://github.com/UCL/ready/branches and removed merged branches by clickling :wastebasket: icon.    
+9.1 You can navigate branches in https://github.com/oocular/ready/branches and removed merged branches by clickling :wastebasket: icon.    
 9.2 Alternatively, you can delete your local and merged branches using the following commands:     
 ```
 #Local git clear
