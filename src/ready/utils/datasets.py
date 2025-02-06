@@ -7,7 +7,6 @@ import os
 import random
 
 import matplotlib.pyplot as plt
-from glob import glob
 from pathlib import Path
 
 import cv2
