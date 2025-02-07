@@ -17,17 +17,25 @@ sudo systemctl restart dock
 
 ## Build
 ```
+#first time clone
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
-cd holohub && git pull
+# alrady cloned
+cd $HOME/repositories/holohub
+git pull
+git tag
+git checkout holoscan-sdk-2.9.0
+./run clear_cache
+./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 347.9s (9/9) FINISHED
+#logs
 #git checkout 1a67c53 #holoscan-sdk-2.0.0
 #git checkout 3834a7b #holoscan-sdk-2.5.0 #WORKS! pointing to "holohub:ngc-v2.4.0" > https://github.com/nvidia-holoscan/holohub/blob/3834a7b057501d6dbc564df05692866d2b775324/dev_container#L472
 #git checkout f7f561f #holoscan-sdk-2.6.0 #WORKS! pointing to "holohub:ngc-v2.5.0" [+] Building holoscan-sdk-2.6.0 2997.6s (8/8) FINISHED #~50mins
 #git checkout 9554bd3 #holoscan-sdk-2.7.0 #ISSUES! Wed Dec 4 10:26:06 2024 -0500
 #git checkout 9ce2638 #holoscan-sdk-2.8.0 Thu Jan 2 16:32:07 2025 -0500
-./run clear_cache
-./dev_container build --docker_file $HOME/repositories/ready/docs/holoscan/Dockerfile #Building 1901.6s (10/10)  FINISHED  sdk2.8.0
-#TOTEST./dev_container vscode --docker_file $HOME/Desktop/nystagmus-tracking/ready/docs/holoscan/Dockerfile
+#git checkout holoscan-sdk-2.9.0 Mon Jan 27 12:57:12 2025 -0800
+#TOTEST
+#./dev_container vscode --docker_file $PATH/Dockerfile
 ```
 
 ## Run and debug
