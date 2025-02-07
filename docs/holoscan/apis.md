@@ -7,7 +7,7 @@ bash launch_dev_container.bash
 ```
 
 ## READY
-* Download videos (`*.gxf_entities`, `*.gxf_index`, `*.mp4`) and models (`*.sim-BHWC.onnx`) from this [shared directory](https://liveuclac-my.sharepoint.com/:f:/r/personal/ccaemxo_ucl_ac_uk/Documents/nvidia-clara-agx/READY-Hawkes-Hackathon-2024/models-and-videos?csf=1&web=1&e=7uNpQH).
+* Download videos (`*.gxf_entities`, `*.gxf_index`, `*.mp4`) and models (`*.sim-BHWC.onnx`) from this [shared directory](https://liveuclac-my.sharepoint.com/my?id=%2Fpersonal%2Fccaemxo%5Fucl%5Fac%5Fuk%2FDocuments%2FProjects%2FREADY%2Dshared%2Fready%2Fmodels%2Dand%2Dvideos%2Fmobious%2Fholoscan).
 
 * Run app using your own repository in `dev_container` of clara-agx
 ```
