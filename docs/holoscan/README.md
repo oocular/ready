@@ -17,17 +17,17 @@ sudo systemctl restart dock
 
 ## Build
 ```
-#first time clone
+##first time clone
 cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
-# alrady cloned
+##already cloned
 cd $HOME/repositories/holohub
 git pull
 git tag
 git checkout holoscan-sdk-2.9.0
 ./run clear_cache
 ./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 347.9s (9/9) FINISHED
-#logs
+##logs
 #git checkout 1a67c53 #holoscan-sdk-2.0.0
 #git checkout 3834a7b #holoscan-sdk-2.5.0 #WORKS! pointing to "holohub:ngc-v2.4.0" > https://github.com/nvidia-holoscan/holohub/blob/3834a7b057501d6dbc564df05692866d2b775324/dev_container#L472
 #git checkout f7f561f #holoscan-sdk-2.6.0 #WORKS! pointing to "holohub:ngc-v2.5.0" [+] Building holoscan-sdk-2.6.0 2997.6s (8/8) FINISHED #~50mins
@@ -51,6 +51,9 @@ docker attach <ID>
 docker stop <ID>
 docker rename keen_einstein mycontainer
 docker rmi --force <ID>
+
+docker stop $(docker ps -a -q)
+docker system prune -f --volumes #clean unused systems
 ```
 
 
