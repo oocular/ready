@@ -64,8 +64,10 @@ class InfoOp(Operator):
         in_message = op_input.receive("in")
         print(f"in_message={in_message}")
         print(f"frame count={self.frame_count}")
-        tensor = cp.asarray(in_message.get("frame"))
+        # tensor = cp.asarray(in_message.get("frame"))#tensor.dtype=uint8
+        tensor = cp.asarray(in_message.get("frame"), dtype=cp.float32) #tensor.dtype=float32
         print(f"tensor.shape={tensor.shape}")
+        print(f"tensor.dtype={tensor.dtype}")
         print(f"tensor.min()={cp.min(tensor)}")
         print(f"tensor.max()={cp.max(tensor)}")
         print(f"tensor.mean()={cp.mean(tensor)}")
@@ -334,7 +336,7 @@ class WebRTCClientApp(Application):
         )
         host_allocator = UnboundedAllocator(self, name="host_allocator")
 
-        webrtc_client = WebRTCClientOp(self, name="WebRTC Client")
+        webrtc_client_op = WebRTCClientOp(self, name="WebRTC Client")
         visualizer_sink = HolovizOp(
             self,
             name="Video Sink",
@@ -358,16 +360,16 @@ class WebRTCClientApp(Application):
             allocator=host_allocator,
         )
 
-        self.add_flow(webrtc_client, visualizer_sink, {("output", "receivers")})
-        self.add_flow(webrtc_client, info_op, {("", "in")})
+        # self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
+        self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
+        self.add_flow(webrtc_client_op, info_op, {("", "in")})
         self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
         self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
-
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
         self._web_app_thread = WebAppThread(
-            webrtc_client,
+            webrtc_client_op,
             self._cmdline_args.host,
             self._cmdline_args.port,
             self._cmdline_args.cert_file,
