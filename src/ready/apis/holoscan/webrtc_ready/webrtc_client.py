@@ -29,8 +29,8 @@ from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
 from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
-from holoscan.operators import HolovizOp
-from holoscan.resources import CudaStreamPool, UnboundedAllocator
+from holoscan.operators import HolovizOp, InferenceOp
+from holoscan.resources import CudaStreamPool, UnboundedAllocator, BlockMemoryPool, MemoryStorageType
 
 ROOT = os.path.dirname(__file__)
 
@@ -360,6 +360,42 @@ class WebRTCClientApp(Application):
             allocator=host_allocator,
         )
 
+        models_path_map="/workspace/volumes/datasets/ready/mobious/models"
+        model_name="_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+        self_models_path_map = {
+            "ready_model": os.path.join(models_path_map, model_name),
+        }
+
+        model_width = 640
+        model_height = 400
+        n_channels_inference = 4
+        bpp_inference = 4
+        inference_block_size = model_width * model_height * n_channels_inference * bpp_inference
+        inference_num_blocks = 2
+
+        inference_op = InferenceOp(
+            self,
+            name="segmentation_inference_op",
+            backend="trt",
+            allocator=BlockMemoryPool(
+                self,
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=inference_block_size,
+                num_blocks=inference_num_blocks,
+            ),
+            # allocator=UnboundedAllocator(self, name="host_allocator"),
+            model_path_map=self_models_path_map,
+            pre_processor_map={"ready_model": "out_preprocessor"},
+            inference_map={"ready_model": "unet_out"},
+            enable_fp16=False, #Use 16-bit floating point computations. Optional (default: `False`).
+            parallel_inference=True, # optional param, default to True
+            infer_on_cpu=False, # optional param, default to False
+            input_on_cuda=True, # optional param, default to True
+            output_on_cuda=True, # optional param, default to True
+            transmit_on_cuda=True, # optional param, default to True
+            is_engine_path=False, # optional param, default to False
+        )
+        
         # self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
         self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
         self.add_flow(webrtc_client_op, info_op, {("", "in")})
