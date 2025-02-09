@@ -131,6 +131,9 @@ def main(args):
         sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
+    num_params = len(torch.nn.utils.parameters_to_vector(model.parameters()))
+    logger.info(f"Number of parameters in model: {num_params}")
+
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
