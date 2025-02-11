@@ -1,18 +1,3 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import argparse
 import asyncio
 import json
@@ -29,7 +14,7 @@ from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
 from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
-from holoscan.operators import HolovizOp, InferenceOp
+from holoscan.operators import HolovizOp, InferenceOp, SegmentationPostprocessorOp, FormatConverterOp
 from holoscan.resources import CudaStreamPool, UnboundedAllocator, BlockMemoryPool, MemoryStorageType
 
 ROOT = os.path.dirname(__file__)
@@ -383,7 +368,6 @@ class WebRTCClientApp(Application):
                 block_size=inference_block_size,
                 num_blocks=inference_num_blocks,
             ),
-            # allocator=UnboundedAllocator(self, name="host_allocator"),
             model_path_map=self_models_path_map,
             pre_processor_map={"ready_model": ["out_preprocessor"]},
             inference_map={"ready_model": "unet_out"},
@@ -396,11 +380,62 @@ class WebRTCClientApp(Application):
             is_engine_path=False, # optional param, default to False
         )
         
+        segpostprocessor_op = SegmentationPostprocessorOp(
+            self,
+            name="segpostprocessor",
+            allocator=UnboundedAllocator(self, name="segpostprocessor_allocator"),
+            in_tensor_name="unet_out",
+            network_output_type="softmax", #softmax layer for multiclass segmentation  #sigmoid layer for binary segmentation
+            data_format="nchw",
+        )
+
+        formatter_cuda_stream_pool = CudaStreamPool(
+            self,
+            name="cuda_stream",
+            dev_id=0,
+            stream_flags=0,
+            stream_priority=0,
+            reserved_size=1,
+            max_size=5,
+        )
+
+        in_dtype = "rgb888" # float32
+        bytes_per_float32 =4
+        in_components=3
+        preprocessor_op = FormatConverterOp(
+            self,
+            name="preprocessor_op",
+            in_dtype=in_dtype,
+            pool=BlockMemoryPool(
+                self,
+                name="preprocessor_op_pool",
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=model_width * model_height * bytes_per_float32 * in_components,
+                num_blocks=2*3,
+            ),
+            out_tensor_name="out_preprocessor",
+            scale_min=1.0,
+            scale_max=252.0,
+            out_dtype="float32",
+            resize_width=model_width,
+            resize_height=model_height,
+            cuda_stream_pool=formatter_cuda_stream_pool,
+        )
+        
+
         # self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
+        # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
+        # self.add_flow(webrtc_client_op, info_op, {("", "in")})
+        # self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
+        # self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
+
         self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        self.add_flow(webrtc_client_op, info_op, {("", "in")})
-        self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
-        self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
+        self.add_flow(webrtc_client_op, info_op, {("", "")})
+        self.add_flow(info_op, preprocessor_op, {("outputs", "")}) #(output_specs, outputs)
+        self.add_flow(preprocessor_op, inference_op, {("", "receivers")})
+        self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+        self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
