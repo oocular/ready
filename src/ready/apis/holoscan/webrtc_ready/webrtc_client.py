@@ -385,7 +385,7 @@ class WebRTCClientApp(Application):
             ),
             # allocator=UnboundedAllocator(self, name="host_allocator"),
             model_path_map=self_models_path_map,
-            pre_processor_map={"ready_model": "out_preprocessor"},
+            pre_processor_map={"ready_model": ["out_preprocessor"]},
             inference_map={"ready_model": "unet_out"},
             enable_fp16=False, #Use 16-bit floating point computations. Optional (default: `False`).
             parallel_inference=True, # optional param, default to True
