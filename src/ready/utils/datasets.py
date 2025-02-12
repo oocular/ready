@@ -2,13 +2,19 @@
 datasets
 """
 
+import glob
 import os
 import random
 
 import matplotlib.pyplot as plt
+from pathlib import Path
+
+import cv2
 import numpy as np
 import torch
+import torchvision.transforms as transforms
 from PIL import Image
+from scipy import ndimage
 from torch.utils.data import Dataset
 from torchvision.io import read_image
 
@@ -202,3 +208,261 @@ class MobiousDataset(Dataset):
 
         # return image, label
         return image, encode_mask
+
+
+class segDataset(torch.utils.data.Dataset):
+    def __init__(self, root, training, transform=None):
+        super(segDataset, self).__init__()
+        self.root = root
+        self.training = training
+        self.transform = transform
+        self.IMG_NAMES = sorted(glob(self.root + "/*/images/*.jpg"))
+        self.BGR_classes = {
+            "Water": [41, 169, 226], #50E3C2
+            "Land": [246, 41, 132], #F5A623
+            "Road": [228, 193, 110], #DE597F
+            "Building": [152, 16, 60], #D0021B
+            "Vegetation": [58, 221, 254], #417505
+            "Unlabeled": [155, 155, 155], #9B9B9B
+        }  # in BGR
+
+        self.bin_classes = [
+            "Water",
+            "Land",
+            "Road",
+            "Building",
+            "Vegetation",
+            "Unlabeled",
+        ]
+
+    def __getitem__(self, idx):
+        img_path = self.IMG_NAMES[idx]
+        mask_path = img_path.replace("images", "masks").replace(".jpg", ".png")
+
+        image = cv2.imread(img_path)
+        mask = cv2.imread(mask_path)
+        cls_mask = np.zeros(mask.shape)
+
+        cls_mask[mask == self.BGR_classes["Water"]] = self.bin_classes.index("Water")
+        cls_mask[mask == self.BGR_classes["Land"]] = self.bin_classes.index("Land")
+        cls_mask[mask == self.BGR_classes["Road"]] = self.bin_classes.index("Road")
+        cls_mask[mask == self.BGR_classes["Building"]] = self.bin_classes.index(
+            "Building"
+        )
+        cls_mask[mask == self.BGR_classes["Vegetation"]] = self.bin_classes.index(
+            "Vegetation"
+        )
+        cls_mask[mask == self.BGR_classes["Unlabeled"]] = self.bin_classes.index(
+            "Unlabeled"
+        )
+        cls_mask = cls_mask[:, :, 0]
+
+        if self.training == True:
+            if self.transform:
+                image = transforms.functional.to_pil_image(image)
+                image = self.transform(image)
+                image = np.array(image)
+
+            # 90 degree rotation
+            if np.random.rand() < 0.5:
+                angle = np.random.randint(4) * 90
+                image = ndimage.rotate(image, angle, reshape=True)
+                cls_mask = ndimage.rotate(cls_mask, angle, reshape=True)
+
+            # vertical flip
+            if np.random.rand() < 0.5:
+                image = np.flip(image, 0)
+                cls_mask = np.flip(cls_mask, 0)
+
+            # horizontal flip
+            if np.random.rand() < 0.5:
+                image = np.flip(image, 1)
+                cls_mask = np.flip(cls_mask, 1)
+
+        image = cv2.resize(image, (512, 512)) / 255.0
+        cls_mask = cv2.resize(cls_mask, (512, 512))
+        image = np.moveaxis(image, -1, 0)
+
+        return torch.tensor(image).float(), torch.tensor(cls_mask, dtype=torch.int64)
+
+    def __len__(self):
+        return len(self.IMG_NAMES)
+
+class MOBIOUSDataset_unetvit(Dataset):
+    def __init__(self, data_dir, training=True, transform=None, target_size=(512, 512)):
+        self.data_dir = Path(data_dir)
+        self.training = training
+        self.target_size = target_size
+        
+        # Base transforms - always convert to tensor last
+        base_transforms = [
+            transforms.Resize(target_size, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.ToTensor(),
+        ]
+        
+        # Add custom transforms before ToTensor if provided
+        if transform is not None:
+            if isinstance(transform, transforms.Compose):
+                # Insert custom transforms before ToTensor
+                base_transforms = transform.transforms + base_transforms[-1:]
+            else:
+                base_transforms.insert(-1, transform)
+        
+        self.transform = transforms.Compose(base_transforms)
+        
+        # Mask transforms
+        self.mask_transform = transforms.Compose([
+            transforms.Resize(target_size, interpolation=transforms.InterpolationMode.NEAREST),
+        ])
+
+        # Get all numbered folders and paths (keep existing code)
+        self.folder_numbers = []
+        for i in range(1, 36):
+            if (self.data_dir / "Images" / str(i)).exists():
+                self.folder_numbers.append(str(i))
+
+        self.img_paths = []
+        self.mask_paths = []
+
+        for folder_num in self.folder_numbers:
+            img_folder = self.data_dir / "Images" / folder_num
+            mask_folder = self.data_dir / "Masks" / folder_num
+
+            img_files = sorted(glob.glob(str(img_folder / "*")))
+            mask_files = sorted(glob.glob(str(mask_folder / "*")))
+
+            for img_path, mask_path in zip(img_files, mask_files):
+                img_name = Path(img_path).stem
+                mask_name = Path(mask_path).stem
+                if img_name == mask_name:
+                    self.img_paths.append(img_path)
+                    self.mask_paths.append(mask_path)
+
+        if len(self.img_paths) == 0:
+            raise RuntimeError(f"No images found in {data_dir}")
+
+        print(f"Found {len(self.img_paths)} images in {len(self.folder_numbers)} folders")
+
+    def __len__(self):
+        return len(self.img_paths)
+
+    def __getitem__(self, idx):
+        # Load image
+        img_path = self.img_paths[idx]
+        mask_path = self.mask_paths[idx]
+
+        # Load and process image
+        image = Image.open(img_path).convert("RGB")
+        
+        # Apply transforms (includes conversion to tensor)
+        image = self.transform(image)
+
+        # Load and process mask
+        mask = Image.open(mask_path)
+        mask = np.array(mask)
+        if len(mask.shape) == 3:
+            mask = mask[:, :, 0]  # Take first channel
+        
+        # Convert mask to binary
+        mask = (mask > 0).astype(np.uint8)
+        
+        # Apply resize transform if needed
+        if self.mask_transform:
+            mask = Image.fromarray(mask, mode='L')
+            mask = self.mask_transform(mask)
+            mask = np.array(mask)
+        
+        # Convert mask to tensor
+        mask = torch.from_numpy(mask).long()
+
+        return image, mask
+    
+# class MOBIOUSDataset_unetvit(Dataset):
+#     """
+#         Dataset class for MOBIUS data with numbered folders.
+#         Handles numbered folders (1-35) in Images/Masks directories
+#         Adds explicit mask normalization (0/255 → 0/1)
+
+#         DATASET_PATH = "/data/test-samples/MOBIUS"
+#         Images/1..35, Masks/1..35
+
+#         image = Image.open(img_path).convert("RGB")
+#         mask = Image.open(mask_path)
+#         mask = np.array(mask)
+#         if len(mask.shape) == 3:
+#         mask = mask[:, :, 0]  # Handle multi-channel masks
+#         mask = (mask > 0).astype(np.int64)  # Normalize to binary 0/1
+#     """
+#     def __init__(self, data_dir, training=True, transform=None):
+#         """
+#         Args:
+#             data_dir (str): Root directory of MOBIUS dataset
+#             training (bool): Whether this is training data
+#             transform (callable, optional): Transform to be applied to images
+#         """
+#         self.data_dir = Path(data_dir)
+#         self.transform = transform
+#         self.training = training
+
+#         # Get all numbered folders
+#         self.folder_numbers = []
+#         for i in range(1, 36):  # 1 to 35
+#             if (self.data_dir / "Images" / str(i)).exists():
+#                 self.folder_numbers.append(str(i))
+
+#         # Collect all image paths and corresponding mask paths
+#         self.img_paths = []
+#         self.mask_paths = []
+
+#         for folder_num in self.folder_numbers:
+#             img_folder = self.data_dir / "Images" / folder_num
+#             mask_folder = self.data_dir / "Masks" / folder_num
+
+#             # Get all image files in this folder
+#             img_files = sorted(glob.glob(str(img_folder / "*")))
+#             mask_files = sorted(glob.glob(str(mask_folder / "*")))
+
+#             # Verify matching pairs
+#             for img_path, mask_path in zip(img_files, mask_files):
+#                 img_name = Path(img_path).stem
+#                 mask_name = Path(mask_path).stem
+#                 if img_name == mask_name:  # Only add if names match
+#                     self.img_paths.append(img_path)
+#                     self.mask_paths.append(mask_path)
+
+#         if len(self.img_paths) == 0:
+#             raise RuntimeError(f"No images found in {data_dir}")
+
+#         print(f"Found {len(self.img_paths)} images in {len(self.folder_numbers)} folders")
+
+#     def __len__(self):
+#         return len(self.img_paths)
+
+#     def __getitem__(self, idx):
+#         # Load image
+#         img_path = self.img_paths[idx]
+#         mask_path = self.mask_paths[idx]
+
+#         # Load and process image
+#         image = Image.open(img_path).convert("RGB")
+#         to_tensor = transforms.ToTensor()
+#         image = to_tensor(image)
+
+#         # Load and process mask - should be binary mask with values 0 and 1
+#         mask = Image.open(mask_path)
+#         mask = np.array(mask)
+#         if len(mask.shape) == 3:
+#             mask = mask[:, :, 0]  # Take first channel
+#         # Convert from 0/255 to 0/1
+#         mask = (mask > 0).astype(np.int64)  # Convert to long for PyTorch
+#         mask = torch.from_numpy(mask)
+
+#         # Apply transforms
+#         if self.transform:
+#             image = self.transform(image)
+#             # Make sure mask is also resized to match image size if resize is part of transforms
+#             if any(isinstance(t, transforms.Resize) for t in self.transform.transforms):
+#                 resize = next(t for t in self.transform.transforms if isinstance(t, transforms.Resize))
+#                 mask = transforms.Resize(resize.size, interpolation=transforms.InterpolationMode.NEAREST)(mask.unsqueeze(0)).squeeze(0)
+
+#         return image, mask

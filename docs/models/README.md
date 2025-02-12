@@ -8,6 +8,16 @@
 source .venv/bin/activate #To activate the virtual environment:
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
+* Prototyping unetvit
+```
+# test dataset
+pytest -vs tests/test_unetvit.py::test_segDataset
+# train, optimise and test inference
+python src/ready/apis/train_unetvit.py
+python src/ready/apis/pytorch2onnx.py -i <model_name>.pth
+pytest -vs tests/test_unetvit.py::test_inference
+```
+
 ### Train models in server
 * train/debug unet with openEDS 
 ```
@@ -27,6 +37,33 @@ python src/ready/apis/train_mobious.py -df #0or1
 #debug model
 cd src/ready
 vim -O apis/train_mobious.py utils/datasets.py
+```
+
+### Debug, test and train `UNetViT`
+* Test test_unetvit.py::test_MOBIOUSDataset_unetvit
+```
+source .venv/bin/activate
+pytest -vs tests/test_unetvit.py::test_MOBIOUSDataset_unetvit
+```
+* Docstrings to include in respective scripts
+```
+Data Loading:
+Original: Assumed consistent image sizes (512x512)
+New: Added resize transform to handle varying image sizes
+Added better error handling and validation for image/mask pairs
+
+Debug Information:
+Added more detailed logging:
+logger.info(f"Mask unique values: {torch.unique(single_set[1])}")
+logger.info(f"Mask dtype: {single_set[1].dtype}")
+Removed Fixed Assertions:
+Original:
+assert len(test_dataloader) == 1
+assert len(train_dataloader) == 5
+
+New:
+logger.info(f"Number of test batches: {len(test_dataloader)}")
+logger.info(f"Number of train batches: {len(train_dataloader)}")
 ```
 
 ## Copying model to local host

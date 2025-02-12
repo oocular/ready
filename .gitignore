@@ -44,3 +44,10 @@ data/mobious/models/loss_values_**
 **avg_values**.png
 **avg_plot_**.png
 **live_app_graph**.dot
+=======
+*.DS_Store
+**.DS_Store
+data/test-samples/MOBIUS/
+tests/changes.txt
+tests/mobius_dataset.py
+utils/
