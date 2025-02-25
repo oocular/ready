@@ -8,16 +8,55 @@ from threading import Condition, Event, Thread
 
 import cupy as cp
 import holoscan
+import holoscan as hs
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
 from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
-from holoscan.operators import HolovizOp, InferenceOp, SegmentationPostprocessorOp, FormatConverterOp
-from holoscan.resources import CudaStreamPool, UnboundedAllocator, BlockMemoryPool, MemoryStorageType
+from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
+                                SegmentationPostprocessorOp)
+from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
+                                MemoryStorageType, UnboundedAllocator)
 
 ROOT = os.path.dirname(__file__)
+
+
+class PreInfoOp(Operator):
+    """
+    Pre Information Operator
+
+    Input:
+
+    Output:
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Initialize Operator"""
+        # self.frame_count = 1
+        super().__init__(*args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        """Setting up specifications of Operator"""
+        spec.input("in")
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        """Computing method to receive input message and emit output message"""
+        print(f" >>> Start Compute PreInfoOp  ")
+        in_message = op_input.receive("in")
+        print(in_message)
+        tensor = cp.asarray(in_message.get("frame"), dtype=cp.float32)
+        tensor_1ch = tensor[:, :, 0]
+        print(f"tensor.shape={tensor.shape}")
+        print(f"tensor_1ch.shape={tensor_1ch.shape}")
+
+        out_message = Entity(context)
+        # out_message.add(hs.as_tensor(tensor_1ch), "tensor1ch")
+        out_message.add(hs.as_tensor(tensor), "tensor")
+        op_output.emit(in_message, "out")
+        print(f" >>> End Compute PreInfoOp  ")
 
 
 class InfoOp(Operator):
@@ -379,7 +418,15 @@ class WebRTCClientApp(Application):
             transmit_on_cuda=True, # optional param, default to True
             is_engine_path=False, # optional param, default to False
         )
-        
+
+
+        pre_info_op = PreInfoOp(
+            self,
+            name="pre_info_op",
+            allocator=UnboundedAllocator(self, name="host_allocator")
+        )
+
+
         segpostprocessor_op = SegmentationPostprocessorOp(
             self,
             name="segpostprocessor",
@@ -399,42 +446,56 @@ class WebRTCClientApp(Application):
             max_size=5,
         )
 
-        in_dtype = "rgb888" # float32
         bytes_per_float32 =4
         in_components=3
-        preprocessor_op = FormatConverterOp(
+        format_op = FormatConverterOp(
             self,
-            name="preprocessor_op",
-            in_dtype=in_dtype,
+            name="format_op",
+            in_dtype="float32", #"rgba8888" for four channels; float32" for 3 channels
+            out_dtype="float32", #"rgb888",float32 for 3 channels
             pool=BlockMemoryPool(
                 self,
-                name="preprocessor_op_pool",
+                name="format_op_pool",
                 storage_type=MemoryStorageType.DEVICE,
                 block_size=model_width * model_height * bytes_per_float32 * in_components,
                 num_blocks=2*3,
             ),
-            out_tensor_name="out_preprocessor",
+            # pool=UnboundedAllocator(self, name="FormatConverterOp allocator"),
+            out_tensor_name="out_format_op",
             scale_min=1.0,
             scale_max=252.0,
-            out_dtype="float32",
+            alpha_value=255,
             resize_width=model_width,
             resize_height=model_height,
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
-        
 
-        # self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
+        ## REFERENCE
+        ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
+        #>>>>>>>>>>>>>>>>>
+        ##WORFLOW1 WORKS
         # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
         # self.add_flow(webrtc_client_op, info_op, {("", "in")})
         # self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
         # self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
+        #>>>>>>>>>>>>>>>>>
 
+        #>>>>>>>>>>>>>>>>>
+        ##WORKFLOW2 WORKS
+        # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
+        # self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
+        # self.add_flow(pre_info_op, visualizer_sink, {("out", "receivers")})
+        #>>>>>>>>>>>>>>>>>
+
+        #>>>>>>>>>>>>>>>>>
+        ##WORKFLOW3
         self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        self.add_flow(webrtc_client_op, info_op, {("", "")})
-        self.add_flow(info_op, preprocessor_op, {("outputs", "")}) #(output_specs, outputs)
-        self.add_flow(preprocessor_op, inference_op, {("", "receivers")})
+        self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
+        self.add_flow(pre_info_op, format_op, {("out", "")})
+        self.add_flow(format_op, inference_op, {("tensor", "")})
         self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
         self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+        #>>>>>>>>>>>>>>>>>
 
 
         # start the web server in the background, this will call the WebRTC server operator
