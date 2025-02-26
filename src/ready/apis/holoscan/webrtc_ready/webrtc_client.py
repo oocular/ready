@@ -461,6 +461,7 @@ class WebRTCClientApp(Application):
                 num_blocks=2*3,
             ),
             # pool=UnboundedAllocator(self, name="FormatConverterOp allocator"),
+            in_tensor_name="tensor",
             out_tensor_name="out_format_op",
             scale_min=1.0,
             scale_max=252.0,
