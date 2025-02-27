@@ -452,7 +452,7 @@ class WebRTCClientApp(Application):
             self,
             name="format_op",
             in_dtype="rgb888", #"rgba8888" for four channels; float32" for 3 channels
-            out_dtype="rgb888", #"rgb888",float32 for 3 channels
+            out_dtype="float32", #"rgb888",float32 for 3 channels
             pool=BlockMemoryPool(
                 self,
                 name="format_op_pool",
