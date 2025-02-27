@@ -451,8 +451,8 @@ class WebRTCClientApp(Application):
         format_op = FormatConverterOp(
             self,
             name="format_op",
-            in_dtype="float32", #"rgba8888" for four channels; float32" for 3 channels
-            out_dtype="float32", #"rgb888",float32 for 3 channels
+            in_dtype="rgb888", #"rgba8888" for four channels; float32" for 3 channels
+            out_dtype="rgb888", #"rgb888",float32 for 3 channels
             pool=BlockMemoryPool(
                 self,
                 name="format_op_pool",
@@ -461,7 +461,7 @@ class WebRTCClientApp(Application):
                 num_blocks=2*3,
             ),
             # pool=UnboundedAllocator(self, name="FormatConverterOp allocator"),
-            in_tensor_name="tensor",
+            in_tensor_name="frame",
             out_tensor_name="out_format_op",
             scale_min=1.0,
             scale_max=252.0,

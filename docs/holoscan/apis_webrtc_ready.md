@@ -4,6 +4,7 @@
 ```
 cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
+export HOLOSCAN_LOG_LEVEL=DEBUG
 ```
 
 ## Launch api
