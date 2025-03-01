@@ -22,9 +22,10 @@ cd $HOME/repositories
 git clone https://github.com/nvidia-holoscan/holohub.git && cd holohub
 ##already cloned
 cd $HOME/repositories/holohub
+git checkout main
 git pull
-git tag
-git checkout holoscan-sdk-2.9.0
+git tag #check tags
+git checkout holoscan-sdk-3.0.0.7
 ./run clear_cache
 ./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 347.9s (9/9) FINISHED
 ##logs
@@ -34,6 +35,7 @@ git checkout holoscan-sdk-2.9.0
 #git checkout 9554bd3 #holoscan-sdk-2.7.0 #ISSUES! Wed Dec 4 10:26:06 2024 -0500
 #git checkout 9ce2638 #holoscan-sdk-2.8.0 Thu Jan 2 16:32:07 2025 -0500
 #git checkout holoscan-sdk-2.9.0 Mon Jan 27 12:57:12 2025 -0800
+#git checkout holoscan-sdk-3.0.0.7 #Sat  1 Mar 18:34:41 GMT 2025
 #TOTEST
 #./dev_container vscode --docker_file $PATH/Dockerfile
 ```
