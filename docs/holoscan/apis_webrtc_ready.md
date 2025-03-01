@@ -4,11 +4,6 @@
 ```
 cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
-export HOLOSCAN_LOG_LEVEL=TRACE
-export HOLOSCAN_LOG_LEVEL=DEBUG
-export HOLOSCAN_LOG_LEVEL=INFO
-export HOLOSCAN_LOG_LEVEL=ERROR
-export HOLOSCAN_LOG_LEVEL=OFF
 ```
 
 ## Launch api
@@ -22,7 +17,7 @@ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertific
 * Launching `webrtc_client`
 ```
 cd /workspace/volumes/ready/scripts/apis
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL #PUBLIC
+bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL #PUBLIC #HOLOSCAN_LOG_LEVEL OFF DEBUG TRACE INFO ERROR
 #edit scripts
 vim webrtc_ready.bash
 cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/webrtc_ready
@@ -57,10 +52,14 @@ cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/webrtc_ready
 flowchart LR
     subgraph Server
         WebRTCClientOp --> HolovizOp
-        WebRTCClientOp --> InfoOp
-        InfoOp --> InferenceOp
-        InferenceOp --> SegOp
-        SegOp --> HolovizOp
+        WebRTCClientOp --> PreInfoOp
+        PreInfoOp --> FormatOp
+        FormatOp --> InferenceOp
+        InferenceOp --> SegmentationOp
+        SegmentationOp --> HolovizOp
+        InferenceOp --> PostInfoOp
+        PostInfoOp --> HolovizOp_outputs --> HolovizOp
+        PostInfoOp --> HolovizOp_output_specs --> HolovizOp
         WebServer
     end
     subgraph Client

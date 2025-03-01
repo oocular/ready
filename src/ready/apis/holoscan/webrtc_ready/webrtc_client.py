@@ -44,19 +44,19 @@ class PreInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" >>> Start Compute PreInfoOp  ")
+        # print(f" >>> Start Compute PreInfoOp  ")
         in_message = op_input.receive("in")
-        print(in_message)
+        # print(in_message)
         tensor = cp.asarray(in_message.get("frame"), dtype=cp.float32)
         tensor_1ch = tensor[:, :, 0]
-        print(f"tensor.shape={tensor.shape}")
-        print(f"tensor_1ch.shape={tensor_1ch.shape}")
+        # print(f"tensor.shape={tensor.shape}")
+        # print(f"tensor_1ch.shape={tensor_1ch.shape}")
 
         out_message = Entity(context)
         # out_message.add(hs.as_tensor(tensor_1ch), "tensor1ch")
         out_message.add(hs.as_tensor(tensor), "tensor")
         op_output.emit(in_message, "out")
-        print(f" >>> End Compute PreInfoOp  ")
+        # print(f" >>> End Compute PreInfoOp  ")
 
 
 class PostInfoOp(Operator):
@@ -84,16 +84,16 @@ class PostInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"--START-------- PostInfoOp  ------------")
+        # print(f"--START-------- PostInfoOp  ------------")
         in_message = op_input.receive("in")
-        print(f"in_message={in_message}")
-        print(f"frame count={self.frame_count}")
+        # print(f"in_message={in_message}")
+        # print(f"frame count={self.frame_count}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
-        print(f"tensor.shape={tensor.shape}")
-        print(f"tensor.dtype={tensor.dtype}")
-        print(f"tensor.min()={cp.min(tensor)}")
-        print(f"tensor.max()={cp.max(tensor)}")
-        print(f"tensor.mean()={cp.mean(tensor)}")
+        # print(f"tensor.shape={tensor.shape}")
+        # print(f"tensor.dtype={tensor.dtype}")
+        # print(f"tensor.min()={cp.min(tensor)}")
+        # print(f"tensor.max()={cp.max(tensor)}")
+        # print(f"tensor.mean()={cp.mean(tensor)}")
 
         dynamic_text_coord = cp.asarray(
             [
@@ -103,7 +103,7 @@ class PostInfoOp(Operator):
         out_message = {
             "dynamic_text_coord": dynamic_text_coord,
         }
-        print(f"out_message: {out_message}")
+        # print(f"out_message: {out_message}")
         op_output.emit(out_message, "outputs")
 
         specs = []
@@ -134,11 +134,11 @@ class PostInfoOp(Operator):
 
         spec.views = [view]
         specs.append(spec)
-        print(f"specs: {specs}")
+        # print(f"specs: {specs}")
         op_output.emit(specs, "output_specs")
 
         self.frame_count += 1
-        print(f"--END-------- PostInfoOp  ------------")
+        # print(f"--END-------- PostInfoOp  ------------")
 
 
 class VideoStreamReceiverContext:
