@@ -59,7 +59,7 @@ class PreInfoOp(Operator):
         print(f" >>> End Compute PreInfoOp  ")
 
 
-class InfoOp(Operator):
+class PostInfoOp(Operator):
     """
     Information Operator
 
@@ -84,12 +84,11 @@ class InfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f"---------- InfoOp  ------------")
+        print(f"--START-------- PostInfoOp  ------------")
         in_message = op_input.receive("in")
         print(f"in_message={in_message}")
         print(f"frame count={self.frame_count}")
-        # tensor = cp.asarray(in_message.get("frame"))#tensor.dtype=uint8
-        tensor = cp.asarray(in_message.get("frame"), dtype=cp.float32) #tensor.dtype=float32
+        tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
         print(f"tensor.shape={tensor.shape}")
         print(f"tensor.dtype={tensor.dtype}")
         print(f"tensor.min()={cp.min(tensor)}")
@@ -139,7 +138,7 @@ class InfoOp(Operator):
         op_output.emit(specs, "output_specs")
 
         self.frame_count += 1
-
+        print(f"--END-------- PostInfoOp  ------------")
 
 
 class VideoStreamReceiverContext:
@@ -376,47 +375,20 @@ class WebRTCClientApp(Application):
                     opacity=1.0,
                     image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
                 ),
+                dict(
+                    name="out_tensor",
+                    type="color_lut",
+                    priority=0,
+                    opacity=1.0,
+                ),
             ],
-        )
-        info_op = InfoOp(
-            self,
-            name="info_op",
-            allocator=host_allocator,
-        )
-
-        models_path_map="/workspace/volumes/datasets/ready/mobious/models"
-        model_name="_weights_15-12-24_07-00-10-sim-BHWC.onnx"
-        self_models_path_map = {
-            "ready_model": os.path.join(models_path_map, model_name),
-        }
-
-        model_width = 640
-        model_height = 400
-        n_channels_inference = 4
-        bpp_inference = 4
-        inference_block_size = model_width * model_height * n_channels_inference * bpp_inference
-        inference_num_blocks = 2
-
-        inference_op = InferenceOp(
-            self,
-            name="segmentation_inference_op",
-            backend="trt",
-            allocator=BlockMemoryPool(
-                self,
-                storage_type=MemoryStorageType.DEVICE,
-                block_size=inference_block_size,
-                num_blocks=inference_num_blocks,
-            ),
-            model_path_map=self_models_path_map,
-            pre_processor_map={"ready_model": ["out_preprocessor"]},
-            inference_map={"ready_model": "unet_out"},
-            enable_fp16=False, #Use 16-bit floating point computations. Optional (default: `False`).
-            parallel_inference=True, # optional param, default to True
-            infer_on_cpu=False, # optional param, default to False
-            input_on_cuda=True, # optional param, default to True
-            output_on_cuda=True, # optional param, default to True
-            transmit_on_cuda=True, # optional param, default to True
-            is_engine_path=False, # optional param, default to False
+            color_lut=[
+                [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+                [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+                [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+                [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
+                #https://rgbcolorpicker.com/0-1
+            ],
         )
 
 
@@ -427,14 +399,19 @@ class WebRTCClientApp(Application):
         )
 
 
-        segpostprocessor_op = SegmentationPostprocessorOp(
+        post_info_op = PostInfoOp(
             self,
-            name="segpostprocessor",
-            allocator=UnboundedAllocator(self, name="segpostprocessor_allocator"),
-            in_tensor_name="unet_out",
-            network_output_type="softmax", #softmax layer for multiclass segmentation  #sigmoid layer for binary segmentation
-            data_format="nchw",
+            name="post_info_op",
+            allocator=host_allocator,
         )
+
+
+        model_width = 640
+        model_height = 400
+        n_channels_inference = 4
+        bpp_inference = 4
+        inference_block_size = model_width * model_height * n_channels_inference * bpp_inference
+        inference_num_blocks = 2
 
         formatter_cuda_stream_pool = CudaStreamPool(
             self,
@@ -471,33 +448,55 @@ class WebRTCClientApp(Application):
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
+        models_path_map="/workspace/volumes/datasets/ready/mobious/models"
+        model_name="_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+        self_models_path_map = {
+            "ready_model": os.path.join(models_path_map, model_name),
+        }
+
+        inference_op = InferenceOp(
+            self,
+            name="segmentation_inference_op",
+            backend="trt",
+            allocator=BlockMemoryPool(
+                self,
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=inference_block_size,
+                num_blocks=inference_num_blocks,
+            ),
+            model_path_map=self_models_path_map,
+            pre_processor_map={"ready_model": ["out_format_op"]},
+            inference_map={"ready_model": "unet_out"},
+            enable_fp16=False, #Use 16-bit floating point computations. Optional (default: `False`).
+            parallel_inference=True, # optional param, default to True
+            infer_on_cpu=False, # optional param, default to False
+            input_on_cuda=True, # optional param, default to True
+            output_on_cuda=True, # optional param, default to True
+            transmit_on_cuda=True, # optional param, default to True
+            is_engine_path=False, # optional param, default to False
+        )
+
+        segpostprocessor_op = SegmentationPostprocessorOp(
+            self,
+            name="segpostprocessor",
+            allocator=UnboundedAllocator(self, name="segpostprocessor_allocator"),
+            in_tensor_name="unet_out",
+            network_output_type="softmax", #softmax layer for multiclass segmentation  #sigmoid layer for binary segmentation
+            data_format="nchw",
+        )
+
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
-        #>>>>>>>>>>>>>>>>>
-        ##WORFLOW1 WORKS
-        # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        # self.add_flow(webrtc_client_op, info_op, {("", "in")})
-        # self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
-        # self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
-        #>>>>>>>>>>>>>>>>>
-
-        #>>>>>>>>>>>>>>>>>
-        ##WORKFLOW2 WORKS
-        # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        # self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
-        # self.add_flow(pre_info_op, visualizer_sink, {("out", "receivers")})
-        #>>>>>>>>>>>>>>>>>
-
-        #>>>>>>>>>>>>>>>>>
-        ##WORKFLOW3
         self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
         self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
         self.add_flow(pre_info_op, format_op, {("out", "")})
         self.add_flow(format_op, inference_op, {("tensor", "")})
         self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
         self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
-        #>>>>>>>>>>>>>>>>>
 
+        self.add_flow(inference_op, post_info_op, {("", "in")})
+        self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
+        self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
