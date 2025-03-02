@@ -48,7 +48,7 @@ class PreInfoOp(Operator):
         in_message = op_input.receive("in")
         # print(in_message)
         tensor = cp.asarray(in_message.get("frame"), dtype=cp.float32)
-        tensor_1ch = tensor[:, :, 0]
+        # tensor_1ch = tensor[:, :, 0]
         # print(f"tensor.shape={tensor.shape}")
         # print(f"tensor_1ch.shape={tensor_1ch.shape}")
 
@@ -89,7 +89,7 @@ class PostInfoOp(Operator):
         # print(f"in_message={in_message}")
         # print(f"frame count={self.frame_count}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
-        # print(f"tensor.shape={tensor.shape}")
+        # print(f"unet_out tensor.shape={tensor.shape}") #tensor.shape=(1, 4, 400, 640)
         # print(f"tensor.dtype={tensor.dtype}")
         # print(f"tensor.min()={cp.min(tensor)}")
         # print(f"tensor.max()={cp.max(tensor)}")
@@ -117,12 +117,12 @@ class PostInfoOp(Operator):
         spec.text = [
             "Frame "
             + str(self.frame_count)
-            + " tensor.min()="
-            + str(cp.min(tensor))
-            + " tensor.max()="
-            + str(cp.max(tensor))
-            + " tensor.mean()="
-            + str(cp.mean(tensor))
+            # + " tensor.min()="
+            # + str(cp.min(tensor))
+            # + " tensor.max()="
+            # + str(cp.max(tensor))
+            # + " tensor.mean()="
+            # + str(cp.mean(tensor))
         ]
         spec.color = [
             1,
@@ -362,7 +362,7 @@ class WebRTCClientApp(Application):
         webrtc_client_op = WebRTCClientOp(self, name="WebRTC Client")
         visualizer_sink = HolovizOp(
             self,
-            name="Video Sink",
+            name="HolovizOp_sink",
             window_title="WebRTC Client",
             width=640, #TODO pass this as a width and height from index.html video-resolution
             height=480,

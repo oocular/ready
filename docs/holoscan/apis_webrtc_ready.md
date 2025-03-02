@@ -17,7 +17,7 @@ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertific
 * Launching `webrtc_client`
 ```
 cd /workspace/volumes/ready/scripts/apis
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL #PUBLIC #HOLOSCAN_LOG_LEVEL OFF DEBUG TRACE INFO ERROR
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC OFF #LOCAL/PUBLIC #HOLOSCAN_LOG_LEVEL: OFF/DEBUG/TRACE/INFO/ERROR
 #edit scripts
 vim webrtc_ready.bash
 cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/webrtc_ready
