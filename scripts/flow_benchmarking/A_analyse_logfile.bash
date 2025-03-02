@@ -1,7 +1,7 @@
 ## USAGE
-# bash analyse_logfile.bash <logger_video087.log> <PATH>
-LOGFILENAME=${1::-4} #removes extension
-PATHLOG=$2
+# bash analyse_logfile.bash <PATH> <logger_video087.log>
+PATHLOG=$1
+LOGFILENAME=${2::-4} #removes extension
 echo "LOGFILENAME: $LOGFILENAME"
 echo "PATHLOG: $PATHLOG"
 
