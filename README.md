@@ -10,7 +10,7 @@ This repository contains documentation and code for the project `READY: REal-tim
 * :page_facing_up: [Docs](docs/README.md)
 * :floppy_disk: [Data](data/): [openEDS](data/openEDS/); [mobious](data/mobious/); [novel](data/novel/)
 * :brain: [models](docs/models) trained in [cricket](docs/cricket); 
-* :computer: [holoscan-sdk](docs/holoscan/)
+* :computer: [holoscan-sdk](docs/holoscan/): [apis](docs/holoscan/apis.md); [apis_webrtc_ready](docs/holoscan/apis_webrtc_ready.md)
 * :recycle: [CONTRIBUTING](CONTRIBUTING.md)
 
 ## :nut_and_bolt: Installation
