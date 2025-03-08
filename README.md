@@ -7,21 +7,21 @@
 This repository contains documentation and code for the project `READY: REal-time Ai Diagnosis for nYstagmus`.
 
 ## :school_satchel: Getting started
-* :page_facing_up: [Docs](docs/README.md)
+* :page_facing_up: [Docs](docs/README.md) Getting started, debugging, testing, demos.
 * :floppy_disk: [Data](data/): [openEDS](data/openEDS/); [mobious](data/mobious/); [novel](data/novel/)
 * :brain: [models](docs/models) trained in [cricket](docs/cricket); 
 * :computer: [holoscan-sdk](docs/holoscan/): [apis](docs/holoscan/apis.md); [apis_webrtc_ready](docs/holoscan/apis_webrtc_ready.md)
-* :recycle: [CONTRIBUTING](CONTRIBUTING.md)
 
 ## :nut_and_bolt: Installation
+[CONTRIBUTING](CONTRIBUTING.md) is a good starting point for setting up the GitHub project, managing dependencies, and guiding you through the development installation and debugging process.
 
 ### Dev installation
 ```
-uv venv --python 3.12 # Create a virtual environment at .venv.
-source .venv/bin/activate #To activate the virtual environment
-uv pip install -e ".[test,learning,model_optimisation]" # Install the package in editable mode
-uv pip list --verbose #check versions
-pre-commit run -a #pre-commit hooks
+uv venv --python 3.12
+source .venv/bin/activate
+uv pip install -e ".[test,learning,model_optimisation]"
+uv pip list --verbose
+pre-commit run -a
 ```
 See further details for installation [here](docs).
 
