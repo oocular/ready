@@ -19,6 +19,8 @@ from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
                                 MemoryStorageType, UnboundedAllocator)
+from holoscan.schedulers import (EventBasedScheduler, GreedyScheduler,
+                                 MultiThreadScheduler)
 
 ROOT = os.path.dirname(__file__)
 
@@ -534,5 +536,19 @@ if __name__ == "__main__":
 
     app = WebRTCClientApp(cmdline_args)
 
-    with Tracker(app, filename=cmdline_args.logger_filename) as tracker:
+
+    # Experimenting to improve consumer speed with schedulers
+    scheduler = GreedyScheduler(app, name="greedy_scheduler") # Default scheduler for theard = 0 ;
+    # scheduler_class = EventBasedScheduler
+    # scheduler_class = MultiThreadScheduler
+    # scheduler = scheduler_class(
+    #     app,
+    #     worker_thread_number=5,
+    #     stop_on_deadlock=True,
+    #     stop_on_deadlock_timeout=500,
+    #     name="webrtc_scheduler",
+    # )
+    app.scheduler(scheduler)
+
+    with Tracker(app, filename=cmdline_args.logger_filename, num_start_messages_to_skip=2, num_last_messages_to_discard=2) as tracker:
         app.run()
