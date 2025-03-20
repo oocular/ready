@@ -13,7 +13,9 @@ from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
-from holoscan.core import Application, Operator, OperatorSpec, Tracker
+from holoscan.conditions import PeriodicCondition
+from holoscan.core import (Application, ConditionType, IOSpec, Operator,
+                           OperatorSpec, Tracker)
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp)
@@ -143,6 +145,32 @@ class PostInfoOp(Operator):
         # print(f"--END-------- PostInfoOp  ------------")
 
 
+class DropFramesOp(Operator):
+    """Dropping Frames."""
+
+    def __init__(self, fragment, *args, dropframes=0, **kwargs):
+        """Initialize Operator"""
+        self.dropframes = dropframes
+
+        # Need to call the base class constructor last
+        super().__init__(fragment, *args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        """Setting up specifications of Operator"""
+        spec.input("in", policy=IOSpec.QueuePolicy.REJECT).condition(
+            ConditionType.MESSAGE_AVAILABLE, min_size=1, front_stage_max_size=1
+        )
+
+        spec.input("in")
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        """Computing method to receive input message and emit output message"""
+        value = op_input.receive("in")
+        new_value = value + self.dropframes
+        op_output.emit(new_value, "out")
+
+
 class VideoStreamReceiverContext:
     def __init__(self):
         self.task = None
@@ -267,7 +295,11 @@ class WebRTCClientOp(Operator):
         self._pcs.clear()
 
     def setup(self, spec: OperatorSpec):
-        spec.output("output")
+        # Note: Setting ConditionType.NONE overrides the default of
+        #   ConditionType.DOWNSTREAM_MESSAGE_AFFORDABLE. This means that the operator will be
+        #   triggered regardless of whether any operators connected downstream have space in their
+        #   queues.
+        spec.output("output").condition(ConditionType.NONE)
 
     def start(self):
         self._connected_event.wait()
@@ -487,10 +519,17 @@ class WebRTCClientApp(Application):
             data_format="nchw",
         )
 
+        branch_hz = 10
+        period_ns1 = int(1e9 / branch_hz)
+        drop_frames_op = DropFramesOp(
+            self,
+            PeriodicCondition(self, recess_period=period_ns1),
+            name="drop_frames_op",
+        )
+
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
-        self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-
+        # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
         # self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
         # self.add_flow(pre_info_op, format_op, {("out", "")})
         # self.add_flow(format_op, inference_op, {("tensor", "")})
@@ -500,6 +539,10 @@ class WebRTCClientApp(Application):
         # self.add_flow(inference_op, post_info_op, {("", "in")})
         # self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
         # self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
+
+        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
@@ -539,7 +582,7 @@ if __name__ == "__main__":
 
 
     # Experimenting to improve consumer speed with schedulers
-    scheduler = GreedyScheduler(app, name="greedy_scheduler") # Default scheduler for theard = 0 ;
+    scheduler = GreedyScheduler(app, name="greedy_scheduler") # Default scheduler for thread = 0 ;
     # scheduler_class = EventBasedScheduler
     # scheduler_class = MultiThreadScheduler
     # scheduler = scheduler_class(
