@@ -1,6 +1,6 @@
 # Holoscan
 
-## Requiremetns
+## Requirements
 ```
 #install cuda 
 https://github.com/mxochicale/code/blob/main/gpu/installation/installing_cuda.bash
@@ -25,9 +25,9 @@ cd $HOME/repositories/holohub
 git checkout main
 git pull
 git tag #check tags
-git checkout holoscan-sdk-3.0.0.7
+git checkout holoscan-sdk-3.0.0
 ./run clear_cache
-./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 347.9s (9/9) FINISHED
+./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 452.4s (8/8) FINISHED
 ##logs
 #git checkout 1a67c53 #holoscan-sdk-2.0.0
 #git checkout 3834a7b #holoscan-sdk-2.5.0 #WORKS! pointing to "holohub:ngc-v2.4.0" > https://github.com/nvidia-holoscan/holohub/blob/3834a7b057501d6dbc564df05692866d2b775324/dev_container#L472
@@ -36,6 +36,7 @@ git checkout holoscan-sdk-3.0.0.7
 #git checkout 9ce2638 #holoscan-sdk-2.8.0 Thu Jan 2 16:32:07 2025 -0500
 #git checkout holoscan-sdk-2.9.0 Mon Jan 27 12:57:12 2025 -0800
 #git checkout holoscan-sdk-3.0.0.7 #Sat  1 Mar 18:34:41 GMT 2025
+#git checkout holoscan-sdk-3.0.0 #Thu 20 Mar 21:57:14 GMT 2025
 #TOTEST
 #./dev_container vscode --docker_file $PATH/Dockerfile
 ```
