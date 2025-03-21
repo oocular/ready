@@ -146,29 +146,51 @@ class PostInfoOp(Operator):
 
 
 class DropFramesOp(Operator):
-    """Dropping Frames."""
-
-    def __init__(self, fragment, *args, dropframes=0, **kwargs):
-        """Initialize Operator"""
-        self.dropframes = dropframes
-
-        # Need to call the base class constructor last
+    """Dropping Frames Operator"""
+    def __init__(self, fragment, *args, **kwargs):
+        """Initialize Operator
+        Need to call the base class constructor last
+        """
         super().__init__(fragment, *args, **kwargs)
 
     def setup(self, spec: OperatorSpec):
-        """Setting up specifications of Operator"""
-        spec.input("in", policy=IOSpec.QueuePolicy.REJECT).condition(
-            ConditionType.MESSAGE_AVAILABLE, min_size=1, front_stage_max_size=1
-        )
+        """Setting up specifications of Operator
 
-        spec.input("in")
+        Notes:
+        ---------
+        For policy:
+          - IOSpec.QueuePolicy.POP = pop the oldest value in favor of the new one when the queue
+            is full
+          - IOSpec.QueuePolicy.REJECT = reject the new value when the queue is full
+          - IOSpec.QueuePolicy.FAULT = fault if queue is full (default)
+
+        One could also set the receiver's capacity and policy via the connector method:
+            .connector(
+                IOSpec.ConnectorType.DOUBLE_BUFFER,
+                capacity=1,
+                policy=1,  # 1 = reject, 0 = pop, 2 = fault
+            )
+        but that is less flexible as `IOSpec::ConnectorType::kDoubleBuffer` is appropriate for
+        within-fragment connections, but will not work if the operator was connected to a
+        different fragment.
+
+        """
+        spec.input("in", policy=IOSpec.QueuePolicy.REJECT).condition(
+            ConditionType.MESSAGE_AVAILABLE,
+            min_size=1,
+            front_stage_max_size=1
+        )
+        # spec.input("in").connector(
+        #     IOSpec.ConnectorType.DOUBLE_BUFFER,
+        #     capacity=1,
+        #     policy=1,
+        # ).condition(ConditionType.MESSAGE_AVAILABLE, min_size=1, front_stage_max_size=1)
         spec.output("out")
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
         value = op_input.receive("in")
-        new_value = value + self.dropframes
-        op_output.emit(new_value, "out")
+        op_output.emit(value, "out")
 
 
 class VideoStreamReceiverContext:
@@ -519,11 +541,11 @@ class WebRTCClientApp(Application):
             data_format="nchw",
         )
 
-        branch_hz = 10
-        period_ns1 = int(1e9 / branch_hz)
+        branch_hz = 5
+        period_ns = int(1e9 / branch_hz)
         drop_frames_op = DropFramesOp(
             self,
-            PeriodicCondition(self, recess_period=period_ns1),
+            PeriodicCondition(self, recess_period=period_ns),
             name="drop_frames_op",
         )
 
@@ -542,7 +564,6 @@ class WebRTCClientApp(Application):
 
         self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
         self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
-
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
