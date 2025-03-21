@@ -321,7 +321,8 @@ class WebRTCClientOp(Operator):
         #   ConditionType.DOWNSTREAM_MESSAGE_AFFORDABLE. This means that the operator will be
         #   triggered regardless of whether any operators connected downstream have space in their
         #   queues.
-        spec.output("output").condition(ConditionType.NONE)
+        spec.output("output")
+        # spec.output("output").condition(ConditionType.NONE)
 
     def start(self):
         self._connected_event.wait()
@@ -423,28 +424,28 @@ class WebRTCClientApp(Application):
             width=640, #TODO pass this as a width and height from index.html video-resolution
             height=480,
             cuda_stream_pool=cuda_stream_pool,
-            # tensors=[
-            #     dict(
-            #         name="frame",
-            #         type="color",
-            #         priority=0,
-            #         opacity=1.0,
-            #         image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
-            #     ),
-            #     dict(
-            #         name="out_tensor",
-            #         type="color_lut",
-            #         priority=0,
-            #         opacity=1.0,
-            #     ),
-            # ],
-            # color_lut=[
-            #     [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
-            #     [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
-            #     [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
-            #     [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
-            #     #https://rgbcolorpicker.com/0-1
-            # ],
+            tensors=[
+                dict(
+                    name="frame",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
+                dict(
+                    name="out_tensor",
+                    type="color_lut",
+                    priority=0,
+                    opacity=1.0,
+                ),
+            ],
+            color_lut=[
+                [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+                [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+                [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+                [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
+                #https://rgbcolorpicker.com/0-1
+            ],
         )
 
 
@@ -551,19 +552,19 @@ class WebRTCClientApp(Application):
 
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
-        # self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        # self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
-        # self.add_flow(pre_info_op, format_op, {("out", "")})
-        # self.add_flow(format_op, inference_op, {("tensor", "")})
-        # self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
-        # self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+        self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
+        self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
+        self.add_flow(pre_info_op, format_op, {("out", "")})
+        self.add_flow(format_op, inference_op, {("tensor", "")})
+        self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+        self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
-        # self.add_flow(inference_op, post_info_op, {("", "in")})
-        # self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
-        # self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
+        self.add_flow(inference_op, post_info_op, {("", "in")})
+        self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
+        self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
 
-        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
-        self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+        # self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        # self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
