@@ -420,9 +420,9 @@ class WebRTCClientApp(Application):
         visualizer_sink = HolovizOp(
             self,
             name="HolovizOp_sink",
-            window_title="WebRTC Client",
-            width=640, #TODO pass this as a width and height from index.html video-resolution
-            height=480,
+            window_title="READY Demo WebRTC Client",
+            width=320, #640, #TODO pass this as a width and height from index.html video-resolution
+            height=240, #480,
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(

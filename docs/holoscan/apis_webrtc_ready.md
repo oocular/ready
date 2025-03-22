@@ -51,8 +51,9 @@ cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/webrtc_ready
 ```mermaid
 flowchart LR
     subgraph Server
-        WebRTCClientOp --> HolovizOp
-        WebRTCClientOp --> PreInfoOp
+        WebRTCClientOp --> DropFramesOp
+        DropFramesOp --> HolovizOp
+        DropFramesOp --> PreInfoOp
         PreInfoOp --> FormatOp
         FormatOp --> InferenceOp
         InferenceOp --> SegmentationOp
