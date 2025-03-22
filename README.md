@@ -13,7 +13,7 @@ This repository contains documentation and code for the project `READY: REal-tim
 * :computer: [holoscan-sdk](docs/holoscan/): [apis](docs/holoscan/apis.md); [apis_webrtc_ready](docs/holoscan/apis_webrtc_ready.md)
 
 ## :nut_and_bolt: Installation
-[CONTRIBUTING](CONTRIBUTING.md) is a good starting point for setting up the GitHub project, managing dependencies, and guiding you through the development installation and debugging process.
+[CONTRIBUTING](CONTRIBUTING.md) is a good starting point for setting up the GitHub repository, managing dependencies, and guiding you through the development installation and debugging process.
 
 ### Dev installation
 ```
@@ -32,7 +32,7 @@ The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-80
 | Animation(s) | Data, Model(s) |
 | --- | --- |
 | [webrtc_client.py](src/ready/apis/holoscan/webrtc_ready/webrtc_client.py) with model _weights_15-12-24_07-00-10-sim-BHWC.onnx, running `drop_frames_op` at different `PeriodicCondition(self, recess_period=period_ns)` 5 to 30 Hz. | [ :hourglass: flowbenchmarking](data/webrtc/flow_benchmarking/). [:nut_and_bolt: Launch and debug api](docs/holoscan/apis_webrtc_ready.md) |
-| ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.22.13-ezgif.com-video-to-gif-converter.gif) ![animation](docs/figs/animations/ready-mobious-2024-09-12_01.30.29-ezgif.com-video-to-gif-converter.gif)                                  Demo of [ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480) | :floppy_disk: [Mobious dataset](data/mobious/); :brain: [Models](data/mobious//models/) | 
+| ![animation](docs/figs/animations/ready-mobious-2024-09-12.gif)     Demo of [ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480) |  [:nut_and_bolt: Launch and debug api](docs/holoscan/apis_ready.md) [:floppy_disk: Mobious dataset](data/mobious/); :brain: [Models](data/mobious/models/) | 
 
 See more demos [here](docs/README.md#demos). 
 See [apis](docs/holoscan/apis.md) for detailed instructions on running the application.
