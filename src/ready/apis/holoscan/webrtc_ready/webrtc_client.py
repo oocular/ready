@@ -321,8 +321,8 @@ class WebRTCClientOp(Operator):
         #   ConditionType.DOWNSTREAM_MESSAGE_AFFORDABLE. This means that the operator will be
         #   triggered regardless of whether any operators connected downstream have space in their
         #   queues.
-        spec.output("output")
-        # spec.output("output").condition(ConditionType.NONE)
+        # spec.output("output")
+        spec.output("output").condition(ConditionType.NONE)
 
     def start(self):
         self._connected_event.wait()
@@ -542,7 +542,7 @@ class WebRTCClientApp(Application):
             data_format="nchw",
         )
 
-        branch_hz = 5
+        branch_hz = 15
         period_ns = int(1e9 / branch_hz)
         drop_frames_op = DropFramesOp(
             self,
@@ -550,21 +550,27 @@ class WebRTCClientApp(Application):
             name="drop_frames_op",
         )
 
-        ## REFERENCE
-        ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
-        self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
+	## WORKFLOW
+	### Branch01
+        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+
+	### Branch02
+        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
         self.add_flow(pre_info_op, format_op, {("out", "")})
-        self.add_flow(format_op, inference_op, {("tensor", "")})
+        self.add_flow(format_op, inference_op, {("tensor", "receivers")})
+
         self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
         self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
         self.add_flow(inference_op, post_info_op, {("", "in")})
+
         self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
         self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
 
-        # self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
-        # self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+        ## REFERENCE
+        ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
