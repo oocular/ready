@@ -63,7 +63,7 @@ class PreInfoOp(Operator):
         # print(f" >>> End Compute PreInfoOp  ")
 
 
-class PostInfoOp(Operator):
+class PostInferenceOp(Operator):
     """
     Information Operator
 
@@ -88,7 +88,7 @@ class PostInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        # print(f"--START-------- PostInfoOp  ------------")
+        # print(f"--START-------- PostInferenceOp  ------------")
         in_message = op_input.receive("in")
         # print(f"in_message={in_message}")
         # print(f"frame count={self.frame_count}")
@@ -142,7 +142,7 @@ class PostInfoOp(Operator):
         op_output.emit(specs, "output_specs")
 
         self.frame_count += 1
-        # print(f"--END-------- PostInfoOp  ------------")
+        # print(f"--END-------- PostInferenceOp  ------------")
 
 
 class DropFramesOp(Operator):
@@ -421,8 +421,8 @@ class WebRTCClientApp(Application):
             self,
             name="HolovizOp_sink",
             window_title="READY Demo WebRTC Client",
-            width=320, #640, #TODO pass this as a width and height from index.html video-resolution
-            height=240, #480,
+            width=640, #320 #TODO pass this as a width and height from index.html video-resolution
+            height=480, #240
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(
@@ -456,9 +456,9 @@ class WebRTCClientApp(Application):
         )
 
 
-        post_info_op = PostInfoOp(
+        post_inference_op = PostInferenceOp(
             self,
-            name="post_info_op",
+            name="post_inference_op",
             allocator=host_allocator,
         )
 
@@ -564,10 +564,10 @@ class WebRTCClientApp(Application):
         self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
         self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
-        self.add_flow(inference_op, post_info_op, {("", "in")})
+        self.add_flow(inference_op, post_inference_op, {("", "in")})
 
-        self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
-        self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
+        self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
+        self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
