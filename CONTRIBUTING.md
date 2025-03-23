@@ -7,7 +7,8 @@ Please note we have a [code of conduct](CODE_OF_CONDUCT.md), please follow it in
 
 ## :octocat: Setting up project locally. 
 1. Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
-2. Clone the repository by typing (or copying) the following lines in a terminal
+2 Setup you commit signature verification as shown [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification)
+3. Clone the repository by typing (or copying) the following lines in a terminal
 ```
 git clone git@github.com:oocular/ready.git
 ```

@@ -31,15 +31,16 @@ The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-80
 
 | Animation(s) | Data, Model(s) |
 | --- | --- |
-| [webrtc_client.py](src/ready/apis/holoscan/webrtc_ready/webrtc_client.py) with model _weights_15-12-24_07-00-10-sim-BHWC.onnx, running `drop_frames_op` at different `PeriodicCondition(self, recess_period=period_ns)` 5 to 30 Hz. | [ :hourglass: flowbenchmarking](data/webrtc/flow_benchmarking/). [:nut_and_bolt: Launch and debug api](docs/holoscan/apis_webrtc_ready.md) |
-| ![animation](docs/figs/animations/ready-mobious-2024-09-12.gif)     Demo of [ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480) |  [:nut_and_bolt: Launch and debug api](docs/holoscan/apis_ready.md) [:floppy_disk: Mobious dataset](data/mobious/); :brain: [Models](data/mobious/models/) | 
+| [webrtc_client.py](src/ready/apis/holoscan/webrtc_ready/webrtc_client.py) with model _weights_15-12-24_07-00-10-sim-BHWC.onnx, running `drop_frames_op` at different `PeriodicCondition(self, recess_period=period_ns)` 5 to 30 Hz. | [:nut_and_bolt: Launch and debug api](docs/holoscan/apis_webrtc_ready.md) [:hourglass: flowbenchmarking](data/webrtc/flow_benchmarking/).  |
+| ![animation](docs/figs/animations/ready-mobious-2024-09-12.gif) [ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480) |  [:nut_and_bolt: Launch and debug api](docs/holoscan/apis_ready.md) [:floppy_disk: Mobious dataset](data/mobious/); :brain: [Models](data/mobious/models/) | 
 
 See more demos [here](docs/README.md#demos). 
-See [apis](docs/holoscan/apis.md) for detailed instructions on running the application.
+See [apis](docs/holoscan/apis.md) for detailed instructions on running applications.
 
 ## :octocat: Cloning repository
-* Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
-* Clone the repository by typing (or copying) the following lines in a terminal
+1. Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+2. Setup you commit signature verification as shown [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification)
+3. Clone the repository by typing (or copying) the following lines in a terminal
 ```
 mkdir $HOME/repositories/oocular && cd $HOME/repositories/oocular
 git clone git@github.com:oocular/ready.git
