@@ -53,8 +53,20 @@ git pull
 bash docs/cricket/launch_container_in_cricket.bash <ADD_USERNAME (eg. ccxxxxx)>
 
 #inside adapter>
+
+## Create data paths 
+mkdir -p $HOME/datasets/ready/mobious/models
+
+## Change to project path
 cd $HOME/ready
-export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
+export PYTHONPATH=$HOME/ready/src #. #$HOME/<ADD_REPO_PATH>
+
+python -m pip install --upgrade pip
+pip install loguru
+pip install omegaconf
+
+#?pip install -e ".[test,learning,model_optimisation]"
+
 ## GOTO models/README.md for instructions to train model in cricket
 #type `exit` in the terminal to exit
 ```

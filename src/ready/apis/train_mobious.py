@@ -168,18 +168,6 @@ def main(args):
     # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     # Elapsed time for the training loop: 13.326771756013235 (mins)
     #
-    # 10 epochs without augmentations
-    # Train loop at epoch: 10
-    # Epoch loss: 0.0828
-    # Average accuracy @ epoch: 1.1437
-    # Average f1 @ epoch: 1.1448
-    # Average recall @ epoch: 1.1437
-    # Average precision @ epoch: 1.1497
-    # Average fbeta @ epoch: 1.1448
-    # Average miou @ epoch: 1.1656
-    # Average dice @ epoch: 1.2063
-    # Elapsed time for the training loop: 18.54989504814148 (sec)
-
 
     ##############################################
     # REMOTE A100 80GB
@@ -223,6 +211,31 @@ def main(args):
     # 100 epochs> with augmegmnation
     #    epoch loss:0.0081
     #    training time: 505.00 mins
+
+    ##
+    # 10 epochs without augmentations in NVIDIARTXA20008GBLaptopGPU
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0828
+    # Average accuracy @ epoch: 1.1437
+    # Average f1 @ epoch: 1.1448
+    # Average recall @ epoch: 1.1437
+    # Average precision @ epoch: 1.1497
+    # Average fbeta @ epoch: 1.1448
+    # Average miou @ epoch: 1.1656
+    # Average dice @ epoch: 1.2063
+    # Elapsed time for the training loop: 18.54989504814148 (sec)
+    ##
+    # 10 epochs without augmentations in A100 80GB
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0995
+    # Average accuracy @ epoch: 1.1424
+    # Average f1 @ epoch: 1.1420
+    # Average recall @ epoch: 1.1424
+    # Average precision @ epoch: 1.1422
+    # Average fbeta @ epoch: 1.1420
+    # Average miou @ epoch: 1.1538
+    # Average dice @ epoch: 1.2000
+    # Elapsed time for the training loop: 15.468297719955444 (sec)
 
     epoch = None
     loss_values = []
