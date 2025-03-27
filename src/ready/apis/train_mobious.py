@@ -106,12 +106,12 @@ def main(args):
                                             ])
 
 
+    ## Length 5; set_data_directory("ready/data")
+    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        ## Length 5; set_data_directory("ready/data")
-        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
-        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
-        ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
-        FULL_DATA_PATH+"/train", transform=None, target_transform=None
+        FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
+        # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_DATA_PATH+"/train", transform=None, target_transform=None
         # FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
     )
 
@@ -137,12 +137,10 @@ def main(args):
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    # TODO: check which criterium properties to setup
     loss_fn = nn.CrossEntropyLoss()
+    # TODO: check which criterium properties to setup    
     # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
     # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-
-    # TODO
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
     # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
     # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
@@ -169,6 +167,18 @@ def main(args):
     # Average loss @ epoch: 0.0006139971665106714
     # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     # Elapsed time for the training loop: 13.326771756013235 (mins)
+    #
+    # 10 epochs without augmentations
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0828
+    # Average accuracy @ epoch: 1.1437
+    # Average f1 @ epoch: 1.1448
+    # Average recall @ epoch: 1.1437
+    # Average precision @ epoch: 1.1497
+    # Average fbeta @ epoch: 1.1448
+    # Average miou @ epoch: 1.1656
+    # Average dice @ epoch: 1.2063
+    # Elapsed time for the training loop: 18.54989504814148 (sec)
 
 
     ##############################################

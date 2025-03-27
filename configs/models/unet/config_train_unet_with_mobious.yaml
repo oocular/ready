@@ -3,7 +3,8 @@ model:
     weight_fn: None #True #False #TOTEST
 
 dataset:
-    github_data_path: "data/mobious"
+    github_data_path: "data/mobious/sample-frames/test640x400"
+    # github_data_path: "data/mobious/sample-frames/test3000x1700"
     data_path: "datasets/ready/mobious/MOBIOUS"
     models_path: "datasets/ready/mobious/models"
     checkpoint_path: "datasets/?"
@@ -11,5 +12,5 @@ dataset:
 model_hyperparameters:
     batch_size: 8
     num_workers: 4
-    epochs: 100
+    epochs: 10
     learning_rate: 0.003

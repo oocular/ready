@@ -15,7 +15,7 @@ This repository contains documentation and code for the project `READY: REal-tim
 ## :nut_and_bolt: Installation
 [CONTRIBUTING](CONTRIBUTING.md) is a good starting point for setting up the GitHub repository, managing dependencies, and guiding you through the development installation and debugging process.
 
-### Dev installation
+### :recycle: Dev installation
 ```
 uv venv --python 3.12
 source .venv/bin/activate
@@ -24,6 +24,12 @@ uv pip list --verbose
 pre-commit run -a
 ```
 See further details for installation [here](docs).
+
+### :brain: Model development 
+Run and/or edit bash scripts [train](scripts/models/train_unet_with_mobious.bash) and [config](configs/models/unet/config_train_unet_with_mobious.yaml) in the terminal.
+```
+bash scripts/models/train_unet_with_mobious.bash
+```
 
 ## :clapper: Demos
 Python-based application were implemented with [holoscan-sdk](docs/holoscan/README.md), where  holoscan-sdk was built on host Laptop computer with NVIDIARTXA2000-8GB.
