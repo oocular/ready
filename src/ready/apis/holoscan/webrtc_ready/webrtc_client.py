@@ -13,12 +13,16 @@ from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
-from holoscan.core import Application, Operator, OperatorSpec, Tracker
+from holoscan.conditions import PeriodicCondition
+from holoscan.core import (Application, ConditionType, IOSpec, Operator,
+                           OperatorSpec, Tracker)
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
                                 MemoryStorageType, UnboundedAllocator)
+from holoscan.schedulers import (EventBasedScheduler, GreedyScheduler,
+                                 MultiThreadScheduler)
 
 ROOT = os.path.dirname(__file__)
 
@@ -59,7 +63,7 @@ class PreInfoOp(Operator):
         # print(f" >>> End Compute PreInfoOp  ")
 
 
-class PostInfoOp(Operator):
+class PostInferenceOp(Operator):
     """
     Information Operator
 
@@ -84,7 +88,7 @@ class PostInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        # print(f"--START-------- PostInfoOp  ------------")
+        # print(f"--START-------- PostInferenceOp  ------------")
         in_message = op_input.receive("in")
         # print(f"in_message={in_message}")
         # print(f"frame count={self.frame_count}")
@@ -138,7 +142,55 @@ class PostInfoOp(Operator):
         op_output.emit(specs, "output_specs")
 
         self.frame_count += 1
-        # print(f"--END-------- PostInfoOp  ------------")
+        # print(f"--END-------- PostInferenceOp  ------------")
+
+
+class DropFramesOp(Operator):
+    """Dropping Frames Operator"""
+    def __init__(self, fragment, *args, **kwargs):
+        """Initialize Operator
+        Need to call the base class constructor last
+        """
+        super().__init__(fragment, *args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        """Setting up specifications of Operator
+
+        Notes:
+        ---------
+        For policy:
+          - IOSpec.QueuePolicy.POP = pop the oldest value in favor of the new one when the queue
+            is full
+          - IOSpec.QueuePolicy.REJECT = reject the new value when the queue is full
+          - IOSpec.QueuePolicy.FAULT = fault if queue is full (default)
+
+        One could also set the receiver's capacity and policy via the connector method:
+            .connector(
+                IOSpec.ConnectorType.DOUBLE_BUFFER,
+                capacity=1,
+                policy=1,  # 1 = reject, 0 = pop, 2 = fault
+            )
+        but that is less flexible as `IOSpec::ConnectorType::kDoubleBuffer` is appropriate for
+        within-fragment connections, but will not work if the operator was connected to a
+        different fragment.
+
+        """
+        spec.input("in", policy=IOSpec.QueuePolicy.REJECT).condition(
+            ConditionType.MESSAGE_AVAILABLE,
+            min_size=1,
+            front_stage_max_size=1
+        )
+        # spec.input("in").connector(
+        #     IOSpec.ConnectorType.DOUBLE_BUFFER,
+        #     capacity=1,
+        #     policy=1,
+        # ).condition(ConditionType.MESSAGE_AVAILABLE, min_size=1, front_stage_max_size=1)
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        """Computing method to receive input message and emit output message"""
+        value = op_input.receive("in")
+        op_output.emit(value, "out")
 
 
 class VideoStreamReceiverContext:
@@ -265,7 +317,12 @@ class WebRTCClientOp(Operator):
         self._pcs.clear()
 
     def setup(self, spec: OperatorSpec):
-        spec.output("output")
+        # Note: Setting ConditionType.NONE overrides the default of
+        #   ConditionType.DOWNSTREAM_MESSAGE_AFFORDABLE. This means that the operator will be
+        #   triggered regardless of whether any operators connected downstream have space in their
+        #   queues.
+        # spec.output("output")
+        spec.output("output").condition(ConditionType.NONE)
 
     def start(self):
         self._connected_event.wait()
@@ -363,9 +420,9 @@ class WebRTCClientApp(Application):
         visualizer_sink = HolovizOp(
             self,
             name="HolovizOp_sink",
-            window_title="WebRTC Client",
-            width=640, #TODO pass this as a width and height from index.html video-resolution
-            height=480,
+            window_title="READY Demo WebRTC Client",
+            width=640, #320 #TODO pass this as a width and height from index.html video-resolution
+            height=480, #240
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(
@@ -399,9 +456,9 @@ class WebRTCClientApp(Application):
         )
 
 
-        post_info_op = PostInfoOp(
+        post_inference_op = PostInferenceOp(
             self,
-            name="post_info_op",
+            name="post_inference_op",
             allocator=host_allocator,
         )
 
@@ -485,18 +542,35 @@ class WebRTCClientApp(Application):
             data_format="nchw",
         )
 
-        ## REFERENCE
-        ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
-        self.add_flow(webrtc_client_op, visualizer_sink, {("output", "receivers")})
-        self.add_flow(webrtc_client_op, pre_info_op, {("output", "in")})
+        branch_hz = 15
+        period_ns = int(1e9 / branch_hz)
+        drop_frames_op = DropFramesOp(
+            self,
+            PeriodicCondition(self, recess_period=period_ns),
+            name="drop_frames_op",
+        )
+
+	## WORKFLOW
+	### Branch01
+        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+
+	### Branch02
+        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
         self.add_flow(pre_info_op, format_op, {("out", "")})
-        self.add_flow(format_op, inference_op, {("tensor", "")})
+        self.add_flow(format_op, inference_op, {("tensor", "receivers")})
+
         self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
         self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
-        self.add_flow(inference_op, post_info_op, {("", "in")})
-        self.add_flow(post_info_op, visualizer_sink, {("outputs", "receivers")})
-        self.add_flow(post_info_op, visualizer_sink, {("output_specs", "input_specs")})
+        self.add_flow(inference_op, post_inference_op, {("", "in")})
+
+        self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
+        self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+
+        ## REFERENCE
+        ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
@@ -534,5 +608,19 @@ if __name__ == "__main__":
 
     app = WebRTCClientApp(cmdline_args)
 
-    with Tracker(app, filename=cmdline_args.logger_filename) as tracker:
+
+    # Experimenting to improve consumer speed with schedulers
+    scheduler = GreedyScheduler(app, name="greedy_scheduler") # Default scheduler for thread = 0 ;
+    # scheduler_class = EventBasedScheduler
+    # scheduler_class = MultiThreadScheduler
+    # scheduler = scheduler_class(
+    #     app,
+    #     worker_thread_number=5,
+    #     stop_on_deadlock=True,
+    #     stop_on_deadlock_timeout=500,
+    #     name="webrtc_scheduler",
+    # )
+    app.scheduler(scheduler)
+
+    with Tracker(app, filename=cmdline_args.logger_filename, num_start_messages_to_skip=2, num_last_messages_to_discard=2) as tracker:
         app.run()

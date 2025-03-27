@@ -11,8 +11,15 @@ bash webrtc_ready.bash logweb_1280x720Mob1m.log PUBLIC OFF
 bash webrtc_ready.bash logweb_1920x1080Mob1m.log PUBLIC OFF
 ```
 
+* Create path and move for files
+```
+mkdir -p logsmobile-010324 
+mv logweb_* logsmobile-010324 
+```
+
 * Analyse single logfiles
 ```
+cd $HOME/repositories/oocular/ready/data/webrtc/flow_benchmarking
 bash ../../../scripts/flow_benchmarking/A_analyse_logfile.bash $HOME/datasets/ready/webrtc/logsmobile-010324 logweb_320x240Mob1m.log
 bash ../../../scripts/flow_benchmarking/A_analyse_logfile.bash $HOME/datasets/ready/webrtc/logsmobile-010324 logweb_640x480Mob1m.log
 bash ../../../scripts/flow_benchmarking/A_analyse_logfile.bash $HOME/datasets/ready/webrtc/logsmobile-010324 logweb_960x540Mob1m.log
