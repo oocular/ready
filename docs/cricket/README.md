@@ -29,6 +29,7 @@ tar czf weights_29-Mar-2025_with_augmentations00.tar.gz 29-Mar-2025/
 #moving paths
 SERVER_DATAPATH=/home/ready/datasets/ready/mobious/models
 TARFILE=weights_29-Mar-2025_with_augmentations00.tar.gz
+TARFILE=weights_28-Mar-2025_none_augmentations.tar.gz
 LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/trained_models_in_cricket
 scp ccaemxo@cricket.rc.ucl.ac.uk:${SERVER_DATAPATH}/${TARFILE} ${LOCAL_DATAPATH}
 ## Example with zip

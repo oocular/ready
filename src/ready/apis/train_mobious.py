@@ -62,9 +62,6 @@ def main(args):
     GITHUB_DATA_PATH = config.dataset.github_data_path
     debug_print_flag = config.model.debug_print_flag
 
-    # TOCHECK
-    # HOME_PATH = os.path.join(Path.home(), "") #CRICKET_SERVER
-
     FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
     FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
@@ -72,8 +69,6 @@ def main(args):
         os.mkdir(FULL_MODEL_PATH)
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    # set_data_directory(data_path="data/mobious") #data in repo
-    # set_data_directory(main_path=DATA_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cuda_available = torch.cuda.is_available()
@@ -90,27 +85,36 @@ def main(args):
     #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
     #     )
 
-    # set transforms for training images
-    transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
-                                          transforms.ToImage(),
-                                          transforms.ToDtype(torch.float32, scale=True),
-                                          # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
-                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-                                        # standardisation values taken from ImageNet
+
+    #TODO degug color transformations
+    # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
+    transforms_img = transforms.Compose([
+                                            transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
+                                            transforms.ToImage(),
+                                            transforms.ToDtype(torch.float32, scale=True),
+                                            # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
+                                            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                                            # standardisation values taken from ImageNet
+                                            ])
 
     transforms_rotations = transforms.Compose([
-                                            transforms.ToImage(),
+                                            transforms.ToImage(),                                        
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
-                                            transforms.RandomRotation(45),
+                                            # transforms.RandomRotation(45),
+                                            transforms.RandomAffine(degrees=(30, 70), translate=(0.1, 0.3), scale=(0.25, 0.75)),
+                                            transforms.RandomPerspective(distortion_scale=0.6, p=0.5),
+                                            # transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            # transforms.RandomCrop(size=(250, 250)),
                                             ])
 
 
-    ## Length 5; set_data_directory("ready/data")
-    ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
+    ## Length 5; github_data_path
+    ## Length 1143;  data_path
     trainset = MobiousDataset(
         # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
         # FULL_DATA_PATH, transform=None, target_transform=None
         FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
     )
@@ -312,7 +316,7 @@ def main(args):
             print(f"Average {key} @ epoch: {performance[key]:.4f}")
 
     logger.info(f"#########################")
-    logger.info(f"Training complete. Saving checkpoint...")
+    logger.info(f"Training complete.")
 
     current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
     # TODO create directory with using current_time_stamp and GPU size
