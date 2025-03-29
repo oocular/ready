@@ -24,8 +24,16 @@ scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   
 
 ## Copying files (models) to local host
 ```
-zip -r models12-12-24.zip models/
-scp ccaemxo@cricket.rc.ucl.ac.uk:/home/ready/datasets/mobious/MOBIOUS/models/_weights_15-12-24_07-00-10_TRAINe100_GPUa100_80gb.zip ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
+#tar path
+tar czf weights_29-Mar-2025_with_augmentations00.tar.gz 29-Mar-2025/
+#moving paths
+SERVER_DATAPATH=/home/ready/datasets/ready/mobious/models
+TARFILE=weights_29-Mar-2025_with_augmentations00.tar.gz
+LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/trained_models_in_cricket
+scp ccaemxo@cricket.rc.ucl.ac.uk:${SERVER_DATAPATH}/${TARFILE} ${LOCAL_DATAPATH}
+## Example with zip
+#zip -r models12-12-24.zip models/
+#scp ccaemxo@cricket.rc.ucl.ac.uk:/home/ready/datasets/mobious/MOBIOUS/models/_weights_15-12-24_07-00-10_TRAINe100_GPUa100_80gb.zip ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
 ```
 
 ## Container

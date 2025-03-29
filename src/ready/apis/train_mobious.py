@@ -102,17 +102,17 @@ def main(args):
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
-                                            transforms.RandomRotation(40),
+                                            transforms.RandomRotation(45),
                                             ])
 
 
     ## Length 5; set_data_directory("ready/data")
     ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
     trainset = MobiousDataset(
-        FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
+        # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        # FULL_DATA_PATH+"/train", transform=None, target_transform=None
-        # FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_DATA_PATH, transform=None, target_transform=None
+        FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
     )
 
     logger.info(f"Length of trainset: {len(trainset)}")
