@@ -22,20 +22,6 @@ scp MOBIUS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #MOBIUS.zip #3.3G
 scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   1.9MB/s   00:17
 ```
 
-## Copying files (models) to local host
-```
-#tar path
-tar czf weights_29-Mar-2025_with_augmentations00.tar.gz 29-Mar-2025/
-#moving paths
-SERVER_DATAPATH=/home/ready/datasets/ready/mobious/models
-TARFILE=weights_29-Mar-2025_with_augmentations00.tar.gz
-TARFILE=weights_28-Mar-2025_none_augmentations.tar.gz
-LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/trained_models_in_cricket
-scp ccaemxo@cricket.rc.ucl.ac.uk:${SERVER_DATAPATH}/${TARFILE} ${LOCAL_DATAPATH}
-## Example with zip
-#zip -r models12-12-24.zip models/
-#scp ccaemxo@cricket.rc.ucl.ac.uk:/home/ready/datasets/mobious/MOBIOUS/models/_weights_15-12-24_07-00-10_TRAINe100_GPUa100_80gb.zip ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
-```
 
 ## Container
 
@@ -84,4 +70,21 @@ vim configs/models/unet/config_train_unet_with_mobious.yaml
 ```
 
 #type `exit` in the terminal to exit
+```
+
+## Copying files (models) to local host
+The following are examples that you can use with different variables.
+```
+## tar paths in server
+PATHMODEL=30-Mar-2025_08-35-44
+TRAINDATA=train012per_0145
+TRAINTIMESEC=3778
+TARMODEL=weights_${PATHMODEL}_with_augmenations_${TRAINDATA}_trained_in_${TRAINTIMESEC}s.tar.gz
+tar czf ${TARMODEL} ${PATHMODEL}
+
+## Moving path in local device
+SERVER_DATAPATH=/home/ready/datasets/ready/mobious/models
+LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/trained_models_in_cricket
+TARFILE=weights_29-Mar-2025_16-23-29_with_augmenations_train100per_1144_trained_in_30139s.tar.gz
+scp ccxxxxx@cricket.rc.ucl.ac.uk:${SERVER_DATAPATH}/${TARFILE} ${LOCAL_DATAPATH}
 ```
