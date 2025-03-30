@@ -58,6 +58,13 @@ watch -n 2 nvidia-smi #in another terminal to see activity every 2secs
 cd $HOME/ready
 git pull
 
+# install package
+```
+uv venv --python 3.12
+source .venv/bin/activate
+uv pip install -e ".[test,learning,model_optimisation]"
+```
+
 # Launch container 
 bash docs/cricket/launch_container_in_cricket.bash <ADD_USERNAME (eg. ccxxxxx)>
 
@@ -70,12 +77,11 @@ mkdir -p $HOME/datasets/ready/mobious/models
 cd $HOME/ready
 export PYTHONPATH=$HOME/ready/src #. #$HOME/<ADD_REPO_PATH>
 
-python -m pip install --upgrade pip
-pip install loguru
-pip install omegaconf
+## GOTO models/README.md for instructions to train model in cricket but you can try:
+```
+bash scripts/models/train_unet_with_mobious.bash
+vim configs/models/unet/config_train_unet_with_mobious.yaml
+```
 
-#?pip install -e ".[test,learning,model_optimisation]"
-
-## GOTO models/README.md for instructions to train model in cricket
 #type `exit` in the terminal to exit
 ```

@@ -324,7 +324,7 @@ def main(args):
 
 
     if not debug_print_flag:
-        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y")
+        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
         print(PATH)
         if not os.path.exists(PATH):
             os.mkdir(PATH)
