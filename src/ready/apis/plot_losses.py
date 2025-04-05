@@ -46,12 +46,15 @@ if __name__ == "__main__":
 
     logger.info(f"\n Dataframe: {df1}")
 
-    plt.plot(df1['epochs'], df1['lf1'], df1['epochs'], df1['lf2'], df1['epochs'], df1['lf3'], df1['epochs'], df1['lf4'], df1['epochs'], df1['lf5'], linewidth=3)
+    # plt.plot(df1['epochs'], df1['lf1'], df1['epochs'], df1['lf2'], df1['epochs'], df1['lf3'], df1['epochs'], df1['lf4'], df1['epochs'], df1['lf5'], linewidth=3)
+    plt.plot(df1['epochs'], df1['lf1'], df1['epochs'], df1['lf2'], df1['epochs'], df1['lf3'], linewidth=3)
     # plt.title("Losses for models trained 100epochs in a100-80gb gpu")
+
     plt.xlabel("Epochs", fontsize=18)
     plt.ylabel("Loss", fontsize=18)
     plt.tick_params(axis='both', labelsize=13)
-    plt.legend(fontsize=35)
-    plt.legend(["naug_d1144", "waug_d1144", "waug_d0572", "waug_d0286", "waug_d0145"])
+    # plt.legend(["naug_d1144", "waug_d1144", "waug_d0572", "waug_d0286", "waug_d0145"])
+    plt.legend(["naug_d1144", "waug_d1144", "waug_d0572"], fontsize=18)
+    plt.tight_layout()
     plt.grid()
     plt.show()

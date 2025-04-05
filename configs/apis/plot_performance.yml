@@ -1,0 +1,9 @@
+json_files:
+    file1: "28-Mar-2025_15-25-07/performance_28-Mar-2025_15-25-07.json"
+    file2: "29-Mar-2025_16-23-29/performance_29-Mar-2025_16-23-29.json"
+    file3: "30-Mar-2025_15-14-24/performance_30-Mar-2025_15-14-24.json"
+    file4: "29-Mar-2025_22-12-17/performance_29-Mar-2025_22-12-17.json"
+    file5: "30-Mar-2025_08-35-44/performance_30-Mar-2025_08-35-44.json"
+
+dataset:
+    models_path: "datasets/ready/mobious/models_cricket"

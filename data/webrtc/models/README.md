@@ -50,6 +50,7 @@ tar -xzf weights_30-Mar-2025_08-35-44_with_augmenations_train012per_0145_trained
 cd $HOME/repositories/oocular/ready
 source .venv/bin/activate
 python src/ready/apis/plot_losses.py -c configs/apis/plot_losses.yml
+python src/ready/apis/plot_performance.py -c configs/apis/plot_performance.yml
 ```
 
 ## Model path and files
