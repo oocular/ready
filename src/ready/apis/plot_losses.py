@@ -5,53 +5,53 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from loguru import logger
+from omegaconf import OmegaConf
 
 if __name__ == "__main__":
     """
     Plot losses from a csv file.
     Arguments:
-        -p, --model_path: Set the model path.
-        -lf, --loss_file: Set the loss file.
+        -c, with model path and loss files
 
     Example:
-    python src/ready/apis/plot_losses.py -p <PATH> -lf1 <*.csv> -lf2 <*.csv>
+    python src/ready/apis/plot_losses.py -c <config.yaml>
     """
 
-    parser = ArgumentParser(description="Convert models to ONNX and simplify it (sim.onnx)")
-    parser.add_argument(
-        "-p",
-        "--model_path",
-        default="none",
-        help=("Set the model path"),
-    )
-    parser.add_argument(
-        "-lf1",
-        "--loss_file1",
-        default="none",
-        help=("Set the loss file"))
-    parser.add_argument(
-        "-lf2",
-        "--loss_file2",
-        default="none",
-        help=("Set the loss file"))
-
+    parser = ArgumentParser(description="Plot losses where files are in config file")
+    parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
     args = parser.parse_args()
-    MODELS_PATH=args.model_path
-    loss_file1 = args.loss_file1
-    loss_file2 = args.loss_file2
 
-    path_filename1 = os.path.join(MODELS_PATH, loss_file1)
-    path_filename2 = os.path.join(MODELS_PATH, loss_file2)
+    config_file = args.config_file
+    config = OmegaConf.load(config_file)
+    MODELS_PATH=os.path.join(Path.home(), config.dataset.models_path)
+
+    path_filename1 = os.path.join(MODELS_PATH, config.losses.loss_file1)
+    path_filename2 = os.path.join(MODELS_PATH, config.losses.loss_file2)
+    path_filename3 = os.path.join(MODELS_PATH, config.losses.loss_file3)
+    path_filename4 = os.path.join(MODELS_PATH, config.losses.loss_file4)
+    path_filename5 = os.path.join(MODELS_PATH, config.losses.loss_file5)
+
     df1 = pd.read_csv(path_filename1, names=['lf1'], header=None)
-
     df2 = pd.read_csv(path_filename2, names=['lf2'], header=None)
+    df3 = pd.read_csv(path_filename3, names=['lf3'], header=None)
+    df4 = pd.read_csv(path_filename4, names=['lf4'], header=None)
+    df5 = pd.read_csv(path_filename5, names=['lf5'], header=None)
+
     df1['epochs'] = df1.index
     df1['lf2'] = df2
+    df1['lf3'] = df3
+    df1['lf4'] = df4
+    df1['lf5'] = df5
 
-    plt.plot(df1['epochs'], df1['lf1'],df1['epochs'], df1['lf2'])
-    plt.title("Losses for models trained 100epochs in a100-80gb gpu")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.legend(["Train Loss without agumentation", "Train Loss with agumentation"])
+    logger.info(f"\n Dataframe: {df1}")
+
+    plt.plot(df1['epochs'], df1['lf1'], df1['epochs'], df1['lf2'], df1['epochs'], df1['lf3'], df1['epochs'], df1['lf4'], df1['epochs'], df1['lf5'], linewidth=3)
+    # plt.title("Losses for models trained 100epochs in a100-80gb gpu")
+    plt.xlabel("Epochs", fontsize=18)
+    plt.ylabel("Loss", fontsize=18)
+    plt.tick_params(axis='both', labelsize=13)
+    plt.legend(fontsize=35)
+    plt.legend(["naug_d1144", "waug_d1144", "waug_d0572", "waug_d0286", "waug_d0145"])
     plt.grid()
     plt.show()

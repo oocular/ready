@@ -1,0 +1,9 @@
+losses:
+    loss_file1: "loss_values_28-Mar-2025_15-25-07.csv"
+    loss_file2: "loss_values_29-Mar-2025_16-23-29.csv"
+    loss_file3: "loss_values_30-Mar-2025_15-14-24.csv"
+    loss_file4: "loss_values_29-Mar-2025_22-12-17.csv"
+    loss_file5: "loss_values_30-Mar-2025_08-35-44.csv"
+
+dataset:
+    models_path: "datasets/ready/mobious/models_cricket/28-Mar-2025_15-25-07"
