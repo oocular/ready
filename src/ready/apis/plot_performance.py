@@ -1,11 +1,11 @@
 
+import json
 import os
 from argparse import ArgumentParser
 from pathlib import Path
-import json
-import numpy as np
 
 import matplotlib.pyplot as plt
+import numpy as np
 from loguru import logger
 from omegaconf import OmegaConf
 

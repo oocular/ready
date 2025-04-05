@@ -53,16 +53,7 @@ python src/ready/apis/plot_losses.py -c configs/apis/plot_losses.yml
 python src/ready/apis/plot_performance.py -c configs/apis/plot_performance.yml
 ```
 
-## Model path and files
-```
-~/datasets/ready/mobious/trained_models_in_cricket/29-Mar-2025_16-23-29$ tree -h
-[4.0K]  .
-├── [2.1K]  loss_values_29-Mar-2025_16-23-29.csv
-├── [ 236]  performance_29-Mar-2025_16-23-29.json
-└── [ 89M]  _weights_29-Mar-2025_16-23-29.pth
-```
-
-## Preparations
+## Model optimisitation
 ### Conversion to ONNX (using .pth models) and ONNX symplification 
 ```
 cd $HOME/repositories/oocular/ready
@@ -82,7 +73,7 @@ bash scripts/models/rebing_model_NCWH_to_NHWC.bash
 
 ## Model properties with https://netron.app/
 
-### Graph properties of `_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx`
+### Graph properties of `_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx`; `_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx`
 ```
 name
 main_graph
@@ -93,6 +84,3 @@ output_old
 name: output_old
 tensor: float32[batch_size,4,400,640]
 ```
-
-
-

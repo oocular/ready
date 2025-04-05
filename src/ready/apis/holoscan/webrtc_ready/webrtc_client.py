@@ -606,7 +606,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-mp",
         "--models_path_map",
-        default="/workspace/volumes/datasets/ready/mobious/models_cricket/15-12-24",
+        default="/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24",
         help=("Set model path"),
     )
     cmdline_args = parser.parse_args()
