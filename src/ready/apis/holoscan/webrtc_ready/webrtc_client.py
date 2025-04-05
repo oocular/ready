@@ -505,10 +505,8 @@ class WebRTCClientApp(Application):
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
-        models_path_map="/workspace/volumes/datasets/ready/mobious/models"
-        model_name="_weights_15-12-24_07-00-10-sim-BHWC.onnx"
         self_models_path_map = {
-            "ready_model": os.path.join(models_path_map, model_name),
+            "ready_model": os.path.join(self._cmdline_args.models_path_map, self._cmdline_args.model_name),
         }
 
         inference_op = InferenceOp(
@@ -598,6 +596,18 @@ if __name__ == "__main__":
         "--logger_filename",
         default="logger.log",
         help=("Set logger filename"),
+    )
+    parser.add_argument(
+        "-m",
+        "--model_name",
+        default="_weights_15-12-24_07-00-10-sim-BHWC.onnx",
+        help=("Set model name"),
+    )
+    parser.add_argument(
+        "-mp",
+        "--models_path_map",
+        default="/workspace/volumes/datasets/ready/mobious/models_cricket/15-12-24",
+        help=("Set model path"),
     )
     cmdline_args = parser.parse_args()
 

@@ -98,7 +98,7 @@ def main(args):
                                             ])
 
     transforms_rotations = transforms.Compose([
-                                            transforms.ToImage(),                                        
+                                            transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
                                             # transforms.RandomRotation(45),
@@ -142,7 +142,7 @@ def main(args):
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     loss_fn = nn.CrossEntropyLoss()
-    # TODO: check which criterium properties to setup    
+    # TODO: check which criterium properties to setup
     # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
     # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)

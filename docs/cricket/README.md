@@ -84,7 +84,7 @@ tar czf ${TARMODEL} ${PATHMODEL}
 
 ## Moving path in local device
 SERVER_DATAPATH=/home/ready/datasets/ready/mobious/models
-LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/trained_models_in_cricket
+LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/models_cricket
 TARFILE=weights_29-Mar-2025_16-23-29_with_augmenations_train100per_1144_trained_in_30139s.tar.gz
 scp ccxxxxx@cricket.rc.ucl.ac.uk:${SERVER_DATAPATH}/${TARFILE} ${LOCAL_DATAPATH}
 ```
