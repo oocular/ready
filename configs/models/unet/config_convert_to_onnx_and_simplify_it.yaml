@@ -1,10 +1,14 @@
 model:
-    input_model_name: "_weights_03-Jan-2025_08-15-39.pth"
-    #input_model_name: "_weights_10-09-24_04-50-40.pth"
+    # input_model_name: "_weights_03-Jan-2025_08-15-39.pth"
+    # input_model_name: "_weights_10-09-24_04-50-40.pth"
+    #input_model_name: "_weights_29-Mar-2025_16-23-29.pth"
+    input_model_name: "_weights_28-Mar-2025_15-25-07.pth"
     input_channel_n: 3
     output_channel_n: 4
     image_height: 400
     image_width: 640
 
 dataset:
-    models_path: "datasets/ready/mobious/models/03-Jan-2025"
+    # models_path: "datasets/ready/mobious/models/03-Jan-2025"
+    # models_path: "datasets/ready/mobious/models_a10080gb/29-Mar-2025_16-23-29"
+    models_path: "datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"

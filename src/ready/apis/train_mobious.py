@@ -62,9 +62,6 @@ def main(args):
     GITHUB_DATA_PATH = config.dataset.github_data_path
     debug_print_flag = config.model.debug_print_flag
 
-    # TOCHECK
-    # HOME_PATH = os.path.join(Path.home(), "") #CRICKET_SERVER
-
     FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
     FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
@@ -72,8 +69,6 @@ def main(args):
         os.mkdir(FULL_MODEL_PATH)
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
-    # set_data_directory(data_path="data/mobious") #data in repo
-    # set_data_directory(main_path=DATA_PATH, data_path="datasets/mobious/MOBIOUS") #SERVER
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cuda_available = torch.cuda.is_available()
@@ -90,29 +85,38 @@ def main(args):
     #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
     #     )
 
-    # set transforms for training images
-    transforms_img = transforms.Compose([transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
-                                          transforms.ToImage(),
-                                          transforms.ToDtype(torch.float32, scale=True),
-                                          # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
-                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-                                        # standardisation values taken from ImageNet
+
+    #TODO degug color transformations
+    # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
+    transforms_img = transforms.Compose([
+                                            transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
+                                            transforms.ToImage(),
+                                            transforms.ToDtype(torch.float32, scale=True),
+                                            # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
+                                            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                                            # standardisation values taken from ImageNet
+                                            ])
 
     transforms_rotations = transforms.Compose([
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
-                                            transforms.RandomRotation(40),
+                                            # transforms.RandomRotation(45),
+                                            transforms.RandomAffine(degrees=(30, 70), translate=(0.1, 0.3), scale=(0.25, 0.75)),
+                                            transforms.RandomPerspective(distortion_scale=0.6, p=0.5),
+                                            # transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            # transforms.RandomCrop(size=(250, 250)),
                                             ])
 
 
+    ## Length 5; github_data_path
+    ## Length 1143;  data_path
     trainset = MobiousDataset(
-        ## Length 5; set_data_directory("ready/data")
-        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=None, target_transform=None
-        # GITHUB_DATA_PATH+"/sample-frames/test640x400", transform=transforms_rotations, target_transform=transforms_rotations
-        ## Length 1143;  set_data_directory("datasets/mobious/MOBIOUS")
-        FULL_DATA_PATH+"/train", transform=None, target_transform=None
-        # FULL_DATA_PATH+"/train", transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
+        # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
+        # FULL_DATA_PATH, transform=None, target_transform=None
+        FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
     )
 
     logger.info(f"Length of trainset: {len(trainset)}")
@@ -137,12 +141,10 @@ def main(args):
     # model.summary()
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    # TODO: check which criterium properties to setup
     loss_fn = nn.CrossEntropyLoss()
+    # TODO: check which criterium properties to setup
     # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
     # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-
-    # TODO
     # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
     # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
     # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
@@ -169,7 +171,7 @@ def main(args):
     # Average loss @ epoch: 0.0006139971665106714
     # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
     # Elapsed time for the training loop: 13.326771756013235 (mins)
-
+    #
 
     ##############################################
     # REMOTE A100 80GB
@@ -213,6 +215,31 @@ def main(args):
     # 100 epochs> with augmegmnation
     #    epoch loss:0.0081
     #    training time: 505.00 mins
+
+    ##
+    # 10 epochs without augmentations in NVIDIARTXA20008GBLaptopGPU
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0828
+    # Average accuracy @ epoch: 1.1437
+    # Average f1 @ epoch: 1.1448
+    # Average recall @ epoch: 1.1437
+    # Average precision @ epoch: 1.1497
+    # Average fbeta @ epoch: 1.1448
+    # Average miou @ epoch: 1.1656
+    # Average dice @ epoch: 1.2063
+    # Elapsed time for the training loop: 18.54989504814148 (sec)
+    ##
+    # 10 epochs without augmentations in A100 80GB
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0995
+    # Average accuracy @ epoch: 1.1424
+    # Average f1 @ epoch: 1.1420
+    # Average recall @ epoch: 1.1424
+    # Average precision @ epoch: 1.1422
+    # Average fbeta @ epoch: 1.1420
+    # Average miou @ epoch: 1.1538
+    # Average dice @ epoch: 1.2000
+    # Elapsed time for the training loop: 15.468297719955444 (sec)
 
     epoch = None
     loss_values = []
@@ -289,7 +316,7 @@ def main(args):
             print(f"Average {key} @ epoch: {performance[key]:.4f}")
 
     logger.info(f"#########################")
-    logger.info(f"Training complete. Saving checkpoint...")
+    logger.info(f"Training complete.")
 
     current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
     # TODO create directory with using current_time_stamp and GPU size
@@ -297,7 +324,7 @@ def main(args):
 
 
     if not debug_print_flag:
-        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y")
+        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
         print(PATH)
         if not os.path.exists(PATH):
             os.mkdir(PATH)

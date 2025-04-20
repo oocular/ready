@@ -1,45 +1,22 @@
 # Models
 
-## Training models
-### Debug models local device
-* activate and export libs
+## Debug and train models in local device
+Run and/or edit bash scripts [train](../../scripts/models/train_unet_with_mobious.bash) and [config](../../configs/models/unet/config_train_unet_with_mobious.yaml) in the terminal.
 ```
-#cd root path of repo
-source .venv/bin/activate #To activate the virtual environment:
-export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
-```
-### Train models in server
-* train/debug unet with openEDS 
-```
-#train
-python src/ready/apis/train.py
-
-#debug model
-cd src/ready
-vim -O apis/train.py utils/datasets.py
+bash scripts/models/train_unet_with_mobious.bash
 ```
 
-* train/debug unet with mobious
-```
-#train
-python src/ready/apis/train_mobious.py -df #0or1
+## Train models in server
+We recommend to see [README](../cricket/README.md).
 
-#debug model
-cd src/ready
-vim -O apis/train_mobious.py utils/datasets.py
+## untar models in local device
 ```
-
-## Copying model to local host
-```
-#openEDS
-scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS/models/* ~/Desktop/nystagmus-tracking/datasets/openEDS/models/trained_models_in_cricket
-#100%   89MB   6.2MB/s   00:14 
-#100%  268MB   6.2MB/s   00:43
-
-#MOBIOUS
-scp ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious/MOBIOUS/models/* ~/Desktop/nystagmus-tracking/datasets/mobious/models/trained_models_in_cricket
-#100%   89MB   3.8MB/s   00:23 # at 44.7KB/s 34:06
+cd ~/datasets/ready/mobious/trained_models_in_cricket
+tar -xvzf weights_29-Mar-2025_16-23-29_with_augmenations_train100per_1144_trained_in_30139s.tar.gz
+├── [2.1K]  loss_values_29-Mar-2025_16-23-29.csv
+├── [ 236]  performance_29-Mar-2025_16-23-29.json
+└── [ 89M]  _weights_29-Mar-2025_16-23-29.pth
 ```
 
-## Optimise model
+## Optimise models
 Go to [data](../../data/) and respective models path 

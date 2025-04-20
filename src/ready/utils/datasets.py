@@ -191,7 +191,7 @@ class MobiousDataset(Dataset):
         random.seed(seed) # apply this seed to img tranfsorms
         torch.manual_seed(seed) # needed for torchvision 0.7
         if self.transform:
-            image = self.transform(image)#
+            image = self.transform(image)
 
         random.seed(seed) # apply this seed to target tranfsorms
         torch.manual_seed(seed) # needed for torchvision 0.7

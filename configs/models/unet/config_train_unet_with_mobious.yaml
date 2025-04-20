@@ -1,12 +1,15 @@
 model:
-    debug_print_flag: False #Use 1 (True) to enable or 0 (False) to disable.
+    debug_print_flag: False #Use 1 (True) to enable to look plots and logs and don't save files or 0 (False) to disable and save files with logs
     weight_fn: None #True #False #TOTEST
 
 dataset:
-    github_data_path: "data/mobious"
-    data_path: "datasets/ready/mobious/MOBIOUS"
-    models_path: "datasets/ready/mobious/models"
-    checkpoint_path: "datasets/?"
+    github_data_path: "data/mobious/sample-frames/test640x400" # TODO: "data/mobious/sample-frames/test3000x1700"
+    # data_path: "datasets/mobious/MOBIOUS/train012per_0145" #LOCAL and SERVER paths
+    # data_path: "datasets/mobious/MOBIOUS/train025per_0286" #LOCAL and SERVER paths
+    # data_path: "datasets/mobious/MOBIOUS/train050per_0572" #LOCAL and SERVER paths
+    data_path: "datasets/mobious/MOBIOUS/train100per_1144" #LOCAL and SERVER paths
+    models_path: "datasets/ready/mobious/models" #LOCAL and SERVER paths
+    checkpoint_path: "datasets/?" #TODO checkpoint_path
 
 model_hyperparameters:
     batch_size: 8
