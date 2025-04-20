@@ -13,14 +13,14 @@ set -Eeuxo pipefail
 cd /workspace/volumes/ready/src/ready/apis/holoscan/webrtc_ready
 KEYS_PATH=/workspace/volumes/datasets/ready/webrtc
 
-# MODEL_PATH_MAP="/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24"
-# MODEL_NAME="_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+MODEL_PATH_MAP="/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24"
+MODEL_NAME="_weights_15-12-24_07-00-10-sim-BHWC.onnx"
 
 # MODEL_PATH_MAP="/workspace/volumes/datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"
 # MODEL_NAME="_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx"
 
-MODEL_PATH_MAP="/workspace/volumes/datasets/ready/mobious/models_a10080gb/29-Mar-2025_16-23-29"
-MODEL_NAME="_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx"
+# MODEL_PATH_MAP="/workspace/volumes/datasets/ready/mobious/models_a10080gb/29-Mar-2025_16-23-29"
+# MODEL_NAME="_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx"
 
 ## REFERENCE
 #export HOLOSCAN_LOG_LEVEL=OFF
