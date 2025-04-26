@@ -1,0 +1,11 @@
+---
+#Config file for tarfiles
+model:
+  path: "datasets/ready/mobious/models"
+  datetimepath: 26-Apr-2025_19-40-01
+  trainingdataname: train100per_1144
+  trainingtime: 30606
+
+paths:
+  ServerDataPath: "/home/ready/datasets/ready/mobious/models"
+  LocalDataPath: "datasets/ready/mobious/models_a10080gb"
