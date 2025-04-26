@@ -89,23 +89,17 @@ def main(args):
     #TODO degug color transformations
     # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
     transforms_img = transforms.Compose([
-                                            transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.5, hue = 0),
-                                            transforms.ToImage(),
-                                            transforms.ToDtype(torch.float32, scale=True),
-                                            # ToImage and ToDtype are replacement for ToTensor which will be depreciated soon
-                                            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-                                            # standardisation values taken from ImageNet
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
                                             ])
 
     transforms_rotations = transforms.Compose([
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
-                                            # transforms.RandomRotation(45),
-                                            transforms.RandomAffine(degrees=(30, 70), translate=(0.1, 0.3), scale=(0.25, 0.75)),
-                                            transforms.RandomPerspective(distortion_scale=0.6, p=0.5),
-                                            # transforms.ElasticTransform(alpha=100.0, sigma=5.0),
-                                            # transforms.RandomCrop(size=(250, 250)),
+                                            transforms.RandomRotation(45),
                                             ])
 
 
@@ -114,9 +108,11 @@ def main(args):
     trainset = MobiousDataset(
         # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
         # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
         # FULL_DATA_PATH, transform=None, target_transform=None
-        FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        # FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
     )
 
     logger.info(f"Length of trainset: {len(trainset)}")

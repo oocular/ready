@@ -7,6 +7,7 @@ model.pth
 **.pth
 build
 **/ready.egg-info/
+uv.lock
 
 ## scripts
 analyze.py
