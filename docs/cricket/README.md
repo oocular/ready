@@ -76,7 +76,7 @@ vim configs/models/unet/config_train_unet_with_mobious.yaml
 The following are examples that you can use with different variables.
 ```
 ## tar paths in server
-bash ../../scripts/files/tarfiles.bash ccxxxxx #<ADD_SERVERUSERNAME>
+bash ../../scripts/files/tarfiles.bash
 
 ## Moving path in local device
 bash ../../scripts/files/moving_models.bash ccxxxxx #<ADD_SERVERUSERNAME>
