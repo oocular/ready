@@ -17,6 +17,6 @@ scp ${SERVERUSERNAME}@cricket.rc.ucl.ac.uk:${paths_ServerDataPath}/${model_datet
 cd $HOME/$paths_LocalDataPath
 mkdir -p ${model_datetimepath}
 cd ${model_datetimepath}
-tar -xvzf ../${TARMODEL} 
+tar -xvzf ../${TARMODEL}
 
 echo untar ${TARMODEL} to $HOME/$paths_LocalDataPath

@@ -6,7 +6,8 @@
 python -m ensurepip --default-pip
 python -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 
-#TODO check paths for scripts
+# TODO check paths for scripts
+# TODO -N or -nc https://www.baeldung.com/linux/wget-skip-download-existing-file
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/analyze.py -O analyze.py
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/log_parser.py -O log_parser.py
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/bar_plot_avg_datewise.py -O bar_plot_avg_datewise.py
