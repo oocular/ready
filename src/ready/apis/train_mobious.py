@@ -106,17 +106,17 @@ def main(args):
                                             transforms.RandomRotation(45),
                                             ])
 
-
+    #TODO avoid to hardcode data path in trainset. This should be passed as argument in the confirg file
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     trainset = MobiousDataset(
         # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
         # FULL_DATA_PATH, transform=None, target_transform=None
         # FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        # FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+        FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
     )
 
     logger.info(f"Length of trainset: {len(trainset)}")
