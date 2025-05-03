@@ -21,7 +21,7 @@ uv venv --python 3.12
 source .venv/bin/activate
 uv pip install -e ".[test,learning,model_optimisation]"
 uv pip list --verbose
-pre-commit run -a
+uv run pre-commit run -a
 ```
 See further details for installation [here](docs).
 

@@ -18,6 +18,7 @@ from argparse import ArgumentParser
 
 import onnx
 import onnx_graphsurgeon as gs
+from loguru import logger
 
 if __name__ == "__main__":
     """
@@ -91,3 +92,4 @@ if __name__ == "__main__":
     graph.toposort().cleanup()
 
     onnx.save(gs.export_onnx(graph), MODEL_PATH+"/"+ MODEL_NAME+"-sim-BHWC.onnx")
+    logger.info(f"Model {MODEL_NAME} has been binded as *-sim-BHWC.onnx successfully")

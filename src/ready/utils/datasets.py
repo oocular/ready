@@ -188,12 +188,12 @@ class MobiousDataset(Dataset):
         # print(label)
 
         seed = np.random.randint(2147483647) # make a seed with numpy generator
-        random.seed(seed) # apply this seed to img tranfsorms
+        random.seed(seed) # apply this seed to img transform
         torch.manual_seed(seed) # needed for torchvision 0.7
         if self.transform:
             image = self.transform(image)
 
-        random.seed(seed) # apply this seed to target tranfsorms
+        random.seed(seed) # apply this seed to target transform
         torch.manual_seed(seed) # needed for torchvision 0.7
         if self.target_transform:
             encode_mask = self.target_transform(encode_mask)

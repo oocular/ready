@@ -76,15 +76,11 @@ vim configs/models/unet/config_train_unet_with_mobious.yaml
 The following are examples that you can use with different variables.
 ```
 ## tar paths in server
-PATHMODEL=30-Mar-2025_08-35-44
-TRAINDATA=train012per_0145
-TRAINTIMESEC=3778
-TARMODEL=weights_${PATHMODEL}_with_augmenations_${TRAINDATA}_trained_in_${TRAINTIMESEC}s.tar.gz
-tar czf ${TARMODEL} ${PATHMODEL}
+bash ../../scripts/files/tarfiles.bash
 
 ## Moving path in local device
-SERVER_DATAPATH=/home/ready/datasets/ready/mobious/models
-LOCAL_DATAPATH=/home/mxochicale/datasets/ready/mobious/models_cricket
-TARFILE=weights_29-Mar-2025_16-23-29_with_augmenations_train100per_1144_trained_in_30139s.tar.gz
-scp ccxxxxx@cricket.rc.ucl.ac.uk:${SERVER_DATAPATH}/${TARFILE} ${LOCAL_DATAPATH}
+bash ../../scripts/files/moving_models.bash ccxxxxx #<ADD_SERVERUSERNAME>
+
+## Config file
+vim ../../configs/files/config_model_pathfiles.yaml 
 ```

@@ -73,7 +73,7 @@ bash scripts/models/rebing_model_NCWH_to_NHWC.bash
 
 ## Model properties with https://netron.app/
 
-### Graph properties of `_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx`; `_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx`
+### Graph properties of `_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx`; `_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx`; `_weights_26-Apr-2025_19-40-01-sim-BHWC.onnx`
 ```
 name
 main_graph

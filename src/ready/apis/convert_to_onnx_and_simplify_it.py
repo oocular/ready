@@ -27,14 +27,14 @@ if __name__ == "__main__":
 
     config_file = args.config_file
     config = OmegaConf.load(config_file)
-    MODEL_PATH = config.dataset.models_path
+    MODEL_PATH = config.dataset.modelsPath
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
 
-    input_model_name = config.model.input_model_name
-    input_channel_n = config.model.input_channel_n
-    output_channel_n = config.model.output_channel_n
-    image_height = config.model.image_height
-    image_width = config.model.image_width
+    input_model_name = config.model.name
+    input_channel_n = config.model.inputChannelNumber
+    output_channel_n = config.model.outputChannelNumber
+    image_height = config.model.imageHeight
+    image_width = config.model.imageWidth
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
