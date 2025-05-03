@@ -88,13 +88,17 @@ def main(args):
 
     #TODO degug color transformations
     # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
+    #TODO calculate the mean and std of the dataset and use them to normalize the images.
+    # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
     transforms_img = transforms.Compose([
+                                            transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
                                             transforms.RandomRotation(45),
                                             transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
+                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
+                                            transforms.ElasticTransform(alpha=100.0, sigma=5.0),
                                             ])
-
     transforms_rotations = transforms.Compose([
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
@@ -107,12 +111,12 @@ def main(args):
     ## Length 1143;  data_path
     trainset = MobiousDataset(
         # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
-        # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
         # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
+        # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+        FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
         # FULL_DATA_PATH, transform=None, target_transform=None
         # FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+        # FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
     )
 
     logger.info(f"Length of trainset: {len(trainset)}")
