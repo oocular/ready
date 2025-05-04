@@ -18,7 +18,8 @@ from holoscan.core import (Application, ConditionType, IOSpec, Operator,
                            OperatorSpec, Tracker)
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
-                                SegmentationPostprocessorOp)
+                                SegmentationPostprocessorOp,
+                                VideoStreamRecorderOp, VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
                                 MemoryStorageType, UnboundedAllocator)
 from holoscan.schedulers import (EventBasedScheduler, GreedyScheduler,
@@ -446,6 +447,8 @@ class WebRTCClientApp(Application):
                 [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
                 #https://rgbcolorpicker.com/0-1
             ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
 
@@ -548,13 +551,37 @@ class WebRTCClientApp(Application):
             name="drop_frames_op",
         )
 
+        replayer_op = VideoStreamReplayerOp(
+            self,
+            name="replayer_op",
+            directory=self._cmdline_args.recording_directory,
+            basename=self._cmdline_args.recording_basename,
+            frame_rate=0,
+            repeat=True, # default: false
+            realtime=True, # default: true
+            count=0, # default: 0 (no frame count restriction)
+        )
+
+        recorder_op = VideoStreamRecorderOp(
+            name="recorder_op",
+            fragment=self,
+            directory=self._cmdline_args.recording_directory,
+            basename=self._cmdline_args.recording_basename,
+        )
+
 	## WORKFLOW
 	### Branch01
-        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        if self._cmdline_args.source == "webrtc":
+            self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        elif self._cmdline_args.source == "replayer":
+            self.add_flow(replayer_op, drop_frames_op, {("output", "in")})
         self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
 
 	### Branch02
-        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        if self._cmdline_args.source == "webrtc":
+            self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+        elif self._cmdline_args.source == "replayer":
+            self.add_flow(replayer_op, drop_frames_op, {("output", "in")})
         self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
         self.add_flow(pre_info_op, format_op, {("out", "")})
         self.add_flow(format_op, inference_op, {("tensor", "receivers")})
@@ -566,6 +593,13 @@ class WebRTCClientApp(Application):
 
         self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
         self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+
+    ### Recorder
+        if self._cmdline_args.enable_recording == "True":
+            self.add_flow(webrtc_client_op, recorder_op, {("output", "input")})
+            #TODO: # if record_type == "input":  elif record_type == "visualizer":
+            #TODO self.add_flow(visualizer_sink, recorder_op, {("render_buffer_output", "input")})
+
 
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
@@ -608,6 +642,32 @@ if __name__ == "__main__":
         "--models_path_map",
         default="/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24",
         help=("Set model path"),
+    )
+    parser.add_argument(
+        "-s",
+        "--source",
+        default="webrtc",
+        choices=[
+            "webrtc",
+            "replayer",
+        ],
+        help="Source of the video stream (default: webrtc)",
+    )
+    parser.add_argument(
+        "-r",
+        "--enable_recording",
+        default=False,
+        help="Enable recording of the video stream (default: False)",
+    )
+    parser.add_argument(
+        "-rd",
+        "--recording_directory",
+        help=("Set recording directory"),
+    )
+    parser.add_argument(
+        "-rb",
+        "--recording_basename",
+        help=("Set recording basename"),
     )
     cmdline_args = parser.parse_args()
 

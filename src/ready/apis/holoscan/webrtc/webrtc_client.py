@@ -29,8 +29,10 @@ from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
 from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
-from holoscan.operators import HolovizOp
-from holoscan.resources import CudaStreamPool, UnboundedAllocator
+from holoscan.operators import (HolovizOp, VideoStreamRecorderOp,
+                                VideoStreamReplayerOp)
+from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
+                                MemoryStorageType, UnboundedAllocator)
 
 ROOT = os.path.dirname(__file__)
 
@@ -351,6 +353,8 @@ class WebRTCClientApp(Application):
                     image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
                 ),
             ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
         info_op = InfoOp(
             self,
@@ -358,11 +362,41 @@ class WebRTCClientApp(Application):
             allocator=host_allocator,
         )
 
-        self.add_flow(webrtc_client, visualizer_sink, {("output", "receivers")})
-        self.add_flow(webrtc_client, info_op, {("", "in")})
+        replayer_op = VideoStreamReplayerOp(
+            self,
+            name="replayer_op",
+            directory=self._cmdline_args.recording_directory,
+            basename=self._cmdline_args.recording_basename,
+            frame_rate=0,
+            repeat=True, # default: false
+            realtime=True, # default: true
+            count=0, # default: 0 (no frame count restriction)
+        )
+
+        recorder_op = VideoStreamRecorderOp(
+            name="recorder_op",
+            fragment=self,
+            directory=self._cmdline_args.recording_directory,
+            basename=self._cmdline_args.recording_basename,
+        )
+
+        ### Main Flow
+        # webrtc_client
+        if self._cmdline_args.source == "webrtc":
+            self.add_flow(webrtc_client, visualizer_sink, {("output", "receivers")})
+            self.add_flow(webrtc_client, info_op, {("", "in")})
+        # replayer
+        elif self._cmdline_args.source == "replayer":
+            self.add_flow(replayer_op, visualizer_sink, {("output", "receivers")})
+            self.add_flow(replayer_op, info_op, {("", "in")})
         self.add_flow(info_op, visualizer_sink, {("outputs", "receivers")})
         self.add_flow(info_op, visualizer_sink, {("output_specs", "input_specs")})
 
+        ### Recorder
+        if self._cmdline_args.enable_recording == "True":
+            self.add_flow(webrtc_client, recorder_op, {("output", "input")})
+            #TODO: # if record_type == "input":  elif record_type == "visualizer":
+            #TODO self.add_flow(visualizer_sink, recorder_op, {("render_buffer_output", "input")})
 
         # start the web server in the background, this will call the WebRTC server operator
         # 'offer' method when a connection is established
@@ -390,6 +424,32 @@ if __name__ == "__main__":
         "--logger_filename",
         default="logger.log",
         help=("Set logger filename"),
+    )
+    parser.add_argument(
+        "-s",
+        "--source",
+        default="webrtc",
+        choices=[
+            "webrtc",
+            "replayer",
+        ],
+        help="Source of the video stream (default: webrtc)",
+    )
+    parser.add_argument(
+        "-r",
+        "--enable_recording",
+        default=False,
+        help="Enable recording of the video stream (default: False)",
+    )
+    parser.add_argument(
+        "-rd",
+        "--recording_directory",
+        help=("Set recording directory"),
+    )
+    parser.add_argument(
+        "-rb",
+        "--recording_basename",
+        help=("Set recording basename"),
     )
     cmdline_args = parser.parse_args()
 

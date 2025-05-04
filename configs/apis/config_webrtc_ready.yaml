@@ -13,3 +13,7 @@ model:
   # name: "_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx"
   pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
   name: "_weights_26-Apr-2025_19-40-01-sim-BHWC.onnx"
+
+recorder:
+  directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
+  basename: "recording_tag"
