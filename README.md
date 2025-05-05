@@ -9,7 +9,7 @@ This repository contains documentation and code for the project `READY: REal-tim
 ## :school_satchel: Getting started
 * :page_facing_up: [Docs](docs/README.md) Getting started, debugging, testing, demos.
 * :floppy_disk: [Data](data/): [openEDS](data/openEDS/); [mobious](data/mobious/); [novel](data/novel/)
-* :brain: [models](docs/models) trained in [cricket](docs/cricket); 
+* :brain: Models developed in [RTXA2000-8GB](docs/models) and trained in [A100-80GB](docs/cricket); 
 * :computer: [holoscan-sdk](docs/holoscan/): [apis](docs/holoscan/apis.md); [apis_webrtc_ready](docs/holoscan/apis_webrtc_ready.md)
 
 ## :nut_and_bolt: Installation
@@ -26,7 +26,7 @@ uv run pre-commit run -a
 See further details for installation [here](docs).
 
 ### :brain: Model development 
-Run and/or edit bash scripts [train](scripts/models/train_unet_with_mobious.bash) and [config](configs/models/unet/config_train_unet_with_mobious.yaml) in the terminal.
+Run and/or edit bash scripts [train](scripts/models/train_unet_with_mobious.bash) that runs [train_mobious.py](src/ready/apis/train_mobious.py) with [config](configs/models/unet/config_train_unet_with_mobious.yaml) in the terminal.
 ```
 bash scripts/models/train_unet_with_mobious.bash
 ```
