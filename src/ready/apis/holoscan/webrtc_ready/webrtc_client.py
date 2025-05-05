@@ -18,7 +18,8 @@ from holoscan.core import (Application, ConditionType, IOSpec, Operator,
                            OperatorSpec, Tracker)
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
-                                SegmentationPostprocessorOp)
+                                SegmentationPostprocessorOp,
+                                VideoStreamRecorderOp, VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
                                 MemoryStorageType, UnboundedAllocator)
 from holoscan.schedulers import (EventBasedScheduler, GreedyScheduler,
@@ -446,6 +447,8 @@ class WebRTCClientApp(Application):
                 [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
                 #https://rgbcolorpicker.com/0-1
             ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
 
@@ -548,24 +551,93 @@ class WebRTCClientApp(Application):
             name="drop_frames_op",
         )
 
+        replayer_op = VideoStreamReplayerOp(
+            self,
+            name="replayer_op",
+            directory=self._cmdline_args.recording_directory,
+            basename=self._cmdline_args.recording_basename,
+            frame_rate=0,
+            repeat=True, # default: false
+            realtime=True, # default: true
+            count=0, # default: 0 (no frame count restriction)
+        )
+
+        recorder_op = VideoStreamRecorderOp(
+            name="recorder_op",
+            fragment=self,
+            directory=self._cmdline_args.recording_directory,
+            basename=self._cmdline_args.recording_basename,
+        )
+        visualizer_replayer = HolovizOp(
+            self,
+            name="Video Replayer Sink",
+            window_title="Replayer WebRTC Client",
+            width=640, #TODO pass this as a width and height from index.html video-resolution
+            height=480,
+            cuda_stream_pool=cuda_stream_pool,
+            tensors=[
+                dict(
+                    name="frame",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
+            ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
+        )
+
 	## WORKFLOW
-	### Branch01
-        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
-        self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+        ### WebRTC
+        if self._cmdline_args.source == "webrtc":
+            ### Branch01
+            self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+            self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
 
-	### Branch02
-        self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
-        self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
-        self.add_flow(pre_info_op, format_op, {("out", "")})
-        self.add_flow(format_op, inference_op, {("tensor", "receivers")})
+	        ### Branch02
+            self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+            self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
+            self.add_flow(pre_info_op, format_op, {("out", "")})
+            self.add_flow(format_op, inference_op, {("tensor", "receivers")})
 
-        self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
-        self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+            self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+            self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
-        self.add_flow(inference_op, post_inference_op, {("", "in")})
+            self.add_flow(inference_op, post_inference_op, {("", "in")})
 
-        self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
-        self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+            self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
+            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+
+
+        ### Recorder
+        if self._cmdline_args.enable_recording == "True":
+            self.add_flow(webrtc_client_op, recorder_op, {("output", "input")})
+            #TODO: # if record_type == "input":  elif record_type == "visualizer":
+            #TODO self.add_flow(visualizer_sink, recorder_op, {("render_buffer_output", "input")})
+
+
+        ### Replayer Raw Video
+        if self._cmdline_args.source == "replayer_raw":
+            self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
+
+
+        ### Replayer Inference Video
+        if self._cmdline_args.source == "replayer_inference":
+            ### Branch01
+            self.add_flow(replayer_op, visualizer_sink, {("output", "receivers")})
+
+            ### Branch02
+            self.add_flow(replayer_op, format_op, {("output", "")})
+            self.add_flow(format_op, inference_op, {("tensor", "receivers")})
+
+            self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+            self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+
+            self.add_flow(inference_op, post_inference_op, {("", "in")})
+
+            self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
+            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
@@ -608,6 +680,33 @@ if __name__ == "__main__":
         "--models_path_map",
         default="/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24",
         help=("Set model path"),
+    )
+    parser.add_argument(
+        "-s",
+        "--source",
+        default="webrtc",
+        choices=[
+            "webrtc",
+            "replayer_raw",
+            "replayer_inference",
+        ],
+        help="Source of the video stream (default: webrtc)",
+    )
+    parser.add_argument(
+        "-r",
+        "--enable_recording",
+        default=False,
+        help="Enable recording of the video stream (default: False)",
+    )
+    parser.add_argument(
+        "-rd",
+        "--recording_directory",
+        help=("Set recording directory"),
+    )
+    parser.add_argument(
+        "-rb",
+        "--recording_basename",
+        help=("Set recording basename"),
     )
     cmdline_args = parser.parse_args()
 
