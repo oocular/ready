@@ -1,5 +1,5 @@
 <div style="text-align: center;" align="center">
-  <img src="docs/figs/ready.svg" alt="real-time ai diagnosis for nystagmus" width="600"/>
+  <img src="docs/figs/ready.svg" alt="real-time ai diagnosis for nystagmus" width="800"/>
   <h1> :robot: :eye: READY: REal-time Ai Diagnosis for nYstagmus </h1>
 </div>
 
