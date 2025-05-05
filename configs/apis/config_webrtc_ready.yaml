@@ -16,4 +16,10 @@ model:
 
 recorder:
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
-  basename: "recording_tag"
+  ##MOBILE_MODEL
+  #basename: "mobile_date_time"
+  ##PIXEL8
+  #basename: "pixel8_date_time"
+  ##PIXEL9
+  #basename: "pixel9_date_time"
+  basename: "pixel9_5may2025_0843"

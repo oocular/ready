@@ -18,17 +18,20 @@ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertific
 ```
 cd /workspace/volumes/ready/scripts/apis
 #RECORDER
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL DEGUG webrtc True
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG webrtc True/False
 #REPLAYER
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL DEGUG replayer False
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG replayer_raw/replayer_inference False
 #USAGE
 # bash webrtc.bash <$1:LOGGER_NAME.log> <$2:NET: LOCAL/PUBLIC> <$3:HOLOSCAN_LOG_LEVEL: OFF/DEBUG/TRACE/INFO/ERROR> <$4:SOURCE: webrtc/replayer> <$5:ENABLE_RECORDING: True/False>
 
-#edit scripts
-vim webrtc_ready.bash
-vim ../../configs/apis/config_webrtc_ready.yaml
+#EDIT SCRIPTS
+cd $HOME/repositories/oocular/ready/
+vim configs/apis/config_webrtc_ready.yaml
+vim scripts/apis/webrtc_ready.bash
+vim src/ready/apis/holoscan/webrtc_ready/webrtc_client.py
 
-cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/webrtc_ready
+#KILL script
+kill $(ps aux | grep "python webrtc_client.py" | awk '{print $2}')
 ```
 
 * Application

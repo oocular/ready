@@ -568,38 +568,76 @@ class WebRTCClientApp(Application):
             directory=self._cmdline_args.recording_directory,
             basename=self._cmdline_args.recording_basename,
         )
+        visualizer_replayer = HolovizOp(
+            self,
+            name="Video Replayer Sink",
+            window_title="Replayer WebRTC Client",
+            width=640, #TODO pass this as a width and height from index.html video-resolution
+            height=480,
+            cuda_stream_pool=cuda_stream_pool,
+            tensors=[
+                dict(
+                    name="frame",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
+            ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
+        )
 
 	## WORKFLOW
-	### Branch01
+        ### WebRTC
         if self._cmdline_args.source == "webrtc":
+            ### Branch01
             self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
-        elif self._cmdline_args.source == "replayer":
-            self.add_flow(replayer_op, drop_frames_op, {("output", "in")})
-        self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
+            self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
 
-	### Branch02
-        if self._cmdline_args.source == "webrtc":
+	        ### Branch02
             self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
-        elif self._cmdline_args.source == "replayer":
-            self.add_flow(replayer_op, drop_frames_op, {("output", "in")})
-        self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
-        self.add_flow(pre_info_op, format_op, {("out", "")})
-        self.add_flow(format_op, inference_op, {("tensor", "receivers")})
+            self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
+            self.add_flow(pre_info_op, format_op, {("out", "")})
+            self.add_flow(format_op, inference_op, {("tensor", "receivers")})
 
-        self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
-        self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+            self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+            self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
-        self.add_flow(inference_op, post_inference_op, {("", "in")})
+            self.add_flow(inference_op, post_inference_op, {("", "in")})
 
-        self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
-        self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+            self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
+            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
-    ### Recorder
+
+        ### Recorder
         if self._cmdline_args.enable_recording == "True":
             self.add_flow(webrtc_client_op, recorder_op, {("output", "input")})
             #TODO: # if record_type == "input":  elif record_type == "visualizer":
             #TODO self.add_flow(visualizer_sink, recorder_op, {("render_buffer_output", "input")})
 
+
+        ### Replayer Raw Video
+        if self._cmdline_args.source == "replayer_raw":
+            self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
+
+
+        ### Replayer Inference Video
+        if self._cmdline_args.source == "replayer_inference":
+            ### Branch01
+            self.add_flow(replayer_op, visualizer_sink, {("output", "receivers")})
+
+            ### Branch02
+            self.add_flow(replayer_op, format_op, {("output", "")})
+            self.add_flow(format_op, inference_op, {("tensor", "receivers")})
+
+            self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+            self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+
+            self.add_flow(inference_op, post_inference_op, {("", "in")})
+
+            self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
+            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
@@ -649,7 +687,8 @@ if __name__ == "__main__":
         default="webrtc",
         choices=[
             "webrtc",
-            "replayer",
+            "replayer_raw",
+            "replayer_inference",
         ],
         help="Source of the video stream (default: webrtc)",
     )
