@@ -4,6 +4,8 @@
 Run and/or edit bash scripts [train](../../scripts/models/train_unet_with_mobious.bash) and [config](../../configs/models/unet/config_train_unet_with_mobious.yaml) in the terminal.
 ```
 bash scripts/models/train_unet_with_mobious.bash
+vim configs/models/unet/config_train_unet_with_mobious.yaml
+vim src/ready/apis/train_mobious.py
 ```
 
 ## Train models in server

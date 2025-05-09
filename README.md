@@ -27,6 +27,7 @@ See further details for installation [here](docs).
 
 ### :brain: Model development 
 Run and/or edit bash scripts [train](scripts/models/train_unet_with_mobious.bash) that runs [train_mobious.py](src/ready/apis/train_mobious.py) with [config](configs/models/unet/config_train_unet_with_mobious.yaml) in the terminal.
+See further details [here](docs/models/)
 ```
 bash scripts/models/train_unet_with_mobious.bash
 ```
