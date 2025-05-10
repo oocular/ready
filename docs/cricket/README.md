@@ -73,14 +73,14 @@ vim configs/models/unet/config_train_unet_with_mobious.yaml
 ```
 
 ## Copying files (models) to local host
-The following are examples that you can use with different variables.
+The following are scripts that you can comprese and copy 
 ```
 ## tar paths in server
+#outside apptainer
+vim ../../configs/files/config_model_pathfiles.yaml #edit model details
 bash ../../scripts/files/tarfiles.bash
 
 ## Moving path in local device
 bash ../../scripts/files/moving_models.bash ccxxxxx #<ADD_SERVERUSERNAME>
 
-## Config file
-vim ../../configs/files/config_model_pathfiles.yaml 
 ```

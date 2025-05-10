@@ -10,5 +10,5 @@ eval $(parse_yaml configs/files/config_model_pathfiles.yaml)
 
 TARMODEL=weights_${model_datetimepath}_with_augmenations_${model_trainingdataname}_trained_in_${model_trainingtime}s.tar.gz
 PATHMODEL=${paths_ServerDataPath}/${model_datetimepath}
-tar czf ${PATHMODEL}/${TARMODEL} ${PATHMODEL}
+tar czf ${PATHMODEL}/${TARMODEL} --absolute-names ${PATHMODEL}
 echo "Compressed file: " ${PATHMODEL}/${TARMODEL}

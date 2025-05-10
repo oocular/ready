@@ -71,6 +71,9 @@ def main(args):
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device_name = torch.cuda.get_device_name(0)[0:20]
+    device_name= device_name.replace (" ", "_")
+    logger.info(f"GPU DEVICE NAME: {device_name}")
     cuda_available = torch.cuda.is_available()
 
     #TOTEST
@@ -319,17 +322,14 @@ def main(args):
     logger.info(f"Training complete.")
 
     current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
-    # TODO create directory with using current_time_stamp and GPU size
-    # TODO create config file to select paths and other parameters
-
 
     if not debug_print_flag:
-        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S") + "_" + device_name
         print(PATH)
         if not os.path.exists(PATH):
             os.mkdir(PATH)
 
-        model_name = PATH+"/_weights_" + current_time_stamp + ".pth"
+        model_name = PATH+"/weights_" + current_time_stamp + ".pth"
         torch.save(model.state_dict(), model_name)
         logger.info(f"Saved PyTorch Model State to {model_name}")
 

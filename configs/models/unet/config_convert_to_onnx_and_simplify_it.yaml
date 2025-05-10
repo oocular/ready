@@ -1,18 +1,20 @@
 ---
 #Config file for model optimization
 model:
-  # name: "_weights_03-Jan-2025_08-15-39.pth"
-  # name: "_weights_10-09-24_04-50-40.pth"
-  # name: "_weights_29-Mar-2025_16-23-29.pth"
-  # name: "_weights_28-Mar-2025_15-25-07.pth"
-  name: "_weights_26-Apr-2025_19-40-01.pth"
   inputChannelNumber: 3
   outputChannelNumber: 4
   imageHeight: 400
   imageWidth: 640
+  name: "weights_10-May-2025_18-09-20.pth"
+  # name: "_weights_26-Apr-2025_19-40-01.pth"
+  # name: "_weights_28-Mar-2025_15-25-07.pth"
+  # name: "_weights_29-Mar-2025_16-23-29.pth"
+  # name: "_weights_10-09-24_04-50-40.pth"
+  # name: "_weights_03-Jan-2025_08-15-39.pth"
 
 dataset:
+  modelsPath: "datasets/ready/mobious/models_a10080gb/10-May-2025_18-09-20_NVIDIA_A100_80GB_PCI"
+  # modelsPath: "datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
+  # modelsPath: "datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"
   # modelsPath: "datasets/ready/mobious/models/03-Jan-2025"
   # modelsPath: "datasets/ready/mobious/models_a10080gb/29-Mar-2025_16-23-29"
-  # modelsPath: "datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"
-  modelsPath: "datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
