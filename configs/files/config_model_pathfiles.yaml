@@ -2,9 +2,11 @@
 #Config file for tarfiles
 model:
   path: "datasets/ready/mobious/models"
-  datetimepath: 26-Apr-2025_19-40-01
+  #datetimepath: 26-Apr-2025_19-40-01
+  datetimepath: 10-May-2025_18-09-20_NVIDIA_A100_80GB_PCI
   trainingdataname: train100per_1144
-  trainingtime: 30606
+  #trainingtime: 30606
+  trainingtime: 33124
 
 paths:
   ServerDataPath: "/home/ready/datasets/ready/mobious/models"
