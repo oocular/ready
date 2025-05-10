@@ -5,14 +5,20 @@ workspace:
   keysPath: "/workspace/volumes/datasets/ready/webrtc"
 
 model:
-  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24"
-  # name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
-  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"
-  # name: "_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx"
+  pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/10-May-2025_18-09-20_NVIDIA_A100_80GB_PCI"
+  name: "weights_10-May-2025_18-09-20-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
+  # name: "_weights_26-Apr-2025_19-40-01-sim-BHWC.onnx"
+  #
   # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/29-Mar-2025_16-23-29"
   # name: "_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx"
-  pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
-  name: "_weights_26-Apr-2025_19-40-01-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"
+  # name: "_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24"
+  # name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
 
 recorder:
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
