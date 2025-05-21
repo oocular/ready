@@ -9,8 +9,8 @@ This repository contains documentation and code for the project `READY: REal-tim
 ## :school_satchel: Getting started
 * :page_facing_up: [Docs](docs/README.md) Getting started, debugging, testing, demos.
 * :floppy_disk: [Data](data/): [openEDS](data/openEDS/); [mobious](data/mobious/); [novel](data/novel/)
+* :computer: Requirements [holoscan-sdk](docs/holoscan/), [CUDA](docs/holoscan/README.md#requirements); [apis](docs/holoscan/apis.md); [apis_webrtc_ready](docs/holoscan/apis_webrtc_ready.md)
 * :brain: Models developed in [RTXA2000-8GB](docs/models) and trained in [A100-80GB](docs/cricket); 
-* :computer: [holoscan-sdk](docs/holoscan/): [apis](docs/holoscan/apis.md); [apis_webrtc_ready](docs/holoscan/apis_webrtc_ready.md)
 
 ## :nut_and_bolt: Installation
 [CONTRIBUTING](CONTRIBUTING.md) is a good starting point for setting up the GitHub repository, managing dependencies, and guiding you through the development installation and debugging process.
