@@ -1,9 +1,11 @@
-# Holoscan
+# [NVIDIA Holoscan SDK](https://developer.nvidia.com/holoscan-sdk)
 
 ## Requirements
 ```
-#install cuda 
-https://github.com/mxochicale/code/blob/main/gpu/installation/installing_cuda.bash
+#install CUDA drivers 
+cd ~/Downloads/
+wget https://raw.githubusercontent.com/mxochicale/code/refs/heads/main/gpu/installation/installing_cuda.bash
+bash installing_cuda.bash
 #checking driver version
 nvidia-smi
 
@@ -13,6 +15,8 @@ sudo apt-get install -y nvidia-container-toolkit #solves 2025-01-04 22:20:45 [FA
 sudo apt install -y nvidia-docker2
 sudo systemctl daemon-reload
 sudo systemctl restart dock
+
+#REBOOT MACHINE!
 ```
 
 ## Build
