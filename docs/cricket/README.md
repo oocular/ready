@@ -8,13 +8,13 @@
 ## Connect
 1. Connect to `vpn.ucl.ac.uk` using cisco https://www.ucl.ac.uk/isd/services/get-connected/ucl-virtual-private-network-vpn
 2. Connect to the server
-```
+```bash
 ssh -X ccxxxxx@cricket.rc.ucl.ac.uk
 xterm -rv & # open as many terminals you want
 ```
 
 ## Copying dataset from local device to server
-```
+```bash
 # openEDS.zip
 scp openEDS.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/openEDS #openEDS.zip #8.0GB ETA 1h at 2MB/s
 # MOBIUS.zip
@@ -25,8 +25,8 @@ scp strain-morbious.zip ccxxxxx@cricket.rc.ucl.ac.uk:~/datasets/mobious #34MB   
 
 ## Container
 
-### Setting up /opt/nvidia/containers (Optional)
-```
+### [Already done] Setting up /opt/nvidia/containers 
+```bash
 mkdir -p containers && cd containers
 #cd containers
 cp /opt/nvidia/containers/pytorch:24.04-y3.sif .
@@ -39,42 +39,49 @@ watch -n 2 nvidia-smi #in another terminal to see activity every 2secs
 ```
 
 ### Lauch container
-```
+* Pull latest changes and checkout your branch
+```bash
 # Updates repo
 cd $HOME/ready
 git pull
-
-# install package
+git checkout FEATURE_BRANCH
 ```
+
+* [Just once if this is your first time in the server] Install package
+```bash
 uv venv --python 3.12
 source .venv/bin/activate
 uv pip install -e ".[test,learning,model_optimisation]"
 ```
 
-# Launch container 
+* Launch container 
+```bash
 bash docs/cricket/launch_container_in_cricket.bash <ADD_USERNAME (eg. ccxxxxx)>
+```
 
-#inside adapter>
-
-## Create data paths 
+## inside apptainer>
+* [already created] Create data paths 
+```bash
 mkdir -p $HOME/datasets/ready/mobious/models
+```
 
-## Change to project path
+* Change to project path
+```bash
 cd $HOME/ready
 export PYTHONPATH=$HOME/ready/src #. #$HOME/<ADD_REPO_PATH>
+```
 
-## GOTO models/README.md for instructions to train model in cricket but you can try:
-```
-bash scripts/models/train_unet_with_mobious.bash
-vim configs/models/unet/config_train_unet_with_mobious.yaml
-```
+* Train models but GOTO [models/README.md](../models/README.md) for further instructions
+```bash
+bash scripts/models/train_unet_with_mobious.bash #to start training
+vim configs/models/unet/config_train_unet_with_mobious.yaml #to edit parameters
 
 #type `exit` in the terminal to exit
 ```
 
 ## Copying files (models) to local host
 The following are scripts that you can comprese and copy 
-```
+```bash
 ## tar paths in server
 #outside apptainer
 vim ../../configs/files/config_model_pathfiles.yaml #edit model details
@@ -82,5 +89,4 @@ bash ../../scripts/files/tarfiles.bash
 
 ## Moving path in local device
 bash ../../scripts/files/moving_models.bash ccxxxxx #<ADD_SERVERUSERNAME>
-
 ```
