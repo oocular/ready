@@ -41,7 +41,7 @@ The [UNet](src/ready/models/unet.py) models were trained in cricket with A100-80
 | [webrtc_client.py](src/ready/apis/holoscan/webrtc_ready/webrtc_client.py) with model _weights_15-12-24_07-00-10-sim-BHWC.onnx, running `drop_frames_op` at different `PeriodicCondition(self, recess_period=period_ns)` 1 to 30 Hz and improving backpressure mechanism. The following animation was recorded using drop_frame_operator period condition of `branch_hz = 15` using a mobile phone as the client where image resolution with the default resolution with tensor shape of (640x480xch3)     ![animation](docs/figs/animations/readydemo-2025-03-27_15.10.46.gif) | [:nut_and_bolt: Launch & debug](docs/holoscan/apis_webrtc_ready.md) <br/> [:hourglass: flowbenchmarking](data/webrtc/flow_benchmarking/) <br/> [:hourglass_flowing_sand: glass2glass_latency](data/webrtc/glass_to_glass_latency/) |
 | ![animation](docs/figs/animations/ready-mobious-2024-09-12.gif) [ready.py](src/ready/apis/holoscan/ready/python/ready.py) with model _weights_10-09-24_06-35-14-sim-BHWC.onnx trained with ~1K images and tested with (right) three frames repeated 10 times each to create a 30fps video and (left) with v4l2 `/dev/video4` usb-endoscope camera with resolution of width640xheight480) |  [:nut_and_bolt: Launch & debug](docs/holoscan/apis_ready.md) <br/> [:floppy_disk: Mobious dataset](data/mobious/) <br/> [:brain: Models](data/mobious/models/) |
 
-See more demos [here](docs/README.md#demos). 
+See more demos [here](docs/demos/README.md).
 See [apis](docs/holoscan/apis.md) for detailed instructions on running applications.
 
 ## :octocat: Cloning repository
