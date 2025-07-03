@@ -35,9 +35,9 @@ source .venv/bin/activate #To activate the virtual environment:
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
 
-#### If you have problems installing onnxsim
+#### If you experience issues installing onnxsim
 
-For WSL2 users, you may encounter an issue when running ```uv pip install -e ".[test,learning,model_optimisation]"```, stating that cmake cannot be found. From my experience, this is because your machine is unable to install the onnxsim package, found in model_optimisation. To fix this, run `sudo apt-get install cmake`. This will install cmake onto your machine. Afterwards, run ```sudo apt-get install python3.12-dev```. For cmake to work, it requires the development files that the python3.12-dev package provides.
+In our experience, this issue often comes up because either cmake or python3.12-dev aren't installed on your machine. To fix this issue, please first run ```sudo apt-get install cmake```, then ```sudo apt-get install python3.12-dev```. Afterwards, run either ```uv pip install .[model_optimisation]``` or ```uv pip install onnxsim```.
 
 ### Testing
 ```
