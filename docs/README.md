@@ -1,6 +1,9 @@
 # Documentation
 
 ## Getting started
+
+Note: the following instructions were created for Linux/MacOS computers. If you are using a Windows machine, please install WSL2 (Windows Subsystem For Linux). Instructions are be found [here](https://learn.microsoft.com/en-us/windows/wsl/install). 
+
 ### Install [uv](https://github.com/astral-sh/uv): "An extremely fast Python package manager".
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -32,6 +35,10 @@ source .venv/bin/activate #To activate the virtual environment:
 export PYTHONPATH=. #$HOME/ready #$HOME/<ADD_REPO_PATH>
 ```
 
+#### If you experience issues installing onnxsim
+
+In our experience, this issue often comes up because either cmake or python3.12-dev aren't installed on your machine. To fix this issue, please first run ```sudo apt-get install cmake```, then ```sudo apt-get install python3.12-dev```. Afterwards, run either ```uv pip install .[model_optimisation]``` or ```uv pip install onnxsim```.
+
 ### Testing
 ```
 python -m pytest -v -s tests/test_data_paths.py::test_mobious_dataset
@@ -48,4 +55,7 @@ python -m pytest -v -s tests/test_data_paths.py::test_tif_with_matplotlib
 ```
 pre-commit run -a
 ```
+
+ 
+
 

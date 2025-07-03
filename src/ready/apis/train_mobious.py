@@ -66,12 +66,13 @@ def main(args):
     FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
     if not os.path.exists(FULL_MODEL_PATH):
-        os.mkdir(FULL_MODEL_PATH)
-
+        # os.mkdir(FULL_MODEL_PATH)
+        os.makedir(FULL_MODEL_PATH, exist_ok=True)
+    
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device_name = torch.cuda.get_device_name(0)[0:20]
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
+    device_name = torch.cuda.get_device_name(0)[0:20] if torch.cuda.is_available() else "cpu"
     device_name= device_name.replace (" ", "_")
     logger.info(f"GPU DEVICE NAME: {device_name}")
     cuda_available = torch.cuda.is_available()
@@ -113,13 +114,13 @@ def main(args):
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     trainset = MobiousDataset(
-        # FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
+        FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
         # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
         # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
         # FULL_DATA_PATH, transform=None, target_transform=None
         # FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+        # FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
     )
 
     logger.info(f"Length of trainset: {len(trainset)}")
@@ -327,7 +328,8 @@ def main(args):
         PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S") + "_" + device_name
         print(PATH)
         if not os.path.exists(PATH):
-            os.mkdir(PATH)
+            # os.mkdir(PATH)
+            os.makedirs(PATH, exist_ok=True)
 
         model_name = PATH+"/weights_" + current_time_stamp + ".pth"
         torch.save(model.state_dict(), model_name)
@@ -368,6 +370,6 @@ if __name__ == "__main__":
     """
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
-
+     
     args = parser.parse_args()
     main(args)
