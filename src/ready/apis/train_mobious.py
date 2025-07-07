@@ -42,7 +42,7 @@ def norm_image(hot_img):
 def main(args):
     """
     Train pipeline for UNET
-    
+
     #CHECK epoch = None
     #CHECK if weight_fn is not None:
     #CHECK add checkpoint
@@ -161,13 +161,13 @@ def main(args):
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
     if not os.path.exists(FULL_MODEL_PATH):
         os.makedirs(FULL_MODEL_PATH, exist_ok=True)
-        
+
     use_github_data_path_flag = config.dataset.use_github_data_path_flag
     data_path = FULL_GITHUG_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device_name = torch.cuda.get_device_name(0)[0:20] if torch.cuda.is_available() else "cpu"
     device_name= device_name.replace (" ", "_")
     logger.info(f"GPU DEVICE NAME: {device_name}")
@@ -205,7 +205,7 @@ def main(args):
                                             transforms.RandomVerticalFlip(p=0.5),
                                             transforms.RandomRotation(45),
                                             ]) if target_transform_flag else None
-    
+
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     trainset = MobiousDataset(
@@ -370,6 +370,6 @@ if __name__ == "__main__":
     """
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
-     
+
     args = parser.parse_args()
     main(args)
