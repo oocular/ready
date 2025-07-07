@@ -42,7 +42,7 @@ def norm_image(hot_img):
 def main(args):
     """
     Train pipeline for UNET
-
+    
     #CHECK epoch = None
     #CHECK if weight_fn is not None:
     #CHECK add checkpoint
@@ -53,109 +53,7 @@ def main(args):
     #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
     # * To train model with 1700x3000
     # * Test import nvidia_smi to create model version control: https://stackoverflow.com/questions/59567226
-    # * Create a config file to train models, indidatcing paths, and other hyperparmeters
-    """
-    config_file = args.config_file
-    config = OmegaConf.load(config_file)
-    DATA_PATH = config.dataset.data_path
-    MODEL_PATH = config.dataset.models_path
-    GITHUB_DATA_PATH = config.dataset.github_data_path
-    debug_print_flag = config.model.debug_print_flag
-
-    FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
-    FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
-    FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
-    if not os.path.exists(FULL_MODEL_PATH):
-        # os.mkdir(FULL_MODEL_PATH)
-        os.makedir(FULL_MODEL_PATH, exist_ok=True)
-    
-    starttime = time.time()  # print(f'Starting training loop at {startt}')
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
-    device_name = torch.cuda.get_device_name(0)[0:20] if torch.cuda.is_available() else "cpu"
-    device_name= device_name.replace (" ", "_")
-    logger.info(f"GPU DEVICE NAME: {device_name}")
-    cuda_available = torch.cuda.is_available()
-
-    #TOTEST
-    # weight_fn = config.model.weight_fn
-    # logger.info(f"weight_fn: {weight_fn}")
-    # if weight_fn is not None:
-    #     raise NotImplementedError()
-    # else:
-    #     logger.info(f"Starting new checkpoint. {weight_fn}")
-    #     weight_fn = os.path.join(
-    #         os.getcwd(),
-    #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
-    #     )
-
-
-    #TODO degug color transformations
-    # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
-    #TODO calculate the mean and std of the dataset and use them to normalize the images.
-    # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
-    transforms_img = transforms.Compose([
-                                            transforms.ToImage(),
-                                            transforms.RandomHorizontalFlip(p=0.5),
-                                            transforms.RandomVerticalFlip(p=0.5),
-                                            transforms.RandomRotation(45),
-                                            transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
-                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
-                                            transforms.ElasticTransform(alpha=100.0, sigma=5.0),
-                                            ])
-    transforms_rotations = transforms.Compose([
-                                            transforms.ToImage(),
-                                            transforms.RandomHorizontalFlip(p=0.5),
-                                            transforms.RandomVerticalFlip(p=0.5),
-                                            transforms.RandomRotation(45),
-                                            ])
-
-    #TODO avoid to hardcode data path in trainset. This should be passed as argument in the confirg file
-    ## Length 5; github_data_path
-    ## Length 1143;  data_path
-    trainset = MobiousDataset(
-        FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
-        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
-        # FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        # FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
-        # FULL_DATA_PATH, transform=None, target_transform=None
-        # FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-        # FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
-    )
-
-    logger.info(f"Length of trainset: {len(trainset)}")
-
-    batch_size = config.model_hyperparameters.batch_size
-    num_workers = config.model_hyperparameters.num_workers
-    learning_rate = config.model_hyperparameters.learning_rate
-    run_epoch = config.model_hyperparameters.epochs
-
-    trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
-
-    if debug_print_flag:
-        sanity_check_trainloader(trainloader, cuda_available)
-
-    model = UNet(nch_in=3, nch_out=4)
-    num_params = len(nn.utils.parameters_to_vector(model.parameters()))
-    logger.info(f"Number of parameters in model: {num_params}")
-
-    # model.summary()
-
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    loss_fn = nn.CrossEntropyLoss()
-    # TODO: check which criterium properties to setup
-    # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
-    # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-    # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
-    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
-    # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
-
-    if cuda_available:
-        model.cuda()
-        loss_fn.cuda()
+    # * Create a config file to train models, indicating paths, and other hyperparmeters
 
     #############################################
     # LOCAL NVIDIARTXA20008GBLaptopGPU
@@ -245,6 +143,109 @@ def main(args):
     # Average dice @ epoch: 1.2000
     # Elapsed time for the training loop: 15.468297719955444 (sec)
 
+    """
+
+    config_file = args.config_file
+    config = OmegaConf.load(config_file)
+
+    DATA_PATH = config.dataset.data_path
+    MODEL_PATH = config.dataset.models_path
+    GITHUB_DATA_PATH = config.dataset.github_data_path
+    debug_print_flag = config.model.debug_print_flag
+
+    transform_flag = config.transforms.transform_flag
+    target_transform_flag = config.transforms.target_transform_flag
+
+    FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
+    FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
+    FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+    if not os.path.exists(FULL_MODEL_PATH):
+        os.makedirs(FULL_MODEL_PATH, exist_ok=True)
+        
+    use_github_data_path_flag = config.dataset.use_github_data_path_flag
+    data_path = FULL_GITHUG_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
+
+    starttime = time.time()  # print(f'Starting training loop at {startt}')
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
+    device_name = torch.cuda.get_device_name(0)[0:20] if torch.cuda.is_available() else "cpu"
+    device_name= device_name.replace (" ", "_")
+    logger.info(f"GPU DEVICE NAME: {device_name}")
+    cuda_available = torch.cuda.is_available()
+
+    #TOTEST
+    # weight_fn = config.model.weight_fn
+    # logger.info(f"weight_fn: {weight_fn}")
+    # if weight_fn is not None:
+    #     raise NotImplementedError()
+    # else:
+    #     logger.info(f"Starting new checkpoint. {weight_fn}")
+    #     weight_fn = os.path.join(
+    #         os.getcwd(),
+    #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
+    #     )
+
+    #TODO degug color transformations
+    # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
+    #TODO calculate the mean and std of the dataset and use them to normalize the images.
+    # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
+    transforms_img = transforms.Compose([
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
+                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
+                                            transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            ]) if transform_flag else None
+
+    transforms_rotations = transforms.Compose([
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            ]) if target_transform_flag else None
+    
+    ## Length 5; github_data_path
+    ## Length 1143;  data_path
+    trainset = MobiousDataset(
+        data_path, transform=transforms_img, target_transform=transforms_rotations
+        )
+
+    logger.info(f"Length of trainset: {len(trainset)}")
+
+    batch_size = config.model_hyperparameters.batch_size
+    num_workers = config.model_hyperparameters.num_workers
+    learning_rate = config.model_hyperparameters.learning_rate
+    run_epoch = config.model_hyperparameters.epochs
+
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+    )
+    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
+
+    if debug_print_flag:
+        sanity_check_trainloader(trainloader, cuda_available)
+
+    model = UNet(nch_in=3, nch_out=4)
+    num_params = len(nn.utils.parameters_to_vector(model.parameters()))
+    logger.info(f"Number of parameters in model: {num_params}")
+
+    # model.summary()
+
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    loss_fn = nn.CrossEntropyLoss()
+    # TODO: check which criterium properties to setup
+    # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
+    # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+    # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
+    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
+    # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
+
+    if cuda_available:
+        model.cuda()
+        loss_fn.cuda()
+
     epoch = None
     loss_values = []
     performance = {
@@ -328,7 +329,6 @@ def main(args):
         PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S") + "_" + device_name
         print(PATH)
         if not os.path.exists(PATH):
-            # os.mkdir(PATH)
             os.makedirs(PATH, exist_ok=True)
 
         model_name = PATH+"/weights_" + current_time_stamp + ".pth"
