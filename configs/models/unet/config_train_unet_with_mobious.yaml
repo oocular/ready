@@ -10,14 +10,14 @@ dataset:
     data_path: "datasets/mobious/MOBIOUS/train100per_1144" #LOCAL and SERVER paths
     models_path: "datasets/ready/mobious/models" #LOCAL and SERVER paths
     checkpoint_path: "datasets/?" #TODO checkpoint_path
-    use_github_data_path_flag : True # data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH 
+    use_github_data_path_flag : True # data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
 
-transforms:
+transforms: # Transformations are defined in train_mobious.py using transforms.Compose()
     transform_operation: None # Options are 'transforms_img', 'transforms_rotations', None
     target_transform_operation: None # Options are 'transforms_img', 'transforms_rotations', None
 
 model_hyperparameters:
     batch_size: 8
     num_workers: 4
-    epochs: 1
+    epochs: 100
     learning_rate: 0.003
