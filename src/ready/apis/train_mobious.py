@@ -142,6 +142,15 @@ def main(args):
     # Average miou @ epoch: 1.1538
     # Average dice @ epoch: 1.2000
     # Elapsed time for the training loop: 15.468297719955444 (sec)
+    
+    List of data paths,transform, and target_transform used and tested with MobiousDataset:
+    - FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
+    - FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
+    - FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+    - FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+    - FULL_DATA_PATH, transform=None, target_transform=None
+    - FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+    - FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
 
     """
 
@@ -151,19 +160,16 @@ def main(args):
     DATA_PATH = config.dataset.data_path
     MODEL_PATH = config.dataset.models_path
     GITHUB_DATA_PATH = config.dataset.github_data_path
-    debug_print_flag = config.model.debug_print_flag
-
-    transform_flag = config.transforms.transform_flag
-    target_transform_flag = config.transforms.target_transform_flag
+    debug_print_flag = config.model.debug_print_flag 
 
     FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
-    FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
+    FULL_GITHUB_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
     if not os.path.exists(FULL_MODEL_PATH):
         os.makedirs(FULL_MODEL_PATH, exist_ok=True)
 
     use_github_data_path_flag = config.dataset.use_github_data_path_flag
-    data_path = FULL_GITHUG_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
+    data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
 
@@ -197,21 +203,30 @@ def main(args):
                                             transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
                                             transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
                                             transforms.ElasticTransform(alpha=100.0, sigma=5.0),
-                                            ]) if transform_flag else None
+                                            ]) 
 
     transforms_rotations = transforms.Compose([
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
                                             transforms.RandomRotation(45),
-                                            ]) if target_transform_flag else None
+                                            ])     
+    
+    transform_map = {
+    'transforms_img': transforms_img,
+    'transforms_rotations': transforms_rotations
+    }
+    
+    # .get() returns None if operation is None or config arg not valid
+    transform_arg = transform_map.get(config.transforms.transform_operation, None)
+    target_transform_arg = transform_map.get(config.transforms.target_transform_operation, None) 
 
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     trainset = MobiousDataset(
-        data_path, transform=transforms_img, target_transform=transforms_rotations
+        data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
-
+     
     logger.info(f"Length of trainset: {len(trainset)}")
 
     batch_size = config.model_hyperparameters.batch_size
