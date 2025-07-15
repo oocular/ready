@@ -220,14 +220,30 @@ def main(args):
     # .get() returns None if operation is None or config arg not valid
     transform_arg = transform_map.get(config.transforms.transform_operation, None)
     target_transform_arg = transform_map.get(config.transforms.target_transform_operation, None)
+    
 
+    # Split datapath into trainpath, validation+path, test_path
+    # Create full mobious dataset first, then split into respective sets.
+    # Make sure to change dataset fed into trainloader
+    # use .random_split()
+    # Put validation into training loop
+    # Finally, evaluate with the test_set
+    
     ## Length 5; github_data_path
     ## Length 1143;  data_path
-    trainset = MobiousDataset(
+    full_dataset = MobiousDataset(
         data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
+    
+    SEED = 42
+    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, 
+                                                                        [0.70, 0.15, 0.15],
+                                                                        torch.Generator().manual_seed(SEED)) 
 
-    logger.info(f"Length of trainset: {len(trainset)}")
+    # test_dat
+    # validation_dataset
+
+    logger.info(f"Length of trainset: {len(train_set)}")
 
     batch_size = config.model_hyperparameters.batch_size
     num_workers = config.model_hyperparameters.num_workers
@@ -235,7 +251,7 @@ def main(args):
     run_epoch = config.model_hyperparameters.epochs
 
     trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+        train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
     logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
 
@@ -289,9 +305,9 @@ def main(args):
 
             optimizer.zero_grad()
             output = model(images)
-            # print(f"output.size() {output.size()};\
-            # type(output): {type(output)};\
-            # pred.type: {output.type()} ")
+            print(f"output.size() {output.size()};\
+            type(output): {type(output)};\
+            pred.type: {output.type()} ")
             # torch.Size([batch_size_, 4, 400, 640]);
             # <class 'torch.Tensor'>;
             # torch.cuda.FloatTensor

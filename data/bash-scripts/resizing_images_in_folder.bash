@@ -21,7 +21,7 @@ extensions=("jpg" "jpeg" "png")
 
 echo "Resizing images in directory: $DIR"
 echo "Output directory: $OUTPUT_DIR"
-echo "Target size: 640x400"
+echo "Target size: 300x170"
 echo "####################"
 
 # Process each image type
@@ -33,7 +33,7 @@ for ext in "${extensions[@]}"; do
             echo "Processing: $filename"
             
             # Resize image maintaining aspect ratio, then crop/pad to exact dimensions
-            convert "$file" -resize 640x400^ -gravity center -extent 640x400 "$OUTPUT_DIR/$filename"
+            convert "$file" -resize 300x170^ -gravity center -extent 300x170 "$OUTPUT_DIR/$filename"
             
             if [ $? -eq 0 ]; then
                 echo "Successfully resized"
