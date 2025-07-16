@@ -462,7 +462,8 @@ def main(args):
         with open(loss_file, "w") as out_file_obj:
             for loss in training_loss_values:
                 out_file_obj.write(f"{loss}\n")
-
+        
+        logger.info(f"#########################")
         json_file = PATH+"/validation_performance_"+current_time_stamp+".json"
         text = json.dumps(validation_performance, indent=4)
         with open(json_file, "w") as out_file_obj:
