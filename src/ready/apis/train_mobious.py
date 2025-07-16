@@ -225,7 +225,7 @@ def main(args):
     # .get() returns None if operation is None or config arg not valid
     transform_arg = transform_map.get(config.transforms.transform_operation, None)
     target_transform_arg = transform_map.get(config.transforms.target_transform_operation, None)
-
+    
 
     # Split datapath into trainpath, validation+path, test_path
     # Create full mobious dataset first, then split into respective sets.
@@ -233,17 +233,17 @@ def main(args):
     # use .random_split()
     # Put validation into training loop
     # Finally, evaluate with the test_set
-
+    
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     full_dataset = MobiousDataset(
         data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
-
+    
     SEED = 42
-    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset,
+    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, 
                                                                         [0.70, 0.15, 0.15],
-                                                                        torch.Generator().manual_seed(SEED))
+                                                                        torch.Generator().manual_seed(SEED)) 
 
     logger.info(f"Length of trainset: {len(train_set)}")
 
@@ -256,9 +256,9 @@ def main(args):
         train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
     logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
-
-    validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-
+    
+    validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers) 
+    
     if debug_print_flag:
         sanity_check_trainloader(trainloader, cuda_available)
 
@@ -280,10 +280,10 @@ def main(args):
     if cuda_available:
         model.cuda()
         loss_fn.cuda()
-
+    
     epoch = None
 
-    performance_metrics_labels = ["accuracy",
+    performance_metrics_labels = ["accuracy", 
                                   "f1",
                                   "recall",
                                   "precision",
@@ -324,10 +324,10 @@ def main(args):
         validation_running_loss = 0.0
         num_samples, num_batches = 0, 0
         # performance_epoch = {key: 0.0 for key in performance.keys()}
-
+        
         # Training
         for j, data in enumerate(trainloader, 1):
-
+              
             images, labels = data
             if cuda_available:
                 images = images.cuda()
@@ -372,11 +372,11 @@ def main(args):
             # if j == 300:
             #     break
             # # performance[key].append(average_metric)
-
+        
         # Validation
         with torch.set_grad_enabled(False):
                  for j, data in enumerate(validation_loader, 1):
-
+                    
                     images, labels = data
                     if cuda_available:
                         images = images.cuda()
@@ -392,7 +392,7 @@ def main(args):
                     # torch.cuda.FloatTensor
 
                     loss = loss_fn(output, labels)
-
+                    
                     batch_metrics = evaluate(output, labels)
 
                     for key, value in batch_metrics.items():
@@ -422,19 +422,19 @@ def main(args):
 
         training_epoch_loss = calculate_epoch_loss(training_running_loss, num_samples)
         validation_epoch_loss = calculate_epoch_loss(validation_running_loss, num_samples)
-
+        
         training_loss_values.append(training_epoch_loss)
         validation_loss_values.append(validation_epoch_loss)
         print(f"\nTraining epoch loss: {training_epoch_loss:.4f}")
         print(f"Validation epoch loss: {validation_epoch_loss:.4f}\n")
-
+        
         print(f"Training Metrics:")
-        for key in performance_metrics_labels:
+        for key in performance_metrics_labels: 
             training_performance[key] /= num_samples
             print(f"Average {key} @ epoch: {training_performance[key]:.4f}")
-
+        
         print(f"\nValidation Metrics:")
-        for key in performance_metrics_labels:
+        for key in performance_metrics_labels:     
             validation_performance[key] /= num_samples
             print(f"Average {key} @ epoch: {validation_performance[key]: .4f}")
 
