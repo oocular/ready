@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Script to resize all images in a directory to 640x400 pixels
+# Script to resize all images in a directory to HEIGHTxWIDTH pixels
+# Argument order: [directory] [height] [width]
 # Requires ImageMagick to be installed
 
 # Default directory is current directory
 DIR="${1:-.}"
+HEIGHT="$2"
+WIDTH="$3" 
 
 # Check if directory exists
 if [ ! -d "$DIR" ]; then
@@ -21,7 +24,8 @@ extensions=("jpg" "jpeg" "png")
 
 echo "Resizing images in directory: $DIR"
 echo "Output directory: $OUTPUT_DIR"
-echo "Target size: 576x320"
+echo "Target size: HEIGHTxWIDTH"
+echo "Will convert images to $2x$3"
 echo "####################"
 
 # Process each image type
@@ -33,7 +37,7 @@ for ext in "${extensions[@]}"; do
             echo "Processing: $filename"
             
             # Resize image maintaining aspect ratio, then crop/pad to exact dimensions
-            convert "$file" -resize 576x320^ -gravity center -extent 576x320 "$OUTPUT_DIR/$filename"
+            convert "$file" -resize ${HEIGHT}x${WIDTH}^ -gravity center -extent ${HEIGHT}x${WIDTH} "$OUTPUT_DIR/$filename"
             
             if [ $? -eq 0 ]; then
                 echo "Successfully resized"

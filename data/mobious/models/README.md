@@ -31,8 +31,12 @@ bash scripts/models/inference_unet_with_mobious.bash
 ```
 python src/ready/apis/plot_losses.py -p <PATH> -lf1 <*.csv> -lf2 <*.csv>
 ```
+
 ![fig](../../../docs/figs/losses_for_TRAINe100-80gbGPU.png)
 
+The loss values used to create plots like the one above can be created
+and stored in .csv files using train_mobious.py.
+To run this file, use `bash scripts/models/train_unet_with_mobious.bash`
 ## Rebinding model to new nodes (NCHW to NHWC)
 ```
 cd $HOME_REPO

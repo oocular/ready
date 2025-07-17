@@ -156,7 +156,9 @@ def main(args):
     - FULL_DATA_PATH, transform=None, target_transform=None
     - FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
     - FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+    
 
+    Use of SEED value as 42 is arbitrary. Any 32-bit integer is a valid seed. Using a seed when splitting the full_dataset means we can ensure the split is the same every time we run this file. 
     """
 
     config_file = args.config_file
@@ -226,14 +228,6 @@ def main(args):
     transform_arg = transform_map.get(config.transforms.transform_operation, None)
     target_transform_arg = transform_map.get(config.transforms.target_transform_operation, None)
     
-
-    # Split datapath into trainpath, validation+path, test_path
-    # Create full mobious dataset first, then split into respective sets.
-    # Make sure to change dataset fed into trainloader
-    # use .random_split()
-    # Put validation into training loop
-    # Finally, evaluate with the test_set
-    
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     full_dataset = MobiousDataset(
@@ -241,8 +235,13 @@ def main(args):
         )
     
     SEED = 42
+
+    TRAIN_SET_PROPORTION = config.datasets_proportions.train_set
+    VALIDATION_SET_PROPORTION = config.datasets_proportions.validation_set
+    TEST_SET_PROPORTION = config.datasets_proportions.test_set
+
     train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, 
-                                                                        [0.70, 0.15, 0.15],
+                                                                        [TRAIN_SET_PROPORTION, VALIDATION_SET_PROPORTION, TEST_SET_PROPORTION],
                                                                         torch.Generator().manual_seed(SEED)) 
 
     logger.info(f"Length of trainset: {len(train_set)}")
@@ -458,16 +457,20 @@ def main(args):
         with open(json_file, "w") as out_file_obj:
             out_file_obj.write(text)
 
-        loss_file = PATH+"/training_loss_values_"+current_time_stamp+".csv"
-        with open(loss_file, "w") as out_file_obj:
-            for loss in training_loss_values:
-                out_file_obj.write(f"{loss}\n")
-        
-        logger.info(f"#########################")
         json_file = PATH+"/validation_performance_"+current_time_stamp+".json"
         text = json.dumps(validation_performance, indent=4)
         with open(json_file, "w") as out_file_obj:
             out_file_obj.write(text)
+       
+        logger.info(f"#########################")
+        
+        # To create a plot showing how loss values change for every epoch,
+        # use src/ready/apis/plot_losses.py script.
+ 
+        loss_file = PATH+"/training_loss_values_"+current_time_stamp+".csv"
+        with open(loss_file, "w") as out_file_obj:
+            for loss in training_loss_values:
+                out_file_obj.write(f"{loss}\n") 
 
         loss_file = PATH+"/validation_loss_values_"+current_time_stamp+".csv"
         with open(loss_file, "w") as out_file_obj:
