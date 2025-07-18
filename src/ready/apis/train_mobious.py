@@ -251,13 +251,12 @@ def main(args):
     learning_rate = config.model_hyperparameters.learning_rate
     run_epoch = config.model_hyperparameters.epochs
 
-    trainloader = torch.utils.data.DataLoader(
-        train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers
-    )
-    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
-    
+    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers) 
+    test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     
+    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
+        
     if debug_print_flag:
         sanity_check_trainloader(trainloader, cuda_available)
 
@@ -315,9 +314,11 @@ def main(args):
         "miou": 0.0,
         "dice": 0.0,
     }
+    
+    logger.info("Commencing training")
+    logger.info(f"#########################")
 
     for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        logger.info(f"#########################")
         logger.info(f"Train loop at epoch: {i}")
         training_running_loss = 0.0
         validation_running_loss = 0.0
@@ -373,6 +374,8 @@ def main(args):
             # # performance[key].append(average_metric)
         
         # Validation
+        logger.info(f"#########################")
+        logger.info("Commencing validation")
         with torch.set_grad_enabled(False):
                  for j, data in enumerate(validation_loader, 1):
                     
@@ -488,6 +491,29 @@ def main(args):
     endtime = time.time()
     elapsedtime = endtime - starttime
     logger.info(f"Elapsed time for the training loop: {elapsedtime} (sec)")
+    
+    # Evaluating model using test_set
+
+    logger.info("Commencing evaluation.")
+    model.eval()
+    
+    total_elements = 0.0
+    num_matches = 0
+    with torch.set_grad_enabled(False):
+        for data in test_loader: 
+            images, labels = data 
+            test_output = model(images.to(device)) 
+            _, predicted = torch.max(test_output.data, 1)
+            
+            # Compares how many elements in predicted and labels tensors match
+            # and counts them all 
+            num_matches += (predicted == labels.to(device)).sum().item()
+
+            # Total number of elements in label tensor
+            total_elements += torch.numel(labels)   
+     
+    test_accuracy = (num_matches / total_elements) * 100
+    logger.info(f"Model Accuracy: {test_accuracy: .4f}%")
 
 if __name__ == "__main__":
     """
