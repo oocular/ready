@@ -236,12 +236,12 @@ def main(args):
     
     SEED = 42
 
-    TRAIN_SET_PROPORTION = config.datasets_proportions.train_set
-    VALIDATION_SET_PROPORTION = config.datasets_proportions.validation_set
-    TEST_SET_PROPORTION = config.datasets_proportions.test_set
+    TRAIN_SET_RATIO = config.datasets_splitting_ratios.train_set
+    VALIDATION_SET_RATIO = config.datasets_splitting_ratios.validation_set
+    TEST_SET_RATIO = config.datasets_splitting_ratios.test_set
 
     train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, 
-                                                                        [TRAIN_SET_PROPORTION, VALIDATION_SET_PROPORTION, TEST_SET_PROPORTION],
+                                                                        [TRAIN_SET_RATIO, VALIDATION_SET_RATIO, TEST_SET_RATIO],
                                                                         torch.Generator().manual_seed(SEED)) 
 
     logger.info(f"Length of trainset: {len(train_set)}")

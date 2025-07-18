@@ -18,7 +18,7 @@ transforms: # Transformations are defined in train_mobious.py using transforms.C
     transform_operation: None # Options are 'transforms_img', 'transforms_rotations', None
     target_transform_operation: None # Options are 'transforms_img', 'transforms_rotations', None
 
-datasets_proportions: # Ensure sum of all proportions = 1.
+datasets_splitting_ratios: # Ensure sum of all ratios = 1.
     train_set: 0.70
     validation_set : 0.15
     test_set : 0.15
