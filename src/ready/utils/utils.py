@@ -120,8 +120,9 @@ def sanity_check_trainloader(trainloader, cuda_available):
     print(f"############################")
 
 def evaluate_model(model, test_loader, device):
-
-    # model.eval()
+    """
+    Evaluate model using test data
+    """
     
     total_elements = 0.0
     num_matches = 0
@@ -141,3 +142,25 @@ def evaluate_model(model, test_loader, device):
     test_accuracy = (num_matches / total_elements) * 100
 
     return test_accuracy
+
+def create_data_loaders(full_dataset, data_splitting_ratios, seed, batch_size, num_workers):
+    """
+    Create train, validation, and test dataloaders
+    """
+
+    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, data_splitting_ratios, torch.Generator().manual_seed(seed)) 
+ 
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers) 
+    test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+
+    return train_loader, validation_loader, test_loader
+
+def training_loop():
+    pass
+
+def validation_loop():
+    pass
+
+def evaluation_loop():
+    pass

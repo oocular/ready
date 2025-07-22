@@ -17,7 +17,7 @@ from ready.models.unet import UNet
 from ready.utils.datasets import MobiousDataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
-                               set_data_directory, evaluate_model)
+                               set_data_directory, evaluate_model, create_data_loaders)
 
 torch.cuda.empty_cache()
 # import gc
@@ -240,29 +240,26 @@ def main(args):
     VALIDATION_SET_RATIO = config.datasets_splitting_ratios.validation_set
     TEST_SET_RATIO = config.datasets_splitting_ratios.test_set
 
-    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, 
-                                                                        [TRAIN_SET_RATIO, VALIDATION_SET_RATIO, TEST_SET_RATIO],
-                                                                        torch.Generator().manual_seed(SEED)) 
-
-    logger.info(f"Length of trainset: {len(train_set)}")
-
     batch_size = config.model_hyperparameters.batch_size
     num_workers = config.model_hyperparameters.num_workers
     learning_rate = config.model_hyperparameters.learning_rate
     run_epoch = config.model_hyperparameters.epochs
-
-    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers) 
-    test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     
-    logger.info(f"trainloader.batch_size: {trainloader.batch_size}")
-        
+    data_splitting_ratios = [TRAIN_SET_RATIO, VALIDATION_SET_RATIO, TEST_SET_RATIO]
+
+    train_loader, validation_loader, test_loader = create_data_loaders(full_dataset=full_dataset, 
+                                                                       data_splitting_ratios=data_splitting_ratios, 
+                                                                       seed=SEED, 
+                                                                       batch_size=batch_size, 
+                                                                       num_workers=num_workers)
+
+    # logger.info(f"trainloader.batch_size: {train_loader.batch_size}")
+    #     
     if debug_print_flag:
-        sanity_check_trainloader(trainloader, cuda_available)
+        sanity_check_trainloader(train_loader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
-    
-    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S") 
     PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
 
     if not config.pretrained_model.evaluation_with_pretrained_model_flag:
@@ -332,7 +329,7 @@ def main(args):
             # performance_epoch = {key: 0.0 for key in performance.keys()}
             
             # Training
-            for j, data in enumerate(trainloader, 1):
+            for j, data in enumerate(train_loader, 1):
                   
                 images, labels = data
                 if cuda_available:
@@ -510,8 +507,12 @@ def main(args):
 
     test_accuracy = evaluate_model(model, test_loader, device)
 
-    accuracy_file = PATH+"/accuracy_value_"+current_time_stamp+".csv"
-    with open(accuracy_file, 'w') as out_file_obj:
+    file_name = "/accuracy_value_"+current_time_stamp+".csv"
+    print(os.path.join(PATH, file_name))
+    # accuracy_file = PATH+"/accuracy_value_"+current_time_stamp+".csv"
+    # if not os.path.exists(accuracy_file):
+    #     os.makedirs(accuracy_file, exist_ok=True)
+    with open(os.path.join(PATH,file_name), 'w') as out_file_obj:
         out_file_obj.write(str(test_accuracy))
  
     logger.info(f"Model Accuracy: {test_accuracy: .4f}%")
