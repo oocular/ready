@@ -261,6 +261,9 @@ def main(args):
         sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
+    
+    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+    PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
 
     if not config.pretrained_model.evaluation_with_pretrained_model_flag:
         
@@ -446,10 +449,10 @@ def main(args):
         logger.info(f"#########################")
         logger.info(f"Training and Validation complete.")
 
-        current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+        # current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
 
         if not debug_print_flag:
-            PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S") + "_" + device_name
+            PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
             print(PATH)
             if not os.path.exists(PATH):
                 os.makedirs(PATH, exist_ok=True)
@@ -506,7 +509,11 @@ def main(args):
     logger.info("Commencing evaluation.")
 
     test_accuracy = evaluate_model(model, test_loader, device)
-    
+
+    accuracy_file = PATH+"/accuracy_value_"+current_time_stamp+".csv"
+    with open(accuracy_file, 'w') as out_file_obj:
+        out_file_obj.write(str(test_accuracy))
+ 
     logger.info(f"Model Accuracy: {test_accuracy: .4f}%")
 
 if __name__ == "__main__":

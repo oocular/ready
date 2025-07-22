@@ -26,8 +26,8 @@ datasets_splitting_ratios: # Ensure sum of all ratios = 1.
 pretrained_model: 
     models_path : "datasets/ready/mobious/models" # LOCAL and SERVER paths
     checkpoint_path : "datasets/?"
-    model_name_for_eval : "weights_21-Jul-2025_15-05-30.pth" # weights_[date]_[time].pth
-    evaluation_with_pretrained_model_flag : True # Set to True to skip training and validation, and instead use a pretrained model for evaluation only. Load desired model using above variables
+    model_name_for_eval : "weights_21-Jul-2025_15-05-30.pth" # weights_[date]_[time].pth .Please remember to add your own model.
+    evaluation_with_pretrained_model_flag : False # Set to True to skip training and validation, and instead use a pretrained model for evaluation only. Load desired model using above variables
     # Set to False if you want to use the standard workflow: run training and validation, then perform evaluation.
 
 model_hyperparameters:
