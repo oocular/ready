@@ -17,7 +17,7 @@ from ready.models.unet import UNet
 from ready.utils.datasets import MobiousDataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
-                               set_data_directory)
+                               set_data_directory, evaluate_model)
 
 torch.cuda.empty_cache()
 # import gc
@@ -174,7 +174,7 @@ def main(args):
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
     if not os.path.exists(FULL_MODEL_PATH):
         os.makedirs(FULL_MODEL_PATH, exist_ok=True)
-
+    
     use_github_data_path_flag = config.dataset.use_github_data_path_flag
     data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
 
@@ -261,258 +261,252 @@ def main(args):
         sanity_check_trainloader(trainloader, cuda_available)
 
     model = UNet(nch_in=3, nch_out=4)
-    num_params = len(nn.utils.parameters_to_vector(model.parameters()))
-    logger.info(f"Number of parameters in model: {num_params}")
 
-    # model.summary()
-
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    loss_fn = nn.CrossEntropyLoss()
-    # TODO: check which criterium properties to setup
-    # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
-    # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-    # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
-    # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
-    # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
-
-    if cuda_available:
-        model.cuda()
-        loss_fn.cuda()
-    
-    epoch = None
-
-    performance_metrics_labels = ["accuracy", 
-                                  "f1",
-                                  "recall",
-                                  "precision",
-                                  "fbeta",
-                                  "miou",
-                                  "dice"
-                                  ]
-    # Training Metrics
-
-    training_loss_values = []
-    training_performance = {
-        "accuracy": 0.0,
-        "f1": 0.0,
-        "recall": 0.0,
-        "precision": 0.0,
-        "fbeta": 0.0,
-        "miou": 0.0,
-        "dice": 0.0,
-    }
-
-    # Validation metrics
-
-    validation_loss_values = []
-    validation_performance = {
-        "accuracy": 0.0,
-        "f1": 0.0,
-        "recall": 0.0,
-        "precision": 0.0,
-        "fbeta": 0.0,
-        "miou": 0.0,
-        "dice": 0.0,
-    }
-    
-    logger.info("Commencing training")
-    logger.info(f"#########################")
-
-    for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-        logger.info(f"Train loop at epoch: {i}")
-        training_running_loss = 0.0
-        validation_running_loss = 0.0
-        num_samples, num_batches = 0, 0
-        # performance_epoch = {key: 0.0 for key in performance.keys()}
+    if not config.pretrained_model.evaluation_with_pretrained_model_flag:
         
-        # Training
-        for j, data in enumerate(trainloader, 1):
-              
-            images, labels = data
-            if cuda_available:
-                images = images.cuda()
-                labels = labels.cuda()
+        num_params = len(nn.utils.parameters_to_vector(model.parameters()))
+        logger.info(f"Number of parameters in model: {num_params}")
 
-            optimizer.zero_grad()
-            output = model(images)
-            print(f"output.size() {output.size()};\
-            type(output): {type(output)};\
-            pred.type: {output.type()} ")
-            # torch.Size([batch_size_, 4, 400, 640]);
-            # <class 'torch.Tensor'>;
-            # torch.cuda.FloatTensor
+        # model.summary()
 
-            loss = loss_fn(output, labels)
-            loss.backward()
-            optimizer.step()
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        loss_fn = nn.CrossEntropyLoss()
+        # TODO: check which criterium properties to setup
+        # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
+        # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+        # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
+        # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
+        # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
 
-            batch_metrics = evaluate(output, labels)
-
-            for key, value in batch_metrics.items():
-                # print(f"{key}: {value:.4f}")
-                training_performance[key] += value * len(images) # weighted by batch size
-
-            num_samples += len(images)
-            training_running_loss += loss.item()
-
-            # Log every X batches
-            if j % 50 == 0 or j == 1:
-                print(f"Training: Loss at {j} mini-batch {loss.item():.4f}")
-            # TODO
-            #                sanity_check(trainloader, model, cuda_available)
-            #                save_checkpoint(
-            #                    {
-            #                        "epoch": run_epoch,
-            #                        "state_dict": model.state_dict(),
-            #                        "optimizer": optimizer.state_dict(),
-            #                    },
-            #                    "models/o.pth",
-            #                )
-            #
-            # if j == 300:
-            #     break
-            # # performance[key].append(average_metric)
+        if cuda_available:
+            model.cuda()
+            loss_fn.cuda()
         
-        # Validation
+        epoch = None
+
+        performance_metrics_labels = ["accuracy", 
+                                      "f1",
+                                      "recall",
+                                      "precision",
+                                      "fbeta",
+                                      "miou",
+                                      "dice"
+                                      ]
+        # Training Metrics
+
+        training_loss_values = []
+        training_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+        }
+
+        # Validation metrics
+
+        validation_loss_values = []
+        validation_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+        }
+        
+        logger.info("Commencing training")
         logger.info(f"#########################")
-        logger.info("Commencing validation")
-        with torch.set_grad_enabled(False):
-                 for j, data in enumerate(validation_loader, 1):
-                    
-                    images, labels = data
-                    if cuda_available:
-                        images = images.cuda()
-                        labels = labels.cuda()
 
-                    optimizer.zero_grad()
-                    output = model(images)
-                    print(f"output.size() {output.size()};\
-                    type(output): {type(output)};\
-                    pred.type: {output.type()} ")
-                    # torch.Size([batch_size_, 4, 400, 640]);
-                    # <class 'torch.Tensor'>;
-                    # torch.cuda.FloatTensor
+        for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
+            logger.info(f"Train loop at epoch: {i}")
+            training_running_loss = 0.0
+            validation_running_loss = 0.0
+            num_samples, num_batches = 0, 0
+            # performance_epoch = {key: 0.0 for key in performance.keys()}
+            
+            # Training
+            for j, data in enumerate(trainloader, 1):
+                  
+                images, labels = data
+                if cuda_available:
+                    images = images.cuda()
+                    labels = labels.cuda()
 
-                    loss = loss_fn(output, labels)
-                    
-                    batch_metrics = evaluate(output, labels)
+                optimizer.zero_grad()
+                output = model(images)
+                print(f"output.size() {output.size()};\
+                type(output): {type(output)};\
+                pred.type: {output.type()} ")
+                # torch.Size([batch_size_, 4, 400, 640]);
+                # <class 'torch.Tensor'>;
+                # torch.cuda.FloatTensor
 
-                    for key, value in batch_metrics.items():
-                        # print(f"{key}: {value:.4f}")
-                        validation_performance[key] += value * len(images) # weighted by batch size
+                loss = loss_fn(output, labels)
+                loss.backward()
+                optimizer.step()
 
-                    num_samples += len(images)
-                    validation_running_loss += loss.item()
+                batch_metrics = evaluate(output, labels)
 
-                    # Log every X batches
-                    if j % 50 == 0 or j == 1:
-                        print(f"Validation: Loss at {j} mini-batch {loss.item():.4f}")
-                    # TODO
-                    #                sanity_check(trainloader, model, cuda_available)
-                    #                save_checkpoint(
-                    #                    {
-                    #                        "epoch": run_epoch,
-                    #                        "state_dict": model.state_dict(),
-                    #                        "optimizer": optimizer.state_dict(),
-                    #                    },
-                    #                    "models/o.pth",
-                    #                )
-                    #
-                    # if j == 300:
-                    #     break
-                    # # performance[key].append(average_metric)
+                for key, value in batch_metrics.items():
+                    # print(f"{key}: {value:.4f}")
+                    training_performance[key] += value * len(images) # weighted by batch size
 
-        training_epoch_loss = calculate_epoch_loss(training_running_loss, num_samples)
-        validation_epoch_loss = calculate_epoch_loss(validation_running_loss, num_samples)
-        
-        training_loss_values.append(training_epoch_loss)
-        validation_loss_values.append(validation_epoch_loss)
-        print(f"\nTraining epoch loss: {training_epoch_loss:.4f}")
-        print(f"Validation epoch loss: {validation_epoch_loss:.4f}\n")
-        
-        print(f"Training Metrics:")
-        for key in performance_metrics_labels: 
-            training_performance[key] /= num_samples
-            print(f"Average {key} @ epoch: {training_performance[key]:.4f}")
-        
-        print(f"\nValidation Metrics:")
-        for key in performance_metrics_labels:     
-            validation_performance[key] /= num_samples
-            print(f"Average {key} @ epoch: {validation_performance[key]: .4f}")
+                num_samples += len(images)
+                training_running_loss += loss.item()
 
-    logger.info(f"#########################")
-    logger.info(f"Training and Validation complete.")
+                # Log every X batches
+                if j % 50 == 0 or j == 1:
+                    print(f"Training: Loss at {j} mini-batch {loss.item():.4f}")
+                # TODO
+                #                sanity_check(trainloader, model, cuda_available)
+                #                save_checkpoint(
+                #                    {
+                #                        "epoch": run_epoch,
+                #                        "state_dict": model.state_dict(),
+                #                        "optimizer": optimizer.state_dict(),
+                #                    },
+                #                    "models/o.pth",
+                #                )
+                #
+                # if j == 300:
+                #     break
+                # # performance[key].append(average_metric)
+            
+            # Validation
+            logger.info(f"#########################")
+            logger.info("Commencing validation")
+            with torch.set_grad_enabled(False):
+                     for j, data in enumerate(validation_loader, 1):
+                        
+                        images, labels = data
+                        if cuda_available:
+                            images = images.cuda()
+                            labels = labels.cuda()
 
-    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+                        optimizer.zero_grad()
+                        output = model(images)
+                        print(f"output.size() {output.size()};\
+                        type(output): {type(output)};\
+                        pred.type: {output.type()} ")
+                        # torch.Size([batch_size_, 4, 400, 640]);
+                        # <class 'torch.Tensor'>;
+                        # torch.cuda.FloatTensor
 
-    if not debug_print_flag:
-        PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S") + "_" + device_name
-        print(PATH)
-        if not os.path.exists(PATH):
-            os.makedirs(PATH, exist_ok=True)
+                        loss = loss_fn(output, labels)
+                        
+                        batch_metrics = evaluate(output, labels)
 
-        model_name = PATH+"/weights_" + current_time_stamp + ".pth"
-        torch.save(model.state_dict(), model_name)
-        logger.info(f"Saved PyTorch Model State to {model_name}")
+                        for key, value in batch_metrics.items():
+                            # print(f"{key}: {value:.4f}")
+                            validation_performance[key] += value * len(images) # weighted by batch size
 
-        json_file = PATH+"/training_performance_"+current_time_stamp+".json"
-        text = json.dumps(training_performance, indent=4)
-        with open(json_file, "w") as out_file_obj:
-            out_file_obj.write(text)
+                        num_samples += len(images)
+                        validation_running_loss += loss.item()
 
-        json_file = PATH+"/validation_performance_"+current_time_stamp+".json"
-        text = json.dumps(validation_performance, indent=4)
-        with open(json_file, "w") as out_file_obj:
-            out_file_obj.write(text)
-       
+                        # Log every X batches
+                        if j % 50 == 0 or j == 1:
+                            print(f"Validation: Loss at {j} mini-batch {loss.item():.4f}")
+                        # TODO
+                        #                sanity_check(trainloader, model, cuda_available)
+                        #                save_checkpoint(
+                        #                    {
+                        #                        "epoch": run_epoch,
+                        #                        "state_dict": model.state_dict(),
+                        #                        "optimizer": optimizer.state_dict(),
+                        #                    },
+                        #                    "models/o.pth",
+                        #                )
+                        #
+                        # if j == 300:
+                        #     break
+                        # # performance[key].append(average_metric)
+
+            training_epoch_loss = calculate_epoch_loss(training_running_loss, num_samples)
+            validation_epoch_loss = calculate_epoch_loss(validation_running_loss, num_samples)
+            
+            training_loss_values.append(training_epoch_loss)
+            validation_loss_values.append(validation_epoch_loss)
+            print(f"\nTraining epoch loss: {training_epoch_loss:.4f}")
+            print(f"Validation epoch loss: {validation_epoch_loss:.4f}\n")
+            
+            print(f"Training Metrics:")
+            for key in performance_metrics_labels: 
+                training_performance[key] /= num_samples
+                print(f"Average {key} @ epoch: {training_performance[key]:.4f}")
+            
+            print(f"\nValidation Metrics:")
+            for key in performance_metrics_labels:     
+                validation_performance[key] /= num_samples
+                print(f"Average {key} @ epoch: {validation_performance[key]: .4f}")
+
         logger.info(f"#########################")
-        
-        # To create a plot showing how loss values change for every epoch,
-        # use src/ready/apis/plot_losses.py script.
- 
-        loss_file = PATH+"/training_loss_values_"+current_time_stamp+".csv"
-        with open(loss_file, "w") as out_file_obj:
-            for loss in training_loss_values:
-                out_file_obj.write(f"{loss}\n") 
+        logger.info(f"Training and Validation complete.")
 
-        loss_file = PATH+"/validation_loss_values_"+current_time_stamp+".csv"
-        with open(loss_file, "w") as out_file_obj:
-            for loss in validation_loss_values:
-                out_file_obj.write(f"{loss}\n")
+        current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
 
-    else:
-        logger.info(f"Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
+        if not debug_print_flag:
+            PATH = FULL_MODEL_PATH+"/"+datetime.now().strftime("%d-%b-%Y_%H-%M-%S") + "_" + device_name
+            print(PATH)
+            if not os.path.exists(PATH):
+                os.makedirs(PATH, exist_ok=True)
 
-    # TODO
-    #    batch_size = 1    # just a random number
-    #    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(device)
-    #    export_model(model, device, path_name, dummy_input):
+            model_name = PATH+"/weights_" + current_time_stamp + ".pth"
+            torch.save(model.state_dict(), model_name)
+            logger.info(f"Saved PyTorch Model State to {model_name}")
 
-    endtime = time.time()
-    elapsedtime = endtime - starttime
-    logger.info(f"Elapsed time for the training loop: {elapsedtime} (sec)")
+            json_file = PATH+"/training_performance_"+current_time_stamp+".json"
+            text = json.dumps(training_performance, indent=4)
+            with open(json_file, "w") as out_file_obj:
+                out_file_obj.write(text)
+
+            json_file = PATH+"/validation_performance_"+current_time_stamp+".json"
+            text = json.dumps(validation_performance, indent=4)
+            with open(json_file, "w") as out_file_obj:
+                out_file_obj.write(text)
+           
+            logger.info(f"#########################")
+            
+            # To create a plot showing how loss values change for every epoch,
+            # use src/ready/apis/plot_losses.py script.
+     
+            loss_file = PATH+"/training_loss_values_"+current_time_stamp+".csv"
+            with open(loss_file, "w") as out_file_obj:
+                for loss in training_loss_values:
+                    out_file_obj.write(f"{loss}\n") 
+
+            loss_file = PATH+"/validation_loss_values_"+current_time_stamp+".csv"
+            with open(loss_file, "w") as out_file_obj:
+                for loss in validation_loss_values:
+                    out_file_obj.write(f"{loss}\n")
+
+        else:
+            logger.info(f"Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
+
+        # TODO
+        #    batch_size = 1    # just a random number
+        #    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(device)
+        #    export_model(model, device, path_name, dummy_input):
+
+        endtime = time.time()
+        elapsedtime = endtime - starttime
+        logger.info(f"Elapsed time for the training loop: {elapsedtime} (sec)")
     
     # Evaluating model using test_set
+    else:
+        
+        model_subfolder_for_eval = config.pretrained_model.model_name_for_eval[8:-4]
+        model_path = FULL_MODEL_PATH + '/' + model_subfolder_for_eval + '_' + str(device) + '/' + config.pretrained_model.model_name_for_eval
+        model.load_state_dict(torch.load(model_path, weights_only=True))
+        model.eval() 
 
     logger.info("Commencing evaluation.")
-    model.eval()
-    
-    total_elements = 0.0
-    num_matches = 0
-    with torch.set_grad_enabled(False):
-        for data in test_loader: 
-            images, labels = data 
-            test_output = model(images.to(device)) 
-            _, predicted = torch.max(test_output.data, 1)
-            
-            # Compares how many elements in predicted and labels tensors match
-            # and counts them all 
-            num_matches += (predicted == labels.to(device)).sum().item()
 
-            # Total number of elements in label tensor
-            total_elements += torch.numel(labels)   
-     
-    test_accuracy = (num_matches / total_elements) * 100
+    test_accuracy = evaluate_model(model, test_loader, device)
+    
     logger.info(f"Model Accuracy: {test_accuracy: .4f}%")
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ utils
 
 import os
 from pathlib import Path
+import torch
 
 import matplotlib.pyplot as plt
 
@@ -117,3 +118,26 @@ def sanity_check_trainloader(trainloader, cuda_available):
         break
 
     print(f"############################")
+
+def evaluate_model(model, test_loader, device):
+
+    # model.eval()
+    
+    total_elements = 0.0
+    num_matches = 0
+    with torch.set_grad_enabled(False):
+        for data in test_loader: 
+            images, labels = data 
+            test_output = model(images.to(device)) 
+            _, predicted = torch.max(test_output.data, 1)
+            
+            # Compares how many elements in predicted and labels tensors match
+            # and counts them all 
+            num_matches += (predicted == labels.to(device)).sum().item()
+
+            # Total number of elements in label tensor
+            total_elements += torch.numel(labels)   
+     
+    test_accuracy = (num_matches / total_elements) * 100
+
+    return test_accuracy
