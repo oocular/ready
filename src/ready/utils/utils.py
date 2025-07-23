@@ -271,3 +271,27 @@ def loss_values_file_writer(folder_path, file_prefix, loss_values, current_time_
     with open(loss_file, "w") as out_file_obj:
         for loss in loss_values:
             out_file_obj.write(f"{loss}\n") 
+
+def test_accuracy_file_writer(folder_path, test_accuracy, current_time_stamp, pretrained_model_flag):
+    """
+    Writes test accuracy value to .csv file
+    """
+    
+    # print(f"Folder Path: {folder_path}")
+    # print(f"Folder exists: {os.path.exists(folder_path)}")
+    # print(pretrained_model_flag)
+    #
+    accuracy_file = ""
+    if pretrained_model_flag:
+        accuracy_file = folder_path + "/accuracy_value_for_reevaluation_" + current_time_stamp + ".csv" 
+    else:
+        accuracy_file = folder_path + "/accuracy_value_" + current_time_stamp + ".csv"
+    
+    os.makedirs(folder_path, exist_ok=True)
+
+    print(accuracy_file)
+
+    with open(accuracy_file, "w") as out_file_obj:
+        out_file_obj.write(f"{test_accuracy}\n") 
+
+    print(f"File created: {os.path.exists(accuracy_file)}")

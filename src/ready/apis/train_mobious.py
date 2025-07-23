@@ -20,7 +20,7 @@ from ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
                                set_data_directory, evaluate_model, 
                                 create_data_loaders, training_loop,
                                 validation_loop, performance_file_writer,
-                                loss_values_file_writer)
+                                loss_values_file_writer, test_accuracy_file_writer)
 
 torch.cuda.empty_cache()
 # import gc
@@ -182,7 +182,7 @@ def main(args):
     VALIDATION_SET_RATIO = config.datasets_splitting_ratios.validation_set
     TEST_SET_RATIO = config.datasets_splitting_ratios.test_set
     
-    PRETRAINED_MODEL_PATH = config.pretrained_model.models_path
+    PRETRAINED_MODEL_FOLDER = config.pretrained_model.models_folder_path
     CHECKPOINT_PATH = config.pretrained_model.checkpoint_path
     MODEL_NAME_FOR_EVAL = config.pretrained_model.model_name_for_eval
     evaluation_with_pretrained_model_flag = config.pretrained_model.evaluation_with_pretrained_model_flag
@@ -197,6 +197,7 @@ def main(args):
     FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
     FULL_GITHUB_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+    FULL_PRETRAINED_MODEL_PATH = os.path.join(Path.home(), PRETRAINED_MODEL_FOLDER)
     if not os.path.exists(FULL_MODEL_PATH):
         os.makedirs(FULL_MODEL_PATH, exist_ok=True)
     
@@ -277,7 +278,7 @@ def main(args):
 
     model = UNet(nch_in=3, nch_out=4)
 
-    if not config.pretrained_model.evaluation_with_pretrained_model_flag:
+    if not evaluation_with_pretrained_model_flag: 
         
         num_params = len(nn.utils.parameters_to_vector(model.parameters()))
         logger.info(f"Number of parameters in model: {num_params}")
@@ -344,7 +345,7 @@ def main(args):
             # performance_epoch = {key: 0.0 for key in performance.keys()}
             
             # Training
-            logger.info(f"Training")
+            logger.info(f"Training Section")
             for j, data in enumerate(train_loader, 1):
                 current_training_loss, num_samples_processed = training_loop(model=model, 
                               current_idx=j, 
@@ -360,7 +361,7 @@ def main(args):
             logger.info(f"#########################")
 
             # Validation
-            logger.info("Validation")
+            logger.info("Validation Section")
             with torch.set_grad_enabled(False):
                      for j, data in enumerate(validation_loader, 1):    
                         current_validation_loss, num_samples_processed = validation_loop(model=model, 
@@ -394,12 +395,16 @@ def main(args):
 
         logger.info(f"#########################")
         logger.info(f"Training and Validation complete.")
+        
+        PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
+        if not os.path.exists(PATH):
+            os.makedirs(PATH, exist_ok=True)
 
         if not debug_print_flag:
-            PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
-            print(PATH)
-            if not os.path.exists(PATH):
-                os.makedirs(PATH, exist_ok=True)
+            # PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
+            # print(PATH)
+            # if not os.path.exists(PATH):
+            #     os.makedirs(PATH, exist_ok=True)
 
             model_name = PATH+"/weights_" + current_time_stamp + ".pth"
             torch.save(model.state_dict(), model_name)
@@ -409,7 +414,8 @@ def main(args):
                 "/training_performance_" : training_performance,
                 "/validation_performance_" : validation_performance
             }
-
+            
+            logger.info(f"Writing performance metrics to {PATH}")
             # Write performance metrics to .json files
             for file_prefix, performance_dict in performance_file_prefix_to_performance_dict.items():
                 performance_file_writer(folder_path=PATH, file_prefix=file_prefix, performance_dict=performance_dict, current_time_stamp=current_time_stamp)
@@ -418,6 +424,8 @@ def main(args):
             
             # To create a plot showing how loss values change for every epoch,
             # use src/ready/apis/plot_losses.py script.
+
+            logger.info(f"Writing loss values to {PATH}")
 
             loss_values_prefix_to_loss_value = {
                 "/training_loss_values_" : training_loss_values,
@@ -437,29 +445,37 @@ def main(args):
 
         endtime = time.time()
         elapsedtime = endtime - starttime
-        logger.info(f"Elapsed time for the training loop: {elapsedtime} (sec)")
-    
+        logger.info(f"Elapsed time for the training and validation loop: {elapsedtime} (sec)")
+        
+        logger.info("Commencing Evaluation")
+
+        test_accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
+        test_accuracy_file_writer(folder_path=PATH, test_accuracy=test_accuracy, 
+                                  current_time_stamp=current_time_stamp, pretrained_model_flag=evaluation_with_pretrained_model_flag)
+ 
     # Evaluating model using test_set
     else:
-        
-        model_subfolder_for_eval = config.pretrained_model.model_name_for_eval[8:-4]
-        model_path = FULL_MODEL_PATH + '/' + model_subfolder_for_eval + '_' + str(device) + '/' + config.pretrained_model.model_name_for_eval
-        model.load_state_dict(torch.load(model_path, weights_only=True))
-        model.eval() 
 
-    logger.info("Commencing evaluation.")
+        logger.info("Skipping Training and Validation Loop. Straight to Evaluation.")
 
-    test_accuracy = evaluate_model(model, test_loader, device)
-
-    file_name = "/accuracy_value_"+current_time_stamp+".csv"
-    print(os.path.join(PATH, file_name))
-    # accuracy_file = PATH+"/accuracy_value_"+current_time_stamp+".csv"
-    # if not os.path.exists(accuracy_file):
-    #     os.makedirs(accuracy_file, exist_ok=True)
-    with open(os.path.join(PATH,file_name), 'w') as out_file_obj:
-        out_file_obj.write(str(test_accuracy))
+        time_of_testing = datetime.now().strftime("%d-%b-%Y_%H_%M_%S")
  
+        folder_containg_pretrained_model = MODEL_NAME_FOR_EVAL[8:-4] + "_" + device_name
+        model_path = os.path.join(FULL_PRETRAINED_MODEL_PATH, folder_containg_pretrained_model, MODEL_NAME_FOR_EVAL)
+        
+        model.load_state_dict(torch.load(model_path, weights_only=True))
+        # model.eval()
+        PATH = FULL_MODEL_PATH+"/"+ folder_containg_pretrained_model 
+        if not os.path.exists(PATH):
+            os.makedirs(PATH, exist_ok=True)
+
+        test_accuracy = evaluate_model(model=model, test_loader=test_loader, 
+                                       device=device)
+
+        test_accuracy_file_writer(folder_path=PATH, test_accuracy=test_accuracy, current_time_stamp=time_of_testing, pretrained_model_flag=evaluation_with_pretrained_model_flag)
+
     logger.info(f"Model Accuracy: {test_accuracy: .4f}%")
+    logger.info(f"Completed!")
 
 if __name__ == "__main__":
     """
