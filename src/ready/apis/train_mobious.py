@@ -19,7 +19,8 @@ from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
                                set_data_directory, evaluate_model, 
                                 create_data_loaders, training_loop,
-                                validation_loop)
+                                validation_loop, performance_file_writer,
+                                loss_values_file_writer)
 
 torch.cuda.empty_cache()
 # import gc
@@ -43,6 +44,7 @@ def calculate_epoch_loss(running_loss, num_samples):
     """
     Calculate epoch loss
     """
+
     return running_loss/num_samples
 
 def main(args):
@@ -270,9 +272,10 @@ def main(args):
     if debug_print_flag:
         sanity_check_trainloader(train_loader, cuda_available)
 
-    model = UNet(nch_in=3, nch_out=4)
     current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S") 
     PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
+
+    model = UNet(nch_in=3, nch_out=4)
 
     if not config.pretrained_model.evaluation_with_pretrained_model_flag:
         
@@ -334,40 +337,45 @@ def main(args):
         logger.info(f"#########################")
 
         for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-            logger.info(f"Training and Validation loop at epoch: {i}")
-            training_running_loss, validation_running_loss = 0.0, 0.0
-            num_samples, num_batches = 0, 0
+            logger.info(f"Training and Validation loop at Epoch: {i}")
+            total_training_running_loss, total_validation_running_loss = 0.0, 0.0
+            total_num_training_samples, total_num_validation_samples= 0, 0
+            # num_batches = 0
             # performance_epoch = {key: 0.0 for key in performance.keys()}
             
             # Training
+            logger.info(f"Training")
             for j, data in enumerate(train_loader, 1):
-                training_loop(model=model, 
+                current_training_loss, num_samples_processed = training_loop(model=model, 
                               current_idx=j, 
                               current_data=data, 
-                              optimizer=optimizer, 
-                              num_samples=num_samples, 
-                              training_running_loss=training_running_loss,
-                              training_performance=training_performance,
+                              optimizer=optimizer,  
+                              training_performance_dict=training_performance,
                               loss_fn = loss_fn,
                               cuda_available=cuda_available)
+
+                total_training_running_loss += current_training_loss
+                total_num_training_samples += num_samples_processed
             
-            # Validation
             logger.info(f"#########################")
-            logger.info("Commencing validation")
+
+            # Validation
+            logger.info("Validation")
             with torch.set_grad_enabled(False):
                      for j, data in enumerate(validation_loader, 1):    
-                        validation_loop(model=model, 
+                        current_validation_loss, num_samples_processed = validation_loop(model=model, 
                                         current_idx=j, 
                                         current_data=data,
                                         optimizer=optimizer,
-                                        num_samples=num_samples,
-                                        validation_running_loss=validation_running_loss,
-                                        validation_performance=validation_performance,
+                                        validation_performance_dict=validation_performance,
                                         loss_fn=loss_fn,
                                         cuda_available=cuda_available) 
+                        
+                        total_validation_running_loss += current_validation_loss
+                        total_num_validation_samples += num_samples_processed
 
-            training_epoch_loss = calculate_epoch_loss(training_running_loss, num_samples)
-            validation_epoch_loss = calculate_epoch_loss(validation_running_loss, num_samples)
+            training_epoch_loss = calculate_epoch_loss(total_training_running_loss, total_num_training_samples)
+            validation_epoch_loss = calculate_epoch_loss(total_validation_running_loss, total_num_validation_samples)
             
             training_loss_values.append(training_epoch_loss)
             validation_loss_values.append(validation_epoch_loss)
@@ -376,18 +384,16 @@ def main(args):
             
             print(f"Training Metrics:")
             for key in performance_metrics_labels: 
-                training_performance[key] /= num_samples
+                training_performance[key] /= total_num_training_samples
                 print(f"Average {key} @ epoch: {training_performance[key]:.4f}")
             
             print(f"\nValidation Metrics:")
             for key in performance_metrics_labels:     
-                validation_performance[key] /= num_samples
+                validation_performance[key] /= total_num_validation_samples
                 print(f"Average {key} @ epoch: {validation_performance[key]: .4f}")
 
         logger.info(f"#########################")
         logger.info(f"Training and Validation complete.")
-
-        # current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
 
         if not debug_print_flag:
             PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
@@ -399,30 +405,27 @@ def main(args):
             torch.save(model.state_dict(), model_name)
             logger.info(f"Saved PyTorch Model State to {model_name}")
 
-            json_file = PATH+"/training_performance_"+current_time_stamp+".json"
-            text = json.dumps(training_performance, indent=4)
-            with open(json_file, "w") as out_file_obj:
-                out_file_obj.write(text)
+            performance_file_prefix_to_performance_dict = {
+                "/training_performance_" : training_performance,
+                "/validation_performance_" : validation_performance
+            }
 
-            json_file = PATH+"/validation_performance_"+current_time_stamp+".json"
-            text = json.dumps(validation_performance, indent=4)
-            with open(json_file, "w") as out_file_obj:
-                out_file_obj.write(text)
-           
+            # Write performance metrics to .json files
+            for file_prefix, performance_dict in performance_file_prefix_to_performance_dict.items():
+                performance_file_writer(folder_path=PATH, file_prefix=file_prefix, performance_dict=performance_dict, current_time_stamp=current_time_stamp)
+                       
             logger.info(f"#########################")
             
             # To create a plot showing how loss values change for every epoch,
             # use src/ready/apis/plot_losses.py script.
-     
-            loss_file = PATH+"/training_loss_values_"+current_time_stamp+".csv"
-            with open(loss_file, "w") as out_file_obj:
-                for loss in training_loss_values:
-                    out_file_obj.write(f"{loss}\n") 
 
-            loss_file = PATH+"/validation_loss_values_"+current_time_stamp+".csv"
-            with open(loss_file, "w") as out_file_obj:
-                for loss in validation_loss_values:
-                    out_file_obj.write(f"{loss}\n")
+            loss_values_prefix_to_loss_value = {
+                "/training_loss_values_" : training_loss_values,
+                "/validation_loss_values_" : validation_loss_values
+            }
+
+            for file_prefix, loss_values in loss_values_prefix_to_loss_value.items():
+                loss_values_file_writer(folder_path=PATH, file_prefix=file_prefix, loss_values=loss_values, current_time_stamp=current_time_stamp)
 
         else:
             logger.info(f"Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
