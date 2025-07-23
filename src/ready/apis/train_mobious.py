@@ -17,12 +17,13 @@ from ready.models.unet import UNet
 from ready.utils.datasets import MobiousDataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, sanity_check_trainloader,
-                               set_data_directory, evaluate_model, create_data_loaders)
+                               set_data_directory, evaluate_model, 
+                                create_data_loaders, training_loop,
+                                validation_loop)
 
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
-
 
 def save_checkpoint(state, path):
     """
@@ -329,112 +330,41 @@ def main(args):
             "dice": 0.0,
         }
         
-        logger.info("Commencing training")
+        logger.info("Commencing Training and Validation Loop")
         logger.info(f"#########################")
 
         for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-            logger.info(f"Train loop at epoch: {i}")
-            training_running_loss = 0.0
-            validation_running_loss = 0.0
+            logger.info(f"Training and Validation loop at epoch: {i}")
+            training_running_loss, validation_running_loss = 0.0, 0.0
             num_samples, num_batches = 0, 0
             # performance_epoch = {key: 0.0 for key in performance.keys()}
             
             # Training
             for j, data in enumerate(train_loader, 1):
-                  
-                images, labels = data
-                if cuda_available:
-                    images = images.cuda()
-                    labels = labels.cuda()
-
-                optimizer.zero_grad()
-                output = model(images)
-                print(f"output.size() {output.size()};\
-                type(output): {type(output)};\
-                pred.type: {output.type()} ")
-                # torch.Size([batch_size_, 4, 400, 640]);
-                # <class 'torch.Tensor'>;
-                # torch.cuda.FloatTensor
-
-                loss = loss_fn(output, labels)
-                loss.backward()
-                optimizer.step()
-
-                batch_metrics = evaluate(output, labels)
-
-                for key, value in batch_metrics.items():
-                    # print(f"{key}: {value:.4f}")
-                    training_performance[key] += value * len(images) # weighted by batch size
-
-                num_samples += len(images)
-                training_running_loss += loss.item()
-
-                # Log every X batches
-                if j % 50 == 0 or j == 1:
-                    print(f"Training: Loss at {j} mini-batch {loss.item():.4f}")
-                # TODO
-                #                sanity_check(trainloader, model, cuda_available)
-                #                save_checkpoint(
-                #                    {
-                #                        "epoch": run_epoch,
-                #                        "state_dict": model.state_dict(),
-                #                        "optimizer": optimizer.state_dict(),
-                #                    },
-                #                    "models/o.pth",
-                #                )
-                #
-                # if j == 300:
-                #     break
-                # # performance[key].append(average_metric)
+                training_loop(model=model, 
+                              current_idx=j, 
+                              current_data=data, 
+                              optimizer=optimizer, 
+                              num_samples=num_samples, 
+                              training_running_loss=training_running_loss,
+                              training_performance=training_performance,
+                              loss_fn = loss_fn,
+                              cuda_available=cuda_available)
             
             # Validation
             logger.info(f"#########################")
             logger.info("Commencing validation")
             with torch.set_grad_enabled(False):
-                     for j, data in enumerate(validation_loader, 1):
-                        
-                        images, labels = data
-                        if cuda_available:
-                            images = images.cuda()
-                            labels = labels.cuda()
-
-                        optimizer.zero_grad()
-                        output = model(images)
-                        print(f"output.size() {output.size()};\
-                        type(output): {type(output)};\
-                        pred.type: {output.type()} ")
-                        # torch.Size([batch_size_, 4, 400, 640]);
-                        # <class 'torch.Tensor'>;
-                        # torch.cuda.FloatTensor
-
-                        loss = loss_fn(output, labels)
-                        
-                        batch_metrics = evaluate(output, labels)
-
-                        for key, value in batch_metrics.items():
-                            # print(f"{key}: {value:.4f}")
-                            validation_performance[key] += value * len(images) # weighted by batch size
-
-                        num_samples += len(images)
-                        validation_running_loss += loss.item()
-
-                        # Log every X batches
-                        if j % 50 == 0 or j == 1:
-                            print(f"Validation: Loss at {j} mini-batch {loss.item():.4f}")
-                        # TODO
-                        #                sanity_check(trainloader, model, cuda_available)
-                        #                save_checkpoint(
-                        #                    {
-                        #                        "epoch": run_epoch,
-                        #                        "state_dict": model.state_dict(),
-                        #                        "optimizer": optimizer.state_dict(),
-                        #                    },
-                        #                    "models/o.pth",
-                        #                )
-                        #
-                        # if j == 300:
-                        #     break
-                        # # performance[key].append(average_metric)
+                     for j, data in enumerate(validation_loader, 1):    
+                        validation_loop(model=model, 
+                                        current_idx=j, 
+                                        current_data=data,
+                                        optimizer=optimizer,
+                                        num_samples=num_samples,
+                                        validation_running_loss=validation_running_loss,
+                                        validation_performance=validation_performance,
+                                        loss_fn=loss_fn,
+                                        cuda_available=cuda_available) 
 
             training_epoch_loss = calculate_epoch_loss(training_running_loss, num_samples)
             validation_epoch_loss = calculate_epoch_loss(validation_running_loss, num_samples)

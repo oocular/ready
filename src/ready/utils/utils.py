@@ -5,6 +5,7 @@ utils
 import os
 from pathlib import Path
 import torch
+from ready.utils.metrics import evaluate
 
 import matplotlib.pyplot as plt
 
@@ -156,11 +157,99 @@ def create_data_loaders(full_dataset, data_splitting_ratios, seed, batch_size, n
 
     return train_loader, validation_loader, test_loader
 
-def training_loop():
-    pass
+def training_loop(model, current_idx, current_data, optimizer, num_samples, training_running_loss, training_performance, loss_fn, cuda_available):
 
-def validation_loop():
-    pass
+
+    images, labels = current_data
+    if cuda_available:
+        images = images.cuda()
+        labels = labels.cuda()
+
+    optimizer.zero_grad()
+    output = model(images)
+    print(f"output.size() {output.size()};\
+    type(output): {type(output)};\
+    pred.type: {output.type()} ")
+    # torch.Size([batch_size_, 4, 400, 640]);
+    # <class 'torch.Tensor'>;
+    # torch.cuda.FloatTensor
+
+    loss = loss_fn(output, labels)
+    loss.backward()
+    optimizer.step()
+
+    batch_metrics = evaluate(output, labels)
+
+    for key, value in batch_metrics.items():
+        # print(f"{key}: {value:.4f}")
+        training_performance[key] += value * len(images) # weighted by batch size
+
+    num_samples += len(images)
+    training_running_loss += loss.item()
+
+    # Log every X batches
+    if current_idx % 50 == 0 or current_idx == 1:
+        print(f"Training: Loss at {current_idx} mini-batch {loss.item():.4f}")
+    # TODO
+    #                sanity_check(trainloader, model, cuda_available)
+    #                save_checkpoint(
+    #                    {
+    #                        "epoch": run_epoch,
+    #                        "state_dict": model.state_dict(),
+    #                        "optimizer": optimizer.state_dict(),
+    #                    },
+    #                    "models/o.pth",
+    #                )
+    #
+    # if j == 300:
+    #     break
+    # # performance[key].append(average_metric)
+
+def validation_loop(model, current_idx, current_data, optimizer, num_samples, validation_running_loss, validation_performance, loss_fn, cuda_available):
+    
+
+    images, labels = current_data
+    if cuda_available:
+        images = images.cuda()
+        labels = labels.cuda()
+
+    optimizer.zero_grad()
+    output = model(images)
+    print(f"output.size() {output.size()};\
+    type(output): {type(output)};\
+    pred.type: {output.type()} ")
+    # torch.Size([batch_size_, 4, 400, 640]);
+    # <class 'torch.Tensor'>;
+    # torch.cuda.FloatTensor
+
+    loss = loss_fn(output, labels)
+    
+    batch_metrics = evaluate(output, labels)
+
+    for key, value in batch_metrics.items():
+        # print(f"{key}: {value:.4f}")
+        validation_performance[key] += value * len(images) # weighted by batch size
+
+    num_samples += len(images)
+    validation_running_loss += loss.item()
+
+    # Log every X batches
+    if current_idx % 50 == 0 or current_idx == 1:
+        print(f"Validation: Loss at {current_idx} mini-batch {loss.item():.4f}")
+    # TODO
+    #                sanity_check(trainloader, model, cuda_available)
+    #                save_checkpoint(
+    #                    {
+    #                        "epoch": run_epoch,
+    #                        "state_dict": model.state_dict(),
+    #                        "optimizer": optimizer.state_dict(),
+    #                    },
+    #                    "models/o.pth",
+    #                )
+    #
+    # if j == 300:
+    #     break
+    # # performance[key].append(average_metric)
 
 def evaluation_loop():
     pass
