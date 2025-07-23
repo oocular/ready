@@ -164,10 +164,32 @@ def main(args):
     config_file = args.config_file
     config = OmegaConf.load(config_file)
 
+    # Import all arguments from config
+
     DATA_PATH = config.dataset.data_path
     MODEL_PATH = config.dataset.models_path
     GITHUB_DATA_PATH = config.dataset.github_data_path
     debug_print_flag = config.model.debug_print_flag
+    use_github_data_path_flag = config.dataset.use_github_data_path_flag
+
+    TRANSFORM_OPERATION = config.transforms.transform_operation
+    TARGET_TRANSFORM_OPERATION = config.transforms.target_transform_operation
+
+    TRAIN_SET_RATIO = config.datasets_splitting_ratios.train_set
+    VALIDATION_SET_RATIO = config.datasets_splitting_ratios.validation_set
+    TEST_SET_RATIO = config.datasets_splitting_ratios.test_set
+    
+    PRETRAINED_MODEL_PATH = config.pretrained_model.models_path
+    CHECKPOINT_PATH = config.pretrained_model.checkpoint_path
+    MODEL_NAME_FOR_EVAL = config.pretrained_model.model_name_for_eval
+    evaluation_with_pretrained_model_flag = config.pretrained_model.evaluation_with_pretrained_model_flag
+
+    batch_size = config.model_hyperparameters.batch_size
+    num_workers = config.model_hyperparameters.num_workers
+    learning_rate = config.model_hyperparameters.learning_rate
+    run_epoch = config.model_hyperparameters.epochs
+    
+    SEED = 42
 
     FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
     FULL_GITHUB_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
@@ -175,7 +197,7 @@ def main(args):
     if not os.path.exists(FULL_MODEL_PATH):
         os.makedirs(FULL_MODEL_PATH, exist_ok=True)
     
-    use_github_data_path_flag = config.dataset.use_github_data_path_flag
+    
     data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
 
     starttime = time.time()  # print(f'Starting training loop at {startt}')
@@ -223,27 +245,16 @@ def main(args):
     'transforms_img': transforms_img,
     'transforms_rotations': transforms_rotations
     }
-
+    
     # .get() returns None if operation is None or config arg not valid
-    transform_arg = transform_map.get(config.transforms.transform_operation, None)
-    target_transform_arg = transform_map.get(config.transforms.target_transform_operation, None)
+    transform_arg = transform_map.get(TRANSFORM_OPERATION,None)
+    target_transform_arg = transform_map.get(TARGET_TRANSFORM_OPERATION, None)
     
     ## Length 5; github_data_path
     ## Length 1143;  data_path
     full_dataset = MobiousDataset(
         data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
-    
-    SEED = 42
-
-    TRAIN_SET_RATIO = config.datasets_splitting_ratios.train_set
-    VALIDATION_SET_RATIO = config.datasets_splitting_ratios.validation_set
-    TEST_SET_RATIO = config.datasets_splitting_ratios.test_set
-
-    batch_size = config.model_hyperparameters.batch_size
-    num_workers = config.model_hyperparameters.num_workers
-    learning_rate = config.model_hyperparameters.learning_rate
-    run_epoch = config.model_hyperparameters.epochs
     
     data_splitting_ratios = [TRAIN_SET_RATIO, VALIDATION_SET_RATIO, TEST_SET_RATIO]
 
