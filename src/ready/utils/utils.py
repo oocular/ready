@@ -2,13 +2,14 @@
 utils
 """
 
-import os
 import json
+import os
 from pathlib import Path
-import torch
-from ready.utils.metrics import evaluate
 
 import matplotlib.pyplot as plt
+import torch
+
+from ready.utils.metrics import evaluate
 
 HOME_PATH = Path.home()
 REPOSITORY_PATH = Path.cwd()
@@ -126,16 +127,34 @@ def create_data_loaders(full_dataset, data_splitting_ratios, seed, batch_size, n
     Create train, validation, and test dataloaders
     """
 
-    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, data_splitting_ratios, torch.Generator().manual_seed(seed)) 
- 
+    train_set, validation_set, test_set = torch.utils.data.random_split(full_dataset, data_splitting_ratios, torch.Generator().manual_seed(seed))
+
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers) 
+    validation_loader = torch.utils.data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
     return train_loader, validation_loader, test_loader
 
 def training_loop(model, current_idx, current_data, optimizer, training_performance_dict, loss_fn, cuda_available):
+    """
+    Trains model using training data
 
+    # TODO
+    #                sanity_check(trainloader, model, cuda_available)
+    #                save_checkpoint(
+    #                    {
+    #                        "epoch": run_epoch,
+    #                        "state_dict": model.state_dict(),
+    #                        "optimizer": optimizer.state_dict(),
+    #                    },
+    #                    "models/o.pth",
+    #                )
+    #
+    # if j == 300:
+    #     break
+    # # performance[key].append(average_metric)
+
+    """
     images, labels = current_data
     if cuda_available:
         images = images.cuda()
@@ -161,11 +180,17 @@ def training_loop(model, current_idx, current_data, optimizer, training_performa
         training_performance_dict[key] += value * len(images) # weighted by batch size
 
     num_samples_processed = len(images)
-    current_training_loss = loss.item() 
+    current_training_loss = loss.item()
 
     # Log every X batches
     if current_idx % 50 == 0 or current_idx == 1:
         print(f"Training: Loss at {current_idx} mini-batch {loss.item():.4f}")
+    return current_training_loss, num_samples_processed
+
+def validation_loop(model, current_idx, current_data, optimizer, validation_performance_dict, loss_fn, cuda_available):
+    """
+    Validates model using validation data
+
     # TODO
     #                sanity_check(trainloader, model, cuda_available)
     #                save_checkpoint(
@@ -180,10 +205,8 @@ def training_loop(model, current_idx, current_data, optimizer, training_performa
     # if j == 300:
     #     break
     # # performance[key].append(average_metric)
-    return current_training_loss, num_samples_processed
 
-def validation_loop(model, current_idx, current_data, optimizer, validation_performance_dict, loss_fn, cuda_available): 
-
+    """
     images, labels = current_data
     if cuda_available:
         images = images.cuda()
@@ -199,7 +222,7 @@ def validation_loop(model, current_idx, current_data, optimizer, validation_perf
     # torch.cuda.FloatTensor
 
     loss = loss_fn(output, labels)
-    
+
     batch_metrics = evaluate(output, labels)
 
     for key, value in batch_metrics.items():
@@ -212,20 +235,6 @@ def validation_loop(model, current_idx, current_data, optimizer, validation_perf
     # Log every X batches
     if current_idx % 50 == 0 or current_idx == 1:
         print(f"Validation: Loss at {current_idx} mini-batch {loss.item():.4f}")
-    # TODO
-    #                sanity_check(trainloader, model, cuda_available)
-    #                save_checkpoint(
-    #                    {
-    #                        "epoch": run_epoch,
-    #                        "state_dict": model.state_dict(),
-    #                        "optimizer": optimizer.state_dict(),
-    #                    },
-    #                    "models/o.pth",
-    #                )
-    #
-    # if j == 300:
-    #     break
-    # # performance[key].append(average_metric)
 
     return current_validation_loss, num_samples_processed
 
@@ -233,22 +242,22 @@ def evaluate_model(model, test_loader, device):
     """
     Evaluate model using test data
     """
-    
+
     total_elements = 0.0
     num_matches = 0
     with torch.set_grad_enabled(False):
-        for data in test_loader: 
-            images, labels = data 
-            test_output = model(images.to(device)) 
+        for data in test_loader:
+            images, labels = data
+            test_output = model(images.to(device))
             _, predicted = torch.max(test_output.data, 1)
-            
+
             # Compares how many elements in predicted and labels tensors match
-            # and counts them all 
+            # and counts them all
             num_matches += (predicted == labels.to(device)).sum().item()
 
             # Total number of elements in label tensor
-            total_elements += torch.numel(labels)   
-     
+            total_elements += torch.numel(labels)
+
     test_accuracy = (num_matches / total_elements) * 100
 
     return test_accuracy
@@ -262,7 +271,7 @@ def performance_file_writer(folder_path, file_prefix, performance_dict, current_
     text = json.dumps(performance_dict, indent=4)
     with open(json_file, "w") as out_file_obj:
         out_file_obj.write(text)
-    
+
 def loss_values_file_writer(folder_path, file_prefix, loss_values, current_time_stamp):
     """
     Writes loss values to .csv file
@@ -270,28 +279,20 @@ def loss_values_file_writer(folder_path, file_prefix, loss_values, current_time_
     loss_file = folder_path + file_prefix + current_time_stamp + ".csv"
     with open(loss_file, "w") as out_file_obj:
         for loss in loss_values:
-            out_file_obj.write(f"{loss}\n") 
+            out_file_obj.write(f"{loss}\n")
 
 def test_accuracy_file_writer(folder_path, test_accuracy, current_time_stamp, pretrained_model_flag):
     """
     Writes test accuracy value to .csv file
     """
-    
-    # print(f"Folder Path: {folder_path}")
-    # print(f"Folder exists: {os.path.exists(folder_path)}")
-    # print(pretrained_model_flag)
-    #
+
     accuracy_file = ""
     if pretrained_model_flag:
-        accuracy_file = folder_path + "/accuracy_value_for_reevaluation_" + current_time_stamp + ".csv" 
+        accuracy_file = folder_path + "/accuracy_value_for_reevaluation_" + current_time_stamp + ".csv"
     else:
         accuracy_file = folder_path + "/accuracy_value_" + current_time_stamp + ".csv"
-    
+
     os.makedirs(folder_path, exist_ok=True)
 
-    print(accuracy_file)
-
     with open(accuracy_file, "w") as out_file_obj:
-        out_file_obj.write(f"{test_accuracy}\n") 
-
-    print(f"File created: {os.path.exists(accuracy_file)}")
+        out_file_obj.write(f"{test_accuracy}\n")

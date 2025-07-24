@@ -3,7 +3,7 @@ model:
     weight_fn: None #True #False #TOTEST
 
 dataset:
-    # github_data_path: "data/mobious/sample-frames/test3000x1700" 
+    # github_data_path: "data/mobious/sample-frames/test3000x1700"
     github_data_path: "data/mobious/sample-frames/test576x320"
     # github_data_path: "data/mobious/sample-frames/test640x400"
     # data_path: "datasets/mobious/MOBIOUS/train012per_0145" #LOCAL and SERVER paths
@@ -23,15 +23,15 @@ datasets_splitting_ratios: # Ensure sum of all ratios = 1.
     validation_set : 0.15
     test_set : 0.15
 
-pretrained_model: 
-    models_path : "datasets/ready/mobious/models" # LOCAL and SERVER paths
+pretrained_model:
+    models_folder_path : "datasets/ready/mobious/models" # LOCAL and SERVER paths
     checkpoint_path : "datasets/?"
-    model_name_for_eval : "weights_21-Jul-2025_15-05-30.pth" # weights_[date]_[time].pth .Please remember to add your own model.
-    evaluation_with_pretrained_model_flag : False # Set to True to skip training and validation, and instead use a pretrained model for evaluation only. Load desired model using above variables
+    model_name_for_eval : "weights_24-Jul-2025_16-55-48.pth" # weights_[date]_[time].pth .Please remember to add your own model.
+    evaluation_with_pretrained_model_flag : True # Set to True to skip training and validation, and instead use a pretrained model for evaluation only. Load desired model using above variables
     # Set to False if you want to use the standard workflow: run training and validation, then perform evaluation.
 
 model_hyperparameters:
-    batch_size: 8 
+    batch_size: 8
     num_workers: 4
     epochs: 1
     learning_rate: 0.003
