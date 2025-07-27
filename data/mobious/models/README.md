@@ -1,14 +1,28 @@
 # Models
 
-## Model path
-```
-#cd ~/datasets/mobious/weights/trained_models_in_cricket
-tree -h
-├── [2.1K]  loss_values_14-12-24_19-25-26.csv
-├── [ 235]  performance_14-12-24_19-25-26.json
-├── [ 89M]  _weights_14-12-24_19-25-26.onnx
-├── [ 89M]  _weights_14-12-24_19-25-26.pth
-└── [ 89M]  _weights_14-12-24_19-25-26-sim.onnx
+## Models on Hugging Face
+The models are hosted on Hugging Face at: https://huggingface.co/mxochicale/ready_hf
+You can either: Clone the repository to download all models and files, or Use wget to download individual files as needed.
+
+After downloading, make sure to move the models into their corresponding directory, following this format:
+`~/datasets/ready/mobious/models_a10080gb/{DATE_GPU_TYPE}` where `{DATE_GPU_TYPE}` refers to the training date and the GPU type used (e.g., 27-Jul-2025_NVIDIA_A100_80GB_PCI).
+
+## Model Path
+Below is an example of how the models and files are organised after training and optimisation:
+```bash
+~/datasets/ready/mobious/models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI$ tree -h
+[4.0K]  .
+├── [  18]  accuracy_value_27-Jul-2025_03-44-52.csv
+├── [2.1K]  training_loss_values_27-Jul-2025_03-44-52.csv
+├── [ 234]  training_performance_27-Jul-2025_03-44-52.json
+├── [2.0K]  validation_loss_values_27-Jul-2025_03-44-52.csv
+├── [ 235]  validation_performance_27-Jul-2025_03-44-52.json
+├── [ 89M]  weights_27-Jul-2025_03-44-52.onnx
+├── [ 89M]  weights_27-Jul-2025_03-44-52.pth
+├── [ 91M]  weights_27-Jul-2025_03-44-52-sim-BHWC.NVIDIARTXA20008GBLaptopGPU.8.6.20.trt.10.3.0.26.engine.fp32
+├── [ 89M]  weights_27-Jul-2025_03-44-52-sim-BHWC.onnx
+└── [ 89M]  weights_27-Jul-2025_03-44-52-sim.onnx
+0 directories, 10 files
 ```
 
 ## Preparations
