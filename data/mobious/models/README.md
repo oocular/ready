@@ -15,6 +15,7 @@ tree -h
 ### Conversion to ONNX (using .pth models) and ONNX symplification 
 ```
 cd $HOME_REPO
+vim configs/models/unet/config_convert_to_onnx_and_simplify_it.yaml #Modify model name and path
 bash scripts/models/convert_to_onnx_and_simplify_it.bash
 ```
 
@@ -37,10 +38,13 @@ python src/ready/apis/plot_losses.py -p <PATH> -lf1 <*.csv> -lf2 <*.csv>
 The loss values used to create plots like the one above can be created
 and stored in .csv files using train_mobious.py.
 To run this file, use `bash scripts/models/train_unet_with_mobious.bash`
+
 ## Rebinding model to new nodes (NCHW to NHWC)
 ```
 cd $HOME_REPO
+source .venv/bin/activate
 export PYTHONPATH=.
+#TOD use: configs/models/unet/config_convert_to_onnx_and_simplify_it.yaml instead of arguments
 python src/ready/apis/holoscan/utils/graph_surgeon.py -p <MODEL_PATH> -m <model_name.pth> -c 3 -he 400 -wi 640
 ```
 

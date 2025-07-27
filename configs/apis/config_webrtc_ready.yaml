@@ -5,8 +5,11 @@ workspace:
   keysPath: "/workspace/volumes/datasets/ready/webrtc"
 
 model:
-  pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/10-May-2025_18-09-20_NVIDIA_A100_80GB_PCI"
-  name: "weights_10-May-2025_18-09-20-sim-BHWC.onnx"
+  pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI"
+  name: "weights_27-Jul-2025_03-44-52-sim-BHWC.onnx"
+  
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/10-May-2025_18-09-20_NVIDIA_A100_80GB_PCI"
+  # name: "weights_10-May-2025_18-09-20-sim-BHWC.onnx"
   #
   # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
   # name: "_weights_26-Apr-2025_19-40-01-sim-BHWC.onnx"

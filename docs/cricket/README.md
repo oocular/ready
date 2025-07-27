@@ -83,13 +83,17 @@ bash scripts/models/train_unet_with_mobious.bash #to start training
 ```
 
 ## Copying files (models) to local host
+### In your server
 The following are scripts that you can comprese and copy 
 ```bash
 ## tar paths in server
 #outside apptainer
 vim ../../configs/files/config_model_pathfiles.yaml #edit model details
 bash ../../scripts/files/tarfiles.bash
+```
 
-## Moving path in local device
-bash ../../scripts/files/moving_models.bash ccxxxxx #<ADD_SERVERUSERNAME>
+## In your local device
+Moving compressed files to local device
+```bash
+bash ../../scripts/files/moving_models.bash ccxxxxx #<SERVERUSERNAME (e.g., ccxxxxx)>
 ```
