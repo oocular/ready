@@ -162,9 +162,9 @@ def training_loop(model, current_idx, current_data, optimizer, training_performa
 
     optimizer.zero_grad()
     output = model(images)
-    print(f"output.size() {output.size()};\
-    type(output): {type(output)};\
-    pred.type: {output.type()} ")
+    # print(f"output.size() {output.size()};\
+    # type(output): {type(output)};\
+    # pred.type: {output.type()} ")
     # torch.Size([batch_size_, 4, 400, 640]);
     # <class 'torch.Tensor'>;
     # torch.cuda.FloatTensor
@@ -214,9 +214,9 @@ def validation_loop(model, current_idx, current_data, optimizer, validation_perf
 
     optimizer.zero_grad()
     output = model(images)
-    print(f"output.size() {output.size()};\
-    type(output): {type(output)};\
-    pred.type: {output.type()} ")
+    # print(f"output.size() {output.size()};\
+    # type(output): {type(output)};\
+    # pred.type: {output.type()} ")
     # torch.Size([batch_size_, 4, 400, 640]);
     # <class 'torch.Tensor'>;
     # torch.cuda.FloatTensor

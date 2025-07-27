@@ -76,8 +76,8 @@ export PYTHONPATH=$HOME/ready/src #. #$HOME/<ADD_REPO_PATH>
 
 * Train models but GOTO [models/README.md](../models/README.md) for further instructions
 ```bash
-bash scripts/models/train_unet_with_mobious.bash #to start training
 vim configs/models/unet/config_train_unet_with_mobious.yaml #to edit parameters
+bash scripts/models/train_unet_with_mobious.bash #to start training
 
 #type `exit` in the terminal to exit
 ```

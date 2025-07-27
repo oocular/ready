@@ -339,7 +339,7 @@ def main(args):
         logger.info(f"#########################")
 
         for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
-            logger.info(f"Training and Validation loop at Epoch: {i}")
+            logger.info(f"Training and Validation loop at Epoch: {i} out of {run_epoch}")
             total_training_running_loss, total_validation_running_loss = 0.0, 0.0
             total_num_training_samples, total_num_validation_samples= 0, 0
             # num_batches = 0
