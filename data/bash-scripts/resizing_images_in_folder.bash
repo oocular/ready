@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to resize all images in a directory to HEIGHTxWIDTH pixels
-# Argument order: [directory] [height] [width]
+# Argument order: [image directory] [height] [width]
 # Requires ImageMagick to be installed
 
 # Default directory is current directory
