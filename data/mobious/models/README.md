@@ -5,7 +5,7 @@ The models are hosted on Hugging Face at: https://huggingface.co/mxochicale/read
 You can either: Clone the repository to download all models and files, or Use wget to download individual files as needed.
 
 After downloading, make sure to move the models into their corresponding directory, following this format:
-`~/datasets/ready/mobious/models_a10080gb/{DATE_GPU_TYPE}` where `{DATE_GPU_TYPE}` refers to the training date and the GPU type used (e.g., 27-Jul-2025_NVIDIA_A100_80GB_PCI).
+`~/datasets/ready/mobious/models_a10080gb/{DATE_GPU_TYPE}` where `{DATE_GPU_TYPE}` refers to the training date and the GPU type used (e.g., 27-Jul-2025_NVIDIA_A100_80GB_PCI). This can be achieved using the following: `cp source/directory/ /destination/directory/`.
 
 ## Model Path
 Below is an example of how the models and files are organised after training and optimisation:
