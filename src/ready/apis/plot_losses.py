@@ -22,7 +22,6 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config_file", help="Config filename with path")
     args = parser.parse_args()
     
-    print(args)
     config_file = args.config_file
     config = OmegaConf.load(config_file)
     MODELS_PATH=os.path.join(Path.home(), config.dataset.models_path)
@@ -41,15 +40,13 @@ if __name__ == "__main__":
     logger.info(f"\n Training Loss Dataframe: {training_loss_df}")
     logger.info(f"\n Validation Loss Dataframe: {validation_loss_df}")
 
-    # plt.plot(df1['epochs'], df1['lf1'], df1['epochs'], df1['lf2'], df1['epochs'], df1['lf3'], df1['epochs'], df1['lf4'], df1['epochs'], df1['lf5'], linewidth=3)
-    plt.plot(training_loss_df['epochs'], training_loss_df['Training Loss'], validation_loss_df['epochs'], validation_loss_df['Validation Loss'], linewidth=3)
-    # plt.title("Losses for models trained 100epochs in a100-80gb gpu")
+    plt.plot(training_loss_df['epochs'], training_loss_df['Training Loss'], validation_loss_df['epochs'], validation_loss_df['Validation Loss'], linewidth=3) 
 
-    plt.title("Training and Validation Loss Values")
+    plt.title("Training and Validation Loss for each Epoch: 27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI", fontsize=18)
     plt.xlabel("Epochs", fontsize=18)
     plt.ylabel("Loss", fontsize=18)
     plt.tick_params(axis='both', labelsize=13)
-    plt.legend(["Training", "Validation"], fontsize=18)
+    plt.legend(["Training", "Validation"], fontsize=18, framealpha=0.5)
     plt.tight_layout()
     plt.grid()
     plt.show()
