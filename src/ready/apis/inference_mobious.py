@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     trainset = MobiousDataset(
         str(FULL_GITHUB_DATA_PATH)+"/sample-frames/test640x400_1frame_1_1i_Ll_1" # 1 frame
-        # str(FULL_GITHUB_DATA_PATH)+"/sample-frames/test640x400" # 5 frames
+        # str(FULL_GITHUB_DATA_PATH)+"/sample-frames/test640x400_5samples" # 5 frames
     )
     logger.info(f"Length of trainset: {len(trainset)}")
 
@@ -100,7 +100,8 @@ if __name__ == "__main__":
     checkpoint_path = FULL_MODEL_PATH + '/' + str(model_name) + ".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
-    model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    print(checkpoint_path)
+    model.load_state_dict(torch.load(checkpoint_path, map_location=device, weights_only=False))
     model.eval()
 
     if cuda_available:
@@ -139,6 +140,11 @@ if __name__ == "__main__":
             # print(f"label.size() {label.size()}")
             # #label.size() torch.Size([1, 400, 640])
             # #WRONG #torch.Size([1, 4, 400, 640])
+        else:
+            images = images.cpu()
+            image = images[0].unsqueeze(0)
+            labels = labels.cpu()
+            label = labels[0].unsqueeze(0)
 
         ##PTH model
         outputs = model(image)

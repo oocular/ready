@@ -1,8 +1,8 @@
 model:
-    input_model_name: "_weights_10-09-24_04-50-40.pth"
+    input_model_name: "30-Jul-2025_22-34-06_NVIDIA_A100_80GB_PCI/weights_30-Jul-2025_22-34-06.pth"
 
 dataset:
-    models_path: "datasets/ready/mobious/models"
+    models_path: "datasets/ready_hf/models"
     github_data_path: "data/mobious"
     data_path: "datasets/ready/mobious/MOBIOUS"
     checkpoint_path: "datasets/?"
