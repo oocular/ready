@@ -93,7 +93,9 @@ bash scripts/files/tarfiles.bash
 ```
 
 ## In your local device
-Moving compressed files to local device
+Moving compressed files to local device.
+From the root path of the github repo
 ```bash
-bash ../../scripts/files/moving_models.bash ccxxxxx #<SERVERUSERNAME (e.g., ccxxxxx)>
+vim scripts/files/moving_models.bash ccxxxxx #<SERVERUSERNAME (e.g., ccxxxxx)>
+bash scripts/files/moving_models.bash ccxxxxx #<SERVERUSERNAME (e.g., ccxxxxx)>
 ```
