@@ -100,7 +100,6 @@ if __name__ == "__main__":
     checkpoint_path = FULL_MODEL_PATH + '/' + str(model_name) + ".pth"
     model = UNet(nch_in=3, nch_out=4)
     model = model.to(device)
-    print(checkpoint_path)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device, weights_only=False))
     model.eval()
 
