@@ -58,5 +58,4 @@ if __name__ == "__main__":
     plt.tick_params(axis='both', labelsize=13) 
     plt.legend(framealpha=0.5)
     plt.grid()
-    # plt.tight_layout()
     plt.show()
