@@ -54,8 +54,8 @@ python src/ready/apis/plot_losses.py -c <path/to/plot_losses.yml>
 python src/ready/apis/plot_performance.py -c <path/to/plot_performance.yml>
 ```
 
-![fig](../../../docs/figs/Loss_Values_27-Jul-2025.png)
-![fig](../../../docs/figs/Performance_Metrics_27-Jul-2025.png)
+![fig](../../../docs/figs/Loss_Values_Multiple_Models.png)
+![fig](../../../docs/figs/Performance_Metrics_Multiple_Models.png)
 
 The loss and performance values used to create plots like the one above can be created
 and stored in .csv files using train_mobious.py.
