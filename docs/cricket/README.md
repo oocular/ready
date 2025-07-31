@@ -87,9 +87,9 @@ bash scripts/models/train_unet_with_mobious.bash #to start training
 The following are scripts that you can comprese and copy 
 ```bash
 ## tar paths in server
-#outside apptainer
-vim ../../configs/files/config_model_pathfiles.yaml #edit model details
-bash ../../scripts/files/tarfiles.bash
+#outside apptainer and root path of repo!
+vim configs/files/config_model_pathfiles.yaml #edit model details
+bash scripts/files/tarfiles.bash
 ```
 
 ## In your local device
