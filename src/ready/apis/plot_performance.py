@@ -27,18 +27,9 @@ if __name__ == "__main__":
     config_file = args.config_file
     config = OmegaConf.load(config_file)
     MODELS_PATH=os.path.join(Path.home(), config.dataset.models_path)
-    TRAINING_PERFORMANCE = config.performance.training_performance
-    VALIDATION_PERFORMANCE = config.performance.validation_performance
+    TRAINING_PERFORMANCE_FILES = config.performance.training_performance
+    VALIDATION_PERFORMANCE_FILES = config.performance.validation_performance
     
-    path_training_performance = os.path.join(MODELS_PATH, TRAINING_PERFORMANCE) 
-    path_validation_performance = os.path.join(MODELS_PATH, VALIDATION_PERFORMANCE)
-    
-    training_performance = pd.read_json(path_training_performance, typ='series')
-    validation_performance = pd.read_json(path_validation_performance, typ='series')
-
-    logger.info(f"Training performance metrics: {training_performance}")
-    logger.info(f"Validation performance metrics: {validation_performance}")
-
     performance_metrics = [
         "accuracy",
         "f1",
@@ -48,19 +39,41 @@ if __name__ == "__main__":
         "miou",
         "dice"
     ]
-    
-    training_performance_values, validation_performance_values = training_performance.array, validation_performance.array
-    width, x_axis = 0.3, np.arange(len(performance_metrics))
-    
-    plt.bar(x_axis - width/2, training_performance_values, width, label='Training')
-    plt.bar(x_axis + width/2, validation_performance_values, width, label='Validation')
 
+    x_axis = np.arange(len(performance_metrics))
+    n_bars = len(TRAINING_PERFORMANCE_FILES)
+    width = 0.3/n_bars
+    for i, current_training_performance_file in enumerate(TRAINING_PERFORMANCE_FILES, start=1):
+
+        path_current_training_performance = os.path.join(MODELS_PATH, current_training_performance_file)
+
+        directory, _ = os.path.split(current_training_performance_file)
+        
+        current_training_performance = pd.read_json(path_current_training_performance, typ='series')
+        current_training_performance_values = current_training_performance.array
+        
+        current_training_performance_label = "training_performance_" + str(directory)
+        plt.bar(x_axis - (i - (n_bars - 1) / 2) * width, current_training_performance_values, width=width, label=current_training_performance_label, alpha=0.5)
+
+    
+    for i, current_validation_performance_file in enumerate(VALIDATION_PERFORMANCE_FILES, start=1):
+        
+        path_current_validation_performance = os.path.join(MODELS_PATH, current_validation_performance_file)
+
+        directory, _ = os.path.split(current_validation_performance_file)
+
+        current_validation_performance = pd.read_json(path_current_validation_performance, typ='series')
+        current_validation_performance_values = current_validation_performance.array
+
+        current_validation_performance_label = "validation_performance_" + str(directory)
+        plt.bar(x_axis + (i - (n_bars -1 )/2) * width, current_validation_performance_values, width=width, label=current_validation_performance_label, alpha=0.5) 
+     
     plt.xticks(x_axis, performance_metrics)
     plt.ylabel('Values', fontsize=18)
     plt.xlabel('Performance Metrics', fontsize=18)
-    plt.title('Training and Validation Performance Metrics: 27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI', fontsize=18)
-    plt.legend(fontsize=18, loc='center right', framealpha=0.5)
+    plt.title('Training and Validation Performance Metrics', fontsize=18)
+    plt.legend(fontsize=15, loc='center right', framealpha=0.5)
     plt.tick_params(axis='both', labelsize=17)
     plt.grid(visible=True)
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.show()

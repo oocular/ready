@@ -1,6 +1,8 @@
 performance:
-    training_performance: "27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/training_performance_27-Jul-2025_03-44-52.json"
-    validation_performance: "27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/validation_performance_27-Jul-2025_03-44-52.json"
+    training_performance: ["27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/training_performance_27-Jul-2025_03-44-52.json",
+    "30-Jul-2025_22-34-06_NVIDIA_A100_80GB_PCI/training_performance_30-Jul-2025_22-34-06.json"]
+    validation_performance: ["27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/validation_performance_27-Jul-2025_03-44-52.json", 
+    "30-Jul-2025_22-34-06_NVIDIA_A100_80GB_PCI/validation_performance_30-Jul-2025_22-34-06.json"]
     
 dataset:
     models_path: "datasets/ready/mobious/models"
