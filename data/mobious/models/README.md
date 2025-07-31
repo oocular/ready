@@ -7,6 +7,9 @@ You can either: Clone the repository to download all models and files, or Use wg
 After downloading, make sure to move the models into their corresponding directory, following this format:
 `~/datasets/ready/mobious/models_a10080gb/{DATE_GPU_TYPE}` where `{DATE_GPU_TYPE}` refers to the training date and the GPU type used (e.g., 27-Jul-2025_NVIDIA_A100_80GB_PCI). This can be achieved using the following: `cp source/directory/ /destination/directory/`.
 
+Note: If you would like to use the model weights, ensure you download the actual from the Hugging Face repository. This can be accomplished by using the following:
+`wget https://huggingface.co/mxochicale/ready_hf/resolve/main/models/{model_folder}/{model_weights.pth}`. Otherwise, you will encounter an UnpicklingError.
+
 ## Model Path
 Below is an example of how the models and files are organised after training and optimisation:
 ```bash
