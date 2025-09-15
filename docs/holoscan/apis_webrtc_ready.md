@@ -19,14 +19,14 @@ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertific
 cd /workspace/volumes/ready/scripts/apis
 
 #REPLAYER
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG replayer_raw False
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG replayer_inference False
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEBUG replayer_raw False
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEBUG replayer_inference False
 
-#APP withtout recording
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG webrtc False
+#APP without recording
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEBUG webrtc False
 
 #RECORDER
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG webrtc True
+bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEBUG webrtc True
 
 #USAGE
 # bash webrtc_ready.bash 
