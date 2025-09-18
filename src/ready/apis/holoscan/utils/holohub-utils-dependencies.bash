@@ -4,7 +4,7 @@
 # (1) LAUNCH PYTHON VIRTUAL ENV
 # pip install nvidia-pyindex
 python -m ensurepip --default-pip
-python -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
+python -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com #Successfully installed onnx_graphsurgeon-0.3.27
 
 # TODO check paths for scripts
 # TODO -N or -nc https://www.baeldung.com/linux/wget-skip-download-existing-file
@@ -14,3 +14,4 @@ wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/h
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/app_perf_graph.py -O app_perf_graph.py
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/convert_video_to_gxf_entities.py -O convert_video_to_gxf_entities.py
 wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/gxf_entity_codec.py -O gxf_entity_codec.py
+wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/refs/heads/main/utilities/convert_gxf_entities_to_images.py -O convert_gxf_entities_to_images.py

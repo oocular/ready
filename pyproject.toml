@@ -20,33 +20,33 @@ classifiers = [
   "Programming Language :: Python"
 ]
 dependencies = [
-    "numpy",
-    "matplotlib",
-    "pandas",
-    "PyQt6",
-    "loguru",
-    "omegaconf",
-    "scikit-learn",
-    "pydot",
+    "numpy==2.3.3",
+    "matplotlib==3.10.6",
+    "pandas==2.3.2",
+    "PyQt6==6.9.1",
+    "loguru==0.7.3",
+    "omegaconf==2.3.0",
+    "scikit-learn==1.7.2",
+    "pydot==4.0.1",
 ]
 [project.optional-dependencies]
 # development dependency groups
 test = [
-    "pytest",
-    "pylint",
-    "black",
-    "isort",
-    "codespell",
-    "pre-commit"
+    "pytest==8.4.2",
+    "pylint==3.3.8",
+    "black==25.1.0",
+    "isort==6.0.1",
+    "codespell==2.4.1",
+    "pre-commit==4.3.0"
 ]
 learning = [
-    "torch", #2.4.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
-    "torchvision", #0.19.1 local
+    "torch==2.8.0", #cricket PyTorch Version 2.3.0a0+6ddf5cf
+    "torchvision==0.23.0",
 ]
 model_optimisation = [
-    "onnx", #1.16.2  local
-    "onnxruntime",#1.19.2 local
-    "onnxsim",#0.4.36 local
+    "onnx==1.19.0", #1.16.2  local
+    "onnxruntime==1.22.1",#1.19.2 local
+    "onnxsim==0.4.36",#0.4.36 local
 ]
 
 [tool.setuptools.dynamic]

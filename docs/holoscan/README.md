@@ -1,5 +1,9 @@
 # [NVIDIA Holoscan SDK](https://developer.nvidia.com/holoscan-sdk)
 
+## Useful references
+* HoloHub CLI Migration Guide: https://github.com/nvidia-holoscan/holohub/tree/main/utilities/cli
+
+
 ## Requirements
 ```bash
 #install CUDA drivers 

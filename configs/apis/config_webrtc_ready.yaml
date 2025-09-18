@@ -25,6 +25,9 @@ model:
 
 recorder:
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
+  local_directory: "$HOME/datasets/ready/webrtc/recordings"
+  local_output_directory: "$HOME/datasets/ready/webrtc/recordings/output"
+  local_imagefilname: "image_"
   ##MOBILE_MODEL
   #basename: "mobile_date_time"
   ##PIXEL8

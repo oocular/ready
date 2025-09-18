@@ -17,6 +17,7 @@ convert_video_to_gxf_entities.py
 gxf_entity_codec.py
 log_parser.py
 app_perf_graph.py
+convert_gxf_entities_to_images.py
 
 ## videos, models, and files
 *.json
