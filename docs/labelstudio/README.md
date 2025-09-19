@@ -8,7 +8,10 @@
 cd $HOME/repositories/oocular/ready/docs/labelstudio
 ```
 
-2. Add the data you want to label to a subdirectory within the /myfiles folder, e.g. /myfiles/ready:
+2. Add the data you want to label to a subdirectory within the `myfiles` path, e.g. `myfiles/ready`:
+```bash
+mkdir -p myfiles/ready
+```
 
 3. Create my data path with root permisions
 
