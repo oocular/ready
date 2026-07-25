@@ -295,7 +295,7 @@ def main(args):
             #torch.save(model.state_dict(), model_name)
             #logger.info(f"Saved PyTorch Model State to {model_name}")
 
-            mobious_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaeqku/datasets/ready/ready/federated/mobious_weights.pth")
+            mobious_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/mobious_weights.pth")
             os.makedirs(os.path.dirname(mobious_weights_path), exist_ok=True)
             torch.save(model.state_dict(), mobious_weights_path)
             logger.info(f"Saved mobious model weights to {mobious_weights_path}")
