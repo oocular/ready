@@ -57,11 +57,14 @@ def federated(Num_of_rounds, weights):
         #rti_eyes_size = 8000
 
         dataset_weights = [mobious_weights, openEDS_weights] #rti_eyes_weights]
+        #dataset_weights = [rti_eyes_weights]
         dataset_sizes = [mobious_size, openEDS_size] #rti_eyes_size]
+        #dataset_sizes = [rti_eyes_size]
 
 
         new_global_model = fedAvg(dataset_weights, dataset_sizes)
         mobious_weights_path = os.path.join(pathlib.Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/mobious/models/15-Jul-2026_12-01-38_cpu/mobious_weights.pth")
+        #mobious_weights_path = os.path.join(pathlib.Path.home(), "downloads/ready/datasets/ready/mobious/models/15-Jul-2026_12-01-38_cpu/mobious_weights.pth")
         os.makedirs(os.path.dirname(mobious_weights_path), exist_ok=True)
         torch.save(new_global_model, mobious_weights_path)
 
@@ -70,7 +73,8 @@ if __name__ == "__main__":
     #torch.set_num_interop_threads(1)
     #torch.backends.mkldnn.enabled = False    
 
-    weights_path = "Scratch/scratch/ccaekqu/datasets/ready/ready/federated"
+    weights_path = os.path.join(pathlib.Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated")
+    #weights_path = "downloads/ready/datasets/ready/federated"
     weights = pathlib.Path(weights_path)
     
     federated(10, weights)

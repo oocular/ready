@@ -423,7 +423,8 @@ def main(args):
             #logger.info(f"Saved PyTorch Model State to {model_name}")
 
 
-            rti_eyes_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/rti_eyes_weights.pth")
+            #rti_eyes_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/rti_eyes_weights.pth")
+            rti_eyes_weights_path = os.path.join(Path.home(), "downloads/ready/datasets/ready/federated/rti_eyes_weights.pth")
             os.makedirs(os.path.dirname(rti_eyes_weights_path), exist_ok=True)
             torch.save(model.state_dict(), rti_eyes_weights_path)
             logger.info(f"Saved mobious model weights to {rti_eyes_weights_path}")
