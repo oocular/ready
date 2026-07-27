@@ -3,11 +3,11 @@ model:
     weight_fn: None #True #False #TOTEST
 
 dataset:
-    use_github_data_path_flag : False # data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
+    use_github_data_path_flag : True # data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
     # github_data_path: "data/mobious/sample-frames/test576x320_20samples"
     # github_data_path: "data/mobious/sample-frames/test640x400_5samples"
     # github_data_path: "data/mobious/sample-frames/test640x400_10samples"
-    github_data_path: "data/mobious/sample-frames/test640x400_20samples"
+    github_data_path: "data/mobious/sample-frames/test640x640_samples"
     # github_data_path: "data/mobious/sample-frames/test3000x1700"
     # data_path: "datasets/mobious/MOBIOUS/train012per_0145" #LOCAL and SERVER paths
     # data_path: "datasets/mobious/MOBIOUS/train025per_0286" #LOCAL and SERVER paths
@@ -17,13 +17,13 @@ dataset:
     checkpoint_path: "datasets/?" #TODO checkpoint_path
 
 transforms: # Transformations are defined in train_mobious.py using transforms.Compose()
-    transform_operation: None # Options are 'transforms_img', 'transforms_rotations', None
-    target_transform_operation: None # Options are 'transforms_img', 'transforms_rotations', None
+    transform_operation: transforms_img # Options are 'transforms_img', 'transforms_rotations', None
+    target_transform_operation: transforms_rotations # Options are 'transforms_img', 'transforms_rotations', None
 
 datasets_splitting_ratios: # Ensure sum of all ratios = 1.
     train_set: 0.70
     validation_set : 0.15
-    test_set : 0.15
+    test_set : 0.15 #change the path to pi
 
 pretrained_model:
     evaluation_with_pretrained_model_flag : False
@@ -35,6 +35,7 @@ pretrained_model:
 
 model_hyperparameters:
     batch_size: 8
-    num_workers: 4
-    epochs: 100
+     #set to 0 to save enough RAM for training on CPU
+    num_workers: 0
+    epochs: 15
     learning_rate: 0.003

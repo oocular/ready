@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 from sklearn.metrics import (accuracy_score, f1_score, fbeta_score,
                              precision_score, recall_score)
+from skimage.metrics import hausdorff_distance
 
 """
 See pixel_accuracy, mIoU :
@@ -13,25 +14,8 @@ https://github.com/tanishqgautam/Drone-Image-Semantic-Segmentation/blob/main/sem
 def mIoU(pred_mask, mask, smooth=1e-10, n_classes=1):
     """
         Mean Intersection over Union (IoU) over defined number of classes.
-        IoU and jaccard score is actually the same! For reference, please see Table 3 below:
-        Maier-Hein, Lena, Annika Reinke, Patrick Godau, Minu D. Tizabi, Florian Buettner, Evangelia Christodoulou, Ben Glocker, et al.
-        ‘Metrics Reloaded: Recommendations for Image Analysis Validation’. Nature Methods 21, no. 2 (February 2024): 195–212. https://doi.org/10.1038/s41592-023-02151-z.
-
-
-        Equation: IoU = (|X & Y|)/ (|X or Y|)
-
-        Args:
-            pred_mask: predicted mask
-            mask: ground truth mask
-            smooth: smoothing value
-            n_classes: number of classes
-    """
-    # with torch.no_grad():
-    #     pred_mask = F.softmax(pred_mask, dim=1)
-    #     pred_mask = torch.argmax(pred_mask, dim=1)
-    #     pred_mask = pred_mask.contiguous().view(-1)
-    #     mask = mask.contiguous().view(-1)
-
+            """
+    
     iou_per_class = []
     for clas in range(0, n_classes): #loop per pixel class
         true_class = pred_mask == clas
@@ -46,6 +30,7 @@ def mIoU(pred_mask, mask, smooth=1e-10, n_classes=1):
             iou = (intersect + smooth) / (union +smooth)
             iou_per_class.append(iou)
     return np.nanmean(iou_per_class)
+
 
 def dice(pred_mask, mask, smooth=1e-10, n_classes=1):
 
@@ -81,6 +66,37 @@ def dice(pred_mask, mask, smooth=1e-10, n_classes=1):
             dice_per_class.append(dice)
     return np.nanmean(dice_per_class)
 
+def hausdorff1(pred_mask, mask, smooth=1e-10, n_classes=4):
+    """
+    Calculate mean Hausdorff Distance across all classes.
+    Measures the maximum boundary distance between predicted and ground truth masks.
+    Lower is better. 0 = perfect boundary match.
+    
+    Args:
+        pred_mask: predicted mask (numpy array, values 0 to n_classes-1)
+        mask: ground truth mask (numpy array, values 0 to n_classes-1)
+        n_classes: number of classes
+    """
+    hausdorff_per_class = []
+    
+    for clas in range(0, n_classes):
+        true_class = pred_mask == clas
+        true_label = mask == clas
+        
+        # Skip if neither prediction nor ground truth has this class
+        if np.sum(true_label) == 0 and np.sum(true_class) == 0:
+            hausdorff_per_class.append(np.nan)
+            continue
+            
+        # If one is empty but not the other, distance is maximum possible
+        if np.sum(true_label) == 0 or np.sum(true_class) == 0:
+            hausdorff_per_class.append(np.sqrt(pred_mask.shape[0]**2 + pred_mask.shape[1]**2))
+            continue
+            
+        dist = hausdorff_distance(true_label,true_class)
+        hausdorff_per_class.append(dist)
+    
+    return np.nanmean(hausdorff_per_class)
 
 def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
 
@@ -153,6 +169,14 @@ def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
     with torch.no_grad():
         pred_mask = F.softmax(pred_mask, dim=1)
         pred_mask = torch.argmax(pred_mask, dim=1)
+        pred_np = pred_mask.cpu().numpy()  # shape [batch, height, width]
+        mask_np = mask.cpu().numpy()       # shape [batch, height, width]
+        # Average Hausdorff across images in the batch
+        hausdorff_scores = []
+        for i in range(pred_np.shape[0]):
+            h = hausdorff1(pred_np[i], mask_np[i], n_classes=n_classes)
+            hausdorff_scores.append(h)
+        hausdorff_score = np.nanmean(hausdorff_scores)
         pred_mask = pred_mask.contiguous().view(-1)
         pred_mask = pred_mask.cpu().numpy()
         mask = mask.contiguous().view(-1).cpu().numpy()
@@ -160,9 +184,10 @@ def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
         accuracy = accuracy_score(mask, pred_mask)
         f1 = f1_score(mask, pred_mask, average=average)
         recall = recall_score(mask, pred_mask, average=average)
-        precision = precision_score(mask, pred_mask, average=average)
+        precision = precision_score(mask, pred_mask, average=average, zero_division=0)
         fbeta = fbeta_score(mask, pred_mask, beta=1, average=average)
         miou = mIoU(pred_mask, mask, smooth, n_classes)
+      # hausdorff_score = hausdorff1(pred_mask, mask, smooth, n_classes)
         dice_score = dice(pred_mask, mask, smooth, n_classes)
 
         metrics = {
@@ -172,6 +197,7 @@ def evaluate(pred_mask, mask, smooth=1e-10, n_classes=1, **kwargs):
             'precision': precision,
             'fbeta': fbeta,
             'miou': miou,
+            'hausdorff_distance': hausdorff_score,
             'dice': dice_score
         }
 

@@ -13,12 +13,15 @@ import torch
 import torch.nn as nn
 import torch.onnx
 import torch.optim as optim
+from torchvision import transforms
 from loguru import logger
 from omegaconf import OmegaConf
 
 from ready.models.unet import UNet
 from ready.utils.datasets import EyeDataset
 from ready.utils.utils import set_data_directory
+
+torch.set_num_threads(1)    #reduce number of processing threads to avoid deadlocks when using DataLoader with num_workers > 0
 
 torch.cuda.empty_cache()
 
@@ -125,8 +128,9 @@ if __name__ == "__main__":
     logger.info(f"cuda_available: {cuda_available}")
 
     trainset = EyeDataset(
-        # FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
-        FULL_DATA_PATH+"/openEDS/openEDS/test"
+        #Change back to original path when done testing with sample data from repo
+        FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
+        #FULL_DATA_PATH+"/openEDS/openEDS/test"
     )
     logger.info(f"Length of trainset: {len(trainset)}")
 
@@ -145,7 +149,7 @@ if __name__ == "__main__":
     # input_image shape torch.Size([1, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
 
-    model = UNet(nch_in=3, nch_out=4)  # for openEDS with 3 channels and four mask
+    model = UNet(nch_in=3, nch_out=4, nch_ker=16)  # for openEDS with 3 channels and four mask
     # input_image shape torch.Size([3, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
     # model.summary()
@@ -255,3 +259,4 @@ if __name__ == "__main__":
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
+

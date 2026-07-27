@@ -1,0 +1,24 @@
+model:
+    debug_print_flag: False #Use 1 (True) to enable or 0 (False) to disable.
+    weight_fn: None #True #False #TOTEST
+
+dataset:
+    github_data_path: "data/openEDS"
+    #data_path: "downloads/ready/datasets/ready"
+    data_path: "Scratch/scratch/ccaekqu/datasets/ready/ready/openEDS/openEDS"
+    models_path: "Scratch/scratch/ccaekqu/datasets/ready/ready/openEDS/models"
+    checkpoint_path: "datasets/?"
+
+
+pretrained_model:
+    evaluation_with_pre_trained_model: False
+    models_folder_path: "Scratch/scratch/ccaekqu/datasets/ready/ready/mobious/models" #using mobious pre trained weights for openEDS and RTI-Eyes
+    checkpoint_path : "datasets/?"
+    model_name_for_eval: "weights_24-Jul-2025_16-55-48.pth"
+
+model_hyperparameters:
+    batch_size: 8
+    num_workers: 0
+    epochs: 5
+    #epochs: 100
+    learning_rate: 0.003

@@ -237,6 +237,7 @@ def main(args):
                                             transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
                                             transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
                                             transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.Resize((128, 128)),
                                             ])
 
     transforms_rotations = transforms.Compose([
@@ -244,6 +245,7 @@ def main(args):
                                             transforms.RandomHorizontalFlip(p=0.5),
                                             transforms.RandomVerticalFlip(p=0.5),
                                             transforms.RandomRotation(45),
+                                            transforms.Resize((128, 128)),
                                             ])
 
     transform_map = {
@@ -312,29 +314,12 @@ def main(args):
         # Training Metrics
 
         training_loss_values = []
-        training_performance = {
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "recall": 0.0,
-            "precision": 0.0,
-            "fbeta": 0.0,
-            "miou": 0.0,
-            "dice": 0.0,
-        }
+        
 
         # Validation metrics
 
         validation_loss_values = []
-        validation_performance = {
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "recall": 0.0,
-            "precision": 0.0,
-            "fbeta": 0.0,
-            "miou": 0.0,
-            "dice": 0.0,
-        }
-
+        
         logger.info("Commencing Training and Validation Loop")
         logger.info(f"#########################")
 
@@ -344,7 +329,26 @@ def main(args):
             total_num_training_samples, total_num_validation_samples= 0, 0
             # num_batches = 0
             # performance_epoch = {key: 0.0 for key in performance.keys()}
-
+            training_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+        }
+            
+            validation_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+        }
+            
             # Training
             logger.info(f"Training Section")
             for j, data in enumerate(train_loader, 1):

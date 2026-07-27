@@ -9,8 +9,8 @@ dataset:
     checkpoint_path: "datasets/?"
 
 model_hyperparameters:
-    batch_size: 8
-    num_workers: 4
-    epochs: 1
+    batch_size: 6
+    num_workers: 0
+    epochs: 10
     #epochs: 100
     learning_rate: 0.003

@@ -378,3 +378,7 @@ class UNet(nn.Module):
         # x = torch.sigmoid(x)
 
         return x
+
+model = UNet(nch_in=3, nch_out=4)
+total_params = sum(p.numel() for p in model.parameters())
+print(f"Number of parameters: {total_params}")
