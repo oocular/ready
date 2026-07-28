@@ -49,7 +49,8 @@ def sort_openeds_files(files, data_root):
 
 # this is the main entry point of the script, which gets all files in the OpenEDS dataset and sorts them into separate folders for images and masks
 if __name__ == "__main__":
-    data_root = "datasets/s-natural/s-natural"
+    #data_root = "rdss/rd02/ritd-ag-project-rd02iw-mxoch87/datasets/s-natural/s-natural"
+    data_root = "\\\\rdp.arc.ucl.ac.uk\\ritd-ag-project-rd02iw-mxoch87\\datasets\\s-natural\\s-natural"
 
     files = get_files(data_root)
     sort_openeds_files(files, data_root)
