@@ -7,7 +7,7 @@ from ready.apis.train_federated_mobious import main as train_federated_mobious
 import os
 import subprocess
 #from ready.apis.train_federated_rti_eyes import main as train_federated_rti_eyes
-#from loguru import logger
+from loguru import logger
 from argparse import Namespace
 
 #import numpy
@@ -68,6 +68,9 @@ def federated(Num_of_rounds, weights):
         os.makedirs(os.path.dirname(mobious_weights_path), exist_ok=True)
         torch.save(new_global_model, mobious_weights_path)
 
+        print(f"Saving global model weights to {mobious_weights_path}")
+        print(f"Completed fed learning for {Num_of_rounds}")
+
 if __name__ == "__main__":
     #torch.set_num_threads(1)    #reduce number of processing threads to avoid deadlocks when using DataLoader with num_workers > 0
     #torch.set_num_interop_threads(1)
@@ -78,3 +81,5 @@ if __name__ == "__main__":
     weights = pathlib.Path(weights_path)
     
     federated(10, weights)
+
+    logger.info(f" ############ DONE ###########")
