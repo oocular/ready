@@ -48,121 +48,6 @@ def calculate_epoch_loss(running_loss, num_samples):
     return running_loss/num_samples
 
 def main(args):
-    """
-    Train pipeline for UNET
-
-    #CHECK epoch = None
-    #CHECK if weight_fn is not None:
-    #CHECK add checkpoint
-    #CHECK add execution time
-    ############
-    # TODO LIST
-    # * setup a shared path to save models when using datafrom repo (to avoid save models in repo)
-    #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
-    # * To train model with 1700x3000
-    # * Test import nvidia_smi to create model version control: https://stackoverflow.com/questions/59567226
-    # * Create a config file to train models, indicating paths, and other hyperparmeters
-
-    #############################################
-    # LOCAL NVIDIARTXA20008GBLaptopGPU
-    #
-    #
-    # 10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
-    # 10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
-    # 300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
-    # Average loss @ epoch: 10.22 in local
-    # 300epochs: Eliapsed time for the training loop: 1.3 (mins) #for mobious (5length trainset)
-    # Average loss @ epoch: 10.23 in cricket
-    # run_epoch = 100
-    # Average loss @ epoch: 0.0028544804081320763
-    # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
-    # Elapsed time for the training loop: 2.1838908473650616 (mins)
-    # run_epoch = 400
-    # Average loss @ epoch: 0.0006139971665106714
-    # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
-    # Elapsed time for the training loop: 13.326771756013235 (mins)
-    #
-
-    ##############################################
-    # REMOTE A100 80GB
-    #
-    #
-    # 10epochs:
-    # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
-    # Average loss @ epoch: 12.10 in cricket
-    #
-    # run_epoch = 100  # noweights
-    # Average loss @ epoch: 0.001589389712471593
-    # Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
-    # Elapsed time for the training loop: 47.66647284428279 (mins)
-    #
-    # Epoch 20: loss no-weights
-    # Average loss @ epoch: 11.027751895931218
-    # Saved PyTorch Model State to weights/_weights_03-09-24_22-34.pth
-    # Elapsed time for the training loop: 9.677963574727377 (mins)
-    #
-    # Epoch 20: loss with weights
-    # Average loss @ epoch: 14.233737432039701
-    # Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
-    # Elapsed time for the training loop: 9.664288135369619 (mins)
-    #
-    # run_epoch = 200
-    # Average loss @ epoch: 9.453074308542105
-    # Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
-    # Elapsed time for the training loop: 96.35676774978637 (mins)
-    #
-    # 001 epcohs> time: 5mins; loss:0.0668
-    # 002 epochs> 10mins
-    # 010 epochs> without augmentations
-    #     epoch loss 0.0151
-    #     training time ~50.24 mins
-    # 010 epochs> with augmentations (rotations)
-    #    epoch loss 0.0308
-    #    training time ~50.27 mins
-    # 100 epochs> without augmegmnation
-    #    epoch loss:0.0016 (first time)/0.0014(2ndtime)
-    #    training time: 508.15 mins/525.88mins
-    # 100 epochs> with augmegmnation
-    #    epoch loss:0.0081
-    #    training time: 505.00 mins
-
-    ##
-    # 10 epochs without augmentations in NVIDIARTXA20008GBLaptopGPU
-    # Train loop at epoch: 10
-    # Epoch loss: 0.0828
-    # Average accuracy @ epoch: 1.1437
-    # Average f1 @ epoch: 1.1448
-    # Average recall @ epoch: 1.1437
-    # Average precision @ epoch: 1.1497
-    # Average fbeta @ epoch: 1.1448
-    # Average miou @ epoch: 1.1656
-    # Average dice @ epoch: 1.2063
-    # Elapsed time for the training loop: 18.54989504814148 (sec)
-    ##
-    # 10 epochs without augmentations in A100 80GB
-    # Train loop at epoch: 10
-    # Epoch loss: 0.0995
-    # Average accuracy @ epoch: 1.1424
-    # Average f1 @ epoch: 1.1420
-    # Average recall @ epoch: 1.1424
-    # Average precision @ epoch: 1.1422
-    # Average fbeta @ epoch: 1.1420
-    # Average miou @ epoch: 1.1538
-    # Average dice @ epoch: 1.2000
-    # Elapsed time for the training loop: 15.468297719955444 (sec)
-
-    List of data paths,transform, and target_transform used and tested with MobiousDataset:
-    - FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
-    - FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
-    - FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-    - FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
-    - FULL_DATA_PATH, transform=None, target_transform=None
-    - FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
-    - FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
-
-
-    Use of SEED value as 42 is arbitrary. Any 32-bit integer is a valid seed. Using a seed when splitting the full_dataset means we can ensure the split is the same every time we run this file.
-    """
 
     config_file = args.config_file
     config = OmegaConf.load(config_file)
@@ -212,22 +97,7 @@ def main(args):
     logger.info(f"GPU DEVICE NAME: {device_name}")
     cuda_available = torch.cuda.is_available()
 
-    #TOTEST
-    # weight_fn = config.model.weight_fn
-    # logger.info(f"weight_fn: {weight_fn}")
-    # if weight_fn is not None:
-    #     raise NotImplementedError()
-    # else:
-    #     logger.info(f"Starting new checkpoint. {weight_fn}")
-    #     weight_fn = os.path.join(
-    #         os.getcwd(),
-    #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
-    #     )
 
-    #TODO degug color transformations
-    # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
-    #TODO calculate the mean and std of the dataset and use them to normalize the images.
-    # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
     transforms_img = transforms.Compose([
                                             transforms.ToImage(),
                                             transforms.RandomHorizontalFlip(p=0.5),
@@ -296,12 +166,6 @@ def main(args):
 
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
         loss_fn = nn.CrossEntropyLoss()
-        # TODO: check which criterium properties to setup
-        # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
-        # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
-        # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
-        # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
-        # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
 
         if cuda_available:
             model.cuda()
@@ -413,18 +277,8 @@ def main(args):
             os.makedirs(PATH, exist_ok=True)
 
         if not debug_print_flag:
-            # PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
-            # print(PATH)
-            # if not os.path.exists(PATH):
-            #     os.makedirs(PATH, exist_ok=True)
-
-            #model_name = PATH+"/weights_" + current_time_stamp + ".pth"
-            #torch.save(model.state_dict(), model_name)
-            #logger.info(f"Saved PyTorch Model State to {model_name}")
-
-
-            #rti_eyes_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/rti_eyes_weights.pth")
-            rti_eyes_weights_path = os.path.join(Path.home(), "downloads/ready/datasets/ready/federated/rti_eyes_weights.pth")
+            rti_eyes_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/rti_eyes_weights.pth")
+            #rti_eyes_weights_path = os.path.join(Path.home(), "downloads/ready/datasets/ready/federated/rti_eyes_weights.pth")
             os.makedirs(os.path.dirname(rti_eyes_weights_path), exist_ok=True)
             torch.save(model.state_dict(), rti_eyes_weights_path)
             logger.info(f"Saved mobious model weights to {rti_eyes_weights_path}")
@@ -442,8 +296,6 @@ def main(args):
 
             logger.info(f"#########################")
 
-            # To create a plot showing how loss values change for every epoch,
-            # use src/ready/apis/plot_losses.py script.
 
             logger.info(f"Writing loss values to {PATH}")
 
@@ -457,11 +309,6 @@ def main(args):
 
         else:
             logger.info(f"Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
-
-        # TODO
-        #    batch_size = 1    # just a random number
-        #    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(device)
-        #    export_model(model, device, path_name, dummy_input):
 
         endtime = time.time()
         elapsedtime = endtime - starttime
