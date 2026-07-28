@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ready"
+dynamic = ["version", "readme"]
+requires-python = ">=3.12" #python=3.12 local  #python3.10 apptainer
+keywords = ["AI"]
+authors = [
+  {name = "Miguel Xochicale", email = "add@email.com"},
+  {name = "Add co-author", email = "add@email.com"},
+]
+maintainers = [
+  {name = "Add maintener", email = "add@email.com"}
+]
+description = "Package example!"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pandas",
+    "PyQt6",
+    "loguru",
+    "omegaconf",
+    "scikit-learn",
+    "pydot",
+]
+[project.optional-dependencies]
+# development dependency groups
+test = [
+    "pytest",
+    "pylint",
+    "black",
+    "isort",
+    "codespell",
+    "pre-commit"
+]
+learning = [
+    "torch", #2.4.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
+    "torchvision", #0.19.1 local
+]
+model_optimisation = [
+    "onnx", #1.16.2  local
+    "onnxruntime",#1.19.2 local
+    "onnxsim",#0.4.36 local
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "ready.__version__"}
+readme = {file = ["README.md"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+include = ["ready"]  # package names should match these glob patterns (["*"] by default)
+#exclude = ["my_package.tests*"]  # exclude packages matching these glob patterns (empty by default)
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)

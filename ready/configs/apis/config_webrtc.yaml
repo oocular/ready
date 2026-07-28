@@ -1,0 +1,9 @@
+---
+#Config file for webrtc_ready.bash
+workspace:
+  apiPath: "/workspace/volumes/ready/src/ready/apis/holoscan/webrtc"
+  keysPath: "/workspace/volumes/datasets/ready/webrtc"
+
+recorder:
+  directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
+  basename: "recording_tag"
