@@ -1,0 +1,33 @@
+model:
+    debug_print_flag: False #Use 1 (True) to enable to look plots and logs and don't save files or 0 (False) to disable and save files with logs
+    weight_fn: None #True #False 
+
+dataset:
+    use_github_data_path_flag : True # data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
+    github_data_path: "data/mobious/sample-frames/test640x640_samples"
+    data_path: "datasets/mobious/MOBIOUS/train100per_1144" #LOCAL and SERVER paths
+    models_path: "datasets/ready/mobious/models" #LOCAL and SERVER paths
+    checkpoint_path: "datasets/?" #TODO checkpoint_path
+
+transforms: # Transformations are defined in train_mobious.py using transforms.Compose()
+    transform_operation: transforms_img # Options are 'transforms_img', 'transforms_rotations', None
+    target_transform_operation: transforms_rotations # Options are 'transforms_img', 'transforms_rotations', None
+
+datasets_splitting_ratios: # Ensure sum of all ratios = 1.
+    train_set: 0.70
+    validation_set : 0.20
+    test_set : 0.10 
+
+pretrained_model:
+    evaluation_with_pretrained_model_flag : False
+        # Set to True to skip training and validation, and instead use a pretrained model for evaluation only. Load desired model using above variables
+        # Set to False if you want to use the standard workflow: run training and validation, then perform evaluation.
+    models_folder_path : "datasets/ready/mobious/lraspp_model" 
+    checkpoint_path : "datasets/?"
+    model_name_for_eval : "weights_24-Jul-2025_16-55-48.pth" # weights_[date]_[time].pth 
+model_hyperparameters:
+    batch_size: 8
+     #set to 0 to save enough RAM for training on CPU
+    num_workers: 0
+    epochs: 100
+    learning_rate: 0.003

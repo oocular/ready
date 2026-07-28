@@ -1,0 +1,502 @@
+import json
+import os
+import time
+from argparse import ArgumentParser
+from datetime import datetime
+from pathlib import Path
+
+import torch
+import torch.onnx
+import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
+from loguru import logger
+from omegaconf import OmegaConf
+from torch import nn
+from torch import optim as optim
+
+from ready.models.unet import UNet
+from ready.utils.datasets import Rti_Eyes_Dataset
+from ready.utils.metrics import evaluate
+from ready.utils.utils import (HOME_PATH, create_data_loaders, evaluate_model,
+                               loss_values_file_writer,
+                               performance_file_writer,
+                               sanity_check_trainloader, set_data_directory,
+                               test_accuracy_file_writer, training_loop,
+                               validation_loop)
+
+torch.cuda.empty_cache()
+# import gc
+# gc.collect()
+
+def save_checkpoint(state, path):
+    """
+    Save checkpoint method
+    """
+    torch.save(state, path)
+    print("Checkpoint saved at {}".format(path))
+
+
+def norm_image(hot_img):
+    """
+    Normalise image
+    """
+    return torch.argmax(hot_img, 0)
+
+def calculate_epoch_loss(running_loss, num_samples):
+    """
+    Calculate epoch loss
+    """
+
+    return running_loss/num_samples
+
+def main(args):
+    """
+    Train pipeline for UNET
+
+    #CHECK epoch = None
+    #CHECK if weight_fn is not None:
+    #CHECK add checkpoint
+    #CHECK add execution time
+    ############
+    # TODO LIST
+    # * setup a shared path to save models when using datafrom repo (to avoid save models in repo)
+    #   Currently it is using GITHUB_DATA_PATH which are ignored by .gitingore
+    # * To train model with 1700x3000
+    # * Test import nvidia_smi to create model version control: https://stackoverflow.com/questions/59567226
+    # * Create a config file to train models, indicating paths, and other hyperparmeters
+
+    #############################################
+    # LOCAL NVIDIARTXA20008GBLaptopGPU
+    #
+    #
+    # 10epochs: Elapsed time for the training loop: 7.76 (sec) #for openEDS
+    # 10epochs: Elapsed time for the training loop: 4.5 (mins) #for mobious
+    # 300epochs: Eliapsed time for the training loop: 6.5 (mins) #for mobious (5length trainset)
+    # Average loss @ epoch: 10.22 in local
+    # 300epochs: Eliapsed time for the training loop: 1.3 (mins) #for mobious (5length trainset)
+    # Average loss @ epoch: 10.23 in cricket
+    # run_epoch = 100
+    # Average loss @ epoch: 0.0028544804081320763
+    # Saved PyTorch Model State to models/_weights_10-09-24_03-46-29.pth
+    # Elapsed time for the training loop: 2.1838908473650616 (mins)
+    # run_epoch = 400
+    # Average loss @ epoch: 0.0006139971665106714
+    # Saved PyTorch Model State to models/_weights_10-09-24_04-50-40.pth
+    # Elapsed time for the training loop: 13.326771756013235 (mins)
+    #
+
+    ##############################################
+    # REMOTE A100 80GB
+    #
+    #
+    # 10epochs:
+    # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
+    # Average loss @ epoch: 12.10 in cricket
+    #
+    # run_epoch = 100  # noweights
+    # Average loss @ epoch: 0.001589389712471593
+    # Saved PyTorch Model State to models/_weights_10-09-24_06-35-14.pth
+    # Elapsed time for the training loop: 47.66647284428279 (mins)
+    #
+    # Epoch 20: loss no-weights
+    # Average loss @ epoch: 11.027751895931218
+    # Saved PyTorch Model State to weights/_weights_03-09-24_22-34.pth
+    # Elapsed time for the training loop: 9.677963574727377 (mins)
+    #
+    # Epoch 20: loss with weights
+    # Average loss @ epoch: 14.233737432039701
+    # Saved PyTorch Model State to weights/_weights_03-09-24_22-58.pth
+    # Elapsed time for the training loop: 9.664288135369619 (mins)
+    #
+    # run_epoch = 200
+    # Average loss @ epoch: 9.453074308542105
+    # Saved PyTorch Model State to weights/_weights_04-09-24_16-31.pth
+    # Elapsed time for the training loop: 96.35676774978637 (mins)
+    #
+    # 001 epcohs> time: 5mins; loss:0.0668
+    # 002 epochs> 10mins
+    # 010 epochs> without augmentations
+    #     epoch loss 0.0151
+    #     training time ~50.24 mins
+    # 010 epochs> with augmentations (rotations)
+    #    epoch loss 0.0308
+    #    training time ~50.27 mins
+    # 100 epochs> without augmegmnation
+    #    epoch loss:0.0016 (first time)/0.0014(2ndtime)
+    #    training time: 508.15 mins/525.88mins
+    # 100 epochs> with augmegmnation
+    #    epoch loss:0.0081
+    #    training time: 505.00 mins
+
+    ##
+    # 10 epochs without augmentations in NVIDIARTXA20008GBLaptopGPU
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0828
+    # Average accuracy @ epoch: 1.1437
+    # Average f1 @ epoch: 1.1448
+    # Average recall @ epoch: 1.1437
+    # Average precision @ epoch: 1.1497
+    # Average fbeta @ epoch: 1.1448
+    # Average miou @ epoch: 1.1656
+    # Average dice @ epoch: 1.2063
+    # Elapsed time for the training loop: 18.54989504814148 (sec)
+    ##
+    # 10 epochs without augmentations in A100 80GB
+    # Train loop at epoch: 10
+    # Epoch loss: 0.0995
+    # Average accuracy @ epoch: 1.1424
+    # Average f1 @ epoch: 1.1420
+    # Average recall @ epoch: 1.1424
+    # Average precision @ epoch: 1.1422
+    # Average fbeta @ epoch: 1.1420
+    # Average miou @ epoch: 1.1538
+    # Average dice @ epoch: 1.2000
+    # Elapsed time for the training loop: 15.468297719955444 (sec)
+
+    List of data paths,transform, and target_transform used and tested with MobiousDataset:
+    - FULL_GITHUG_DATA_PATH, transform=None, target_transform=None
+    - FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=None
+    - FULL_GITHUG_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+    - FULL_GITHUG_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+    - FULL_DATA_PATH, transform=None, target_transform=None
+    - FULL_DATA_PATH, transform=transforms_rotations, target_transform=transforms_rotations
+    - FULL_DATA_PATH, transform=transforms_img, target_transform=transforms_rotations
+
+
+    Use of SEED value as 42 is arbitrary. Any 32-bit integer is a valid seed. Using a seed when splitting the full_dataset means we can ensure the split is the same every time we run this file.
+    """
+
+    config_file = args.config_file
+    config = OmegaConf.load(config_file)
+
+    # Import all arguments from config
+
+    DATA_PATH = config.dataset.data_path
+    MODEL_PATH = config.dataset.models_path
+    GITHUB_DATA_PATH = config.dataset.github_data_path
+    debug_print_flag = config.model.debug_print_flag
+    use_github_data_path_flag = config.dataset.use_github_data_path_flag
+
+    TRANSFORM_OPERATION = config.transforms.transform_operation
+    TARGET_TRANSFORM_OPERATION = config.transforms.target_transform_operation
+
+    TRAIN_SET_RATIO = config.datasets_splitting_ratios.train_set
+    VALIDATION_SET_RATIO = config.datasets_splitting_ratios.validation_set
+    TEST_SET_RATIO = config.datasets_splitting_ratios.test_set
+
+    PRETRAINED_MODEL_FOLDER = config.pretrained_model.models_folder_path
+    CHECKPOINT_PATH = config.pretrained_model.checkpoint_path
+    MODEL_NAME_FOR_EVAL = config.pretrained_model.model_name_for_eval
+    evaluation_with_pretrained_model_flag = config.pretrained_model.evaluation_with_pretrained_model_flag
+
+    batch_size = config.model_hyperparameters.batch_size
+    num_workers = config.model_hyperparameters.num_workers
+    learning_rate = config.model_hyperparameters.learning_rate
+    run_epoch = config.model_hyperparameters.epochs
+
+    SEED = 42
+
+    FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
+    FULL_GITHUB_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
+    FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+    FULL_PRETRAINED_MODEL_PATH = os.path.join(Path.home(), PRETRAINED_MODEL_FOLDER)
+    if not os.path.exists(FULL_MODEL_PATH):
+        os.makedirs(FULL_MODEL_PATH, exist_ok=True)
+
+
+    data_path = FULL_GITHUB_DATA_PATH if use_github_data_path_flag else FULL_DATA_PATH
+
+    starttime = time.time()  # print(f'Starting training loop at {startt}')
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device_name = torch.cuda.get_device_name(0)[0:20] if torch.cuda.is_available() else "cpu"
+    device_name= device_name.replace (" ", "_")
+    logger.info(f"GPU DEVICE NAME: {device_name}")
+    cuda_available = torch.cuda.is_available()
+
+    #TOTEST
+    # weight_fn = config.model.weight_fn
+    # logger.info(f"weight_fn: {weight_fn}")
+    # if weight_fn is not None:
+    #     raise NotImplementedError()
+    # else:
+    #     logger.info(f"Starting new checkpoint. {weight_fn}")
+    #     weight_fn = os.path.join(
+    #         os.getcwd(),
+    #         f"checkpoint_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth.tar",
+    #     )
+
+    #TODO degug color transformations
+    # https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
+    #TODO calculate the mean and std of the dataset and use them to normalize the images.
+    # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
+    transforms_img = transforms.Compose([
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
+                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
+                                            transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.Resize((128, 128))
+                                            ])
+
+    transforms_rotations = transforms.Compose([
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.Resize((128, 128))
+                                            ])
+
+    transform_map = {
+    'transforms_img': transforms_img,
+    'transforms_rotations': transforms_rotations
+    }
+
+    # .get() returns None if operation is None or config arg not valid
+    transform_arg = transform_map.get(TRANSFORM_OPERATION,None)
+    target_transform_arg = transform_map.get(TARGET_TRANSFORM_OPERATION, None)
+
+    ## Length 5; github_data_path
+    ## Length 1143;  data_path
+    full_dataset = Rti_Eyes_Dataset(
+        data_path, transform=transform_arg ,target_transform=target_transform_arg
+        )
+
+    data_splitting_ratios = [TRAIN_SET_RATIO, VALIDATION_SET_RATIO, TEST_SET_RATIO]
+
+    train_loader, validation_loader, test_loader = create_data_loaders(full_dataset=full_dataset,
+                                                                       data_splitting_ratios=data_splitting_ratios,
+                                                                       seed=SEED,
+                                                                       batch_size=batch_size,
+                                                                       num_workers=num_workers)
+
+    # logger.info(f"trainloader.batch_size: {train_loader.batch_size}")
+    #
+    if debug_print_flag:
+        sanity_check_trainloader(train_loader, cuda_available)
+
+    current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
+    PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
+
+    model = UNet(nch_in=3, nch_out=4)
+
+    if not evaluation_with_pretrained_model_flag:
+
+        num_params = len(nn.utils.parameters_to_vector(model.parameters()))
+        logger.info(f"Number of parameters in model: {num_params}")
+
+        # model.summary()
+
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        loss_fn = nn.CrossEntropyLoss()
+        # TODO: check which criterium properties to setup
+        # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
+        # ?loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
+        # class_weights = 1.0/train_dataset.get_class_probability().cuda(GPU_ID)
+        # criterion = torch.nn.CrossEntropyLoss(weight=class_weights).cuda(GPU_ID)
+        # REF https://github.com/say4n/pytorch-segnet/blob/master/src/train.py
+
+        if cuda_available:
+            model.cuda()
+            loss_fn.cuda()
+
+        epoch = None
+
+        performance_metrics_labels = ["accuracy",
+                                      "f1",
+                                      "recall",
+                                      "precision",
+                                      "fbeta",
+                                      "miou",
+                                      "dice",
+                                      "hausdorff_distance"
+                                      ]
+        # Training Metrics
+
+        training_loss_values = []
+        training_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+            "hausdorff_distance": 0.0
+        }
+
+        # Validation metrics
+
+        validation_loss_values = []
+        validation_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+            "hausdorff_distance": 0.0
+        }
+
+        logger.info("Commencing Training and Validation Loop")
+        logger.info(f"#########################")
+
+        for i in range(epoch + 1 if epoch is not None else 1, run_epoch + 1):
+            logger.info(f"Training and Validation loop at Epoch: {i} out of {run_epoch}")
+            total_training_running_loss, total_validation_running_loss = 0.0, 0.0
+            total_num_training_samples, total_num_validation_samples= 0, 0
+            # num_batches = 0
+            # performance_epoch = {key: 0.0 for key in performance.keys()}
+
+            # Training
+            logger.info(f"Training Section")
+            for j, data in enumerate(train_loader, 1):
+                current_training_loss, num_samples_processed = training_loop(model=model,
+                              current_idx=j,
+                              current_data=data,
+                              optimizer=optimizer,
+                              training_performance_dict=training_performance,
+                              loss_fn = loss_fn,
+                              cuda_available=cuda_available)
+
+                total_training_running_loss += current_training_loss
+                total_num_training_samples += num_samples_processed
+
+            logger.info(f"#########################")
+
+            # Validation
+            logger.info("Validation Section")
+            with torch.set_grad_enabled(False):
+                     for j, data in enumerate(validation_loader, 1):
+                        current_validation_loss, num_samples_processed = validation_loop(model=model,
+                                        current_idx=j,
+                                        current_data=data,
+                                        optimizer=optimizer,
+                                        validation_performance_dict=validation_performance,
+                                        loss_fn=loss_fn,
+                                        cuda_available=cuda_available)
+
+                        total_validation_running_loss += current_validation_loss
+                        total_num_validation_samples += num_samples_processed
+
+            training_epoch_loss = calculate_epoch_loss(total_training_running_loss, total_num_training_samples)
+            validation_epoch_loss = calculate_epoch_loss(total_validation_running_loss, total_num_validation_samples)
+
+            training_loss_values.append(training_epoch_loss)
+            validation_loss_values.append(validation_epoch_loss)
+            print(f"\nTraining epoch loss: {training_epoch_loss:.4f}")
+            print(f"Validation epoch loss: {validation_epoch_loss:.4f}\n")
+
+            print(f"Training Metrics:")
+            for key in performance_metrics_labels:
+                training_performance[key] /= total_num_training_samples
+                print(f"Average {key} @ epoch: {training_performance[key]:.4f}")
+
+            print(f"\nValidation Metrics:")
+            for key in performance_metrics_labels:
+                validation_performance[key] /= total_num_validation_samples
+                print(f"Average {key} @ epoch: {validation_performance[key]: .4f}")
+
+        logger.info(f"#########################")
+        logger.info(f"Training and Validation complete.")
+
+        PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
+        if not os.path.exists(PATH):
+            os.makedirs(PATH, exist_ok=True)
+
+        if not debug_print_flag:
+            # PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
+            # print(PATH)
+            # if not os.path.exists(PATH):
+            #     os.makedirs(PATH, exist_ok=True)
+
+            model_name = PATH+"/weights_" + current_time_stamp + ".pth"
+            torch.save(model.state_dict(), model_name)
+            logger.info(f"Saved PyTorch Model State to {model_name}")
+
+            performance_file_prefix_to_performance_dict = {
+                "/training_performance_" : training_performance,
+                "/validation_performance_" : validation_performance
+            }
+
+            logger.info(f"Writing performance metrics to {PATH}")
+            # Write performance metrics to .json files
+            for file_prefix, performance_dict in performance_file_prefix_to_performance_dict.items():
+                performance_file_writer(folder_path=PATH, file_prefix=file_prefix, performance_dict=performance_dict, current_time_stamp=current_time_stamp)
+
+            logger.info(f"#########################")
+
+            # To create a plot showing how loss values change for every epoch,
+            # use src/ready/apis/plot_losses.py script.
+
+            logger.info(f"Writing loss values to {PATH}")
+
+            loss_values_prefix_to_loss_value = {
+                "/training_loss_values_" : training_loss_values,
+                "/validation_loss_values_" : validation_loss_values
+            }
+
+            for file_prefix, loss_values in loss_values_prefix_to_loss_value.items():
+                loss_values_file_writer(folder_path=PATH, file_prefix=file_prefix, loss_values=loss_values, current_time_stamp=current_time_stamp)
+
+        else:
+            logger.info(f"Model saving is disabled, set debug_print_flag to False (-df 0) to save model")
+
+        # TODO
+        #    batch_size = 1    # just a random number
+        #    dummy_input = torch.randn((batch_size, 1, 400, 640)).to(device)
+        #    export_model(model, device, path_name, dummy_input):
+
+        endtime = time.time()
+        elapsedtime = endtime - starttime
+        logger.info(f"Elapsed time for the training and validation loop: {elapsedtime} (sec)")
+
+        logger.info("Commencing Evaluation")
+
+        test_accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
+        test_accuracy_file_writer(folder_path=PATH, test_accuracy=test_accuracy,
+                                  current_time_stamp=current_time_stamp, pretrained_model_flag=evaluation_with_pretrained_model_flag)
+
+    # Evaluating model using test_set
+    else:
+
+        logger.info("Skipping Training and Validation Loop. Straight to Evaluation.")
+
+        time_of_testing = datetime.now().strftime("%d-%b-%Y_%H_%M_%S")
+
+        folder_containg_pretrained_model = MODEL_NAME_FOR_EVAL[8:-4] + "_" + device_name
+        model_path = os.path.join(FULL_PRETRAINED_MODEL_PATH, folder_containg_pretrained_model, MODEL_NAME_FOR_EVAL)
+
+        model.load_state_dict(torch.load(model_path, weights_only=True))
+        # model.eval()
+        PATH = FULL_MODEL_PATH+"/"+ folder_containg_pretrained_model
+        if not os.path.exists(PATH):
+            os.makedirs(PATH, exist_ok=True)
+
+        test_accuracy = evaluate_model(model=model, test_loader=test_loader,
+                                       device=device)
+
+        test_accuracy_file_writer(folder_path=PATH, test_accuracy=test_accuracy, current_time_stamp=time_of_testing, pretrained_model_flag=evaluation_with_pretrained_model_flag)
+
+    logger.info(f"Model Accuracy: {test_accuracy: .4f}%")
+    logger.info(f"Completed!")
+
+if __name__ == "__main__":
+    """
+    Script to train the Mobious model using the READY API.
+
+    Usage:
+        python src/ready/apis/train_mobious.py -df <debug_flag>
+
+    Arguments:
+        -c, --config_file: Config filename with path.
+    Example:
+        python src/ready/apis/train_mobious.py -c src/ready/configs/mobious_config.yaml
+    """
+    parser = ArgumentParser(description="READY demo application.")
+    parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
+
+    args = parser.parse_args()
+    main(args)
