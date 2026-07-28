@@ -14,7 +14,7 @@ from torch import nn
 from torch import optim as optim
 
 from ready.models.unet import UNet
-from ready.utils.datasets import MobiousDataset
+from ready.utils.datasets import RITDataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, create_data_loaders, evaluate_model,
                                loss_values_file_writer,
@@ -259,7 +259,7 @@ def main(args):
 
     ## Length 5; github_data_path
     ## Length 1143;  data_path
-    full_dataset = MobiousDataset(
+    full_dataset = RITDataset(
         data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
 
