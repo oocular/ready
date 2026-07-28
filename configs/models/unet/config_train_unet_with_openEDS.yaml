@@ -4,13 +4,13 @@ model:
 
 dataset:
     github_data_path: "data/openEDS"
-    data_path: "datasets/ready/openEDS"
+    data_path: "datasets/mobious/MOBIOUS/processed"
     models_path: "datasets/ready/openEDS/models"
     checkpoint_path: "datasets/?"
 
 model_hyperparameters:
     batch_size: 8
-    num_workers: 4
-    epochs: 1
+    num_workers: 0
+    epochs: 5
     #epochs: 100
     learning_rate: 0.003
