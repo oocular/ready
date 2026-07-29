@@ -25,8 +25,8 @@ class EyeDataset(Dataset):
         self.f_dir = f_dir
 
         self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
-        #self.labels_path = [i.replace(".png", ".npy") for i in self.img_path]
-        self.labels_path =  self.img_path
+        self.labels_path = [i.replace(".jpg", ".png") for i in self.img_path]
+        #self.labels_path = self.img_path  
 
     def __len__(self):
         return len(self.img_path)
@@ -45,7 +45,7 @@ class EyeDataset(Dataset):
         # type(image) = <class 'torch.Tensor'>, image.dtype = torch.float32,
         # image.shape = torch.Size([3, 400, 640])
 
-        label_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
+        label_path = os.path.join(self.f_dir, "masks", self.labels_path[idx])
         label=Image.open(label_path).convert("P")
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
         label = torch.tensor(np.array(label), dtype=torch.long)  # .unsqueeze(0)
@@ -57,18 +57,30 @@ class EyeDataset(Dataset):
         # tensor(2) pupil plt.imshow(label>2)
         # tensor(3) background plt.imshow(label>3)
 
-        #label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
-        #label = torch.tensor(label, dtype=torch.long) 
+        # plt.imshow(label)
+        # plt.colorbar()
+        # plt.show()
 
-        
+        # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
+        # type(label) = <class 'torch.Tensor'>, label.dtype = torch.int64,
+        # label.shape = torch.Size([400, 640])
+
+        #TODO check if this is correct
+        # label = F.one_hot(label, 4).type(torch.float)
+        # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
+        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32,
+        # label.shape = torch.Size([400, 640, 4])
+        # label = label.reshape([4, 400, 640])
+        # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
+        # # type(label) = <class 'torch.Tensor'>, label.dtype = torch.float32,
+        # label.shape = torch.Size([4, 400, 640])
+
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
         
         label=label.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])
-
-        label = label.squeeze()
 
         return image, label
 
@@ -95,6 +107,7 @@ class MobiousDataset(Dataset):
         masks_path = os.path.join(self.f_dir, "masks", self.masks_path[idx])
         # TODO check when there is no numpy lalbels
         # labels_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
+
         image = read_image(img_path).type(
             torch.float
         )  # / 255 #torch.Size([1, 3, 400, 640])
@@ -123,8 +136,22 @@ class MobiousDataset(Dataset):
 
         mask = Image.open(masks_path).convert("P")
         # For the “P” mode, this method translates pixels through the palette.
+
         mask = np.array(mask)
         mask = torch.tensor(mask, dtype=torch.long)
+
+        # print(f"************************")
+        # print(mask.unique())
+        # torch.set_printoptions(threshold=torch.inf)
+        # print(mask)
+
+        #TODO add sanity check for plotting encoded masks
+        # plt.subplot(2,5,1), plt.imshow(mask), plt.colorbar()
+        # plt.subplot(2,5,2), plt.imshow(mask>0 ), plt.colorbar()
+        # plt.subplot(2,5,3), plt.imshow(mask>30), plt.colorbar()
+        # plt.subplot(2,5,4), plt.imshow(mask>180), plt.colorbar()
+        # plt.subplot(2,5,5), plt.imshow(mask>200), plt.colorbar()
+        # plt.show()
 
         encode_mask = torch.tensor(
             np.zeros((mask.shape[0], mask.shape[1])), dtype=torch.long
@@ -137,6 +164,33 @@ class MobiousDataset(Dataset):
         encode_mask[mask > 180] = 3  # iris (40 to 180)
         # 3: background
         # encode_mask[mask>200] = 3 #background (196 to 255)
+
+        # print(f"************************")
+        # print(encode_mask.type())
+        # print(encode_mask.unique())
+
+        #TODO add sanity check for plotting encoded masks
+        # plt.subplot(2,5,6), plt.imshow(encode_mask), plt.colorbar()
+        # plt.subplot(2,5,7), plt.imshow(encode_mask>0 ), plt.colorbar()
+        # plt.subplot(2,5,8), plt.imshow(encode_mask>1), plt.colorbar()
+        # plt.subplot(2,5,9), plt.imshow(encode_mask>2), plt.colorbar()
+        # plt.subplot(2,5,10), plt.imshow(encode_mask>3), plt.colorbar()
+        # plt.show()
+
+        # I tried putpalette
+        # https://stackoverflow.com/questions/76131649/convert-black-and-white-image-with-color-palette-using-python
+        # https://bo-li.medium.com/how-to-convert-mask-image-to-colour-map-for-mmsegmentation-52e20496192
+        # https://github.com/albumentations-team/albumentations/issues/1294
+        # https://stackoverflow.com/questions/67642262/python-image-types-shapes-and-channels-for-segmentation
+
+        # label =label.clone().detach()?
+        # TO_TEST/TO_REMOVE
+        # label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
+        # label = torch.tensor(label, dtype=torch.long)  # .unsqueeze(0)
+        # label = F.one_hot(label, 4).type(torch.float)
+        # print(label)
+        # label = label.reshape([4, 400, 640])
+        # print(label)
 
         seed = np.random.randint(2147483647) # make a seed with numpy generator
         random.seed(seed) # apply this seed to img transform
@@ -153,95 +207,4 @@ class MobiousDataset(Dataset):
         encode_mask=encode_mask.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])
 
         # return image, label
-        return image, encode_mask
-
-class OPENEDS_Dataset(Dataset):
-    """
-    OPENEDS_Dataset
-    """
-
-    def __init__(self, f_dir, transform=None, target_transform=None):
-        self.transform = transform
-        self.target_transform = target_transform
-        self.f_dir = f_dir
-
-        self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
-        self.masks_path = [i.replace(".png", ".npy") for i in self.img_path]
-
-    def __len__(self):
-        return len(self.img_path)
-
-    def __getitem__(self, idx):
-        img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
-        masks_path = os.path.join(self.f_dir, "masks", self.masks_path[idx])
-        
-        image = read_image(img_path).type(torch.float) / 255
-        
-        encode_mask = torch.tensor(np.load(masks_path), dtype=torch.long)
-        
-        seed = np.random.randint(2147483647)
-        random.seed(seed)
-        torch.manual_seed(seed)
-        if self.transform:
-            image = self.transform(image)
-        
-        random.seed(seed)
-        torch.manual_seed(seed)
-        if self.target_transform:
-            encode_mask = self.target_transform(encode_mask)
-        
-        encode_mask = encode_mask.squeeze(0)
-        return image, encode_mask
-    
-class Rti_Eyes_Dataset(Dataset):
-    """
-    Rti_Eyes_Dataset
-    """
-    def __init__(self, f_dir, transform=None, target_transform=None):
-        self.transform = transform
-        self.target_transform = target_transform
-        self.f_dir = f_dir
-
-        self.img_path = list(os.listdir(os.path.join(self.f_dir, "synthetic1")))
-        self.masks_path = self.img_path  # masks have the same name as images but in a different folder
-
-    def __len__(self):
-        return len(self.img_path)
-    
-    def __getitem__(self, idx):
-        img_path = os.path.join(self.f_dir, "synthetic1", self.img_path[idx])
-        masks_path = os.path.join(self.f_dir, "mask-withoutskin-noglasses1", self.masks_path[idx])
-
-        #converting image to pytorch so the float type can be attached to it
-        image = torch.tensor(np.array(Image.open(img_path).convert("RGB")), dtype=torch.float) / 255
-        image = image.permute(2, 0, 1)  # convert from [H, W, 3] to [3, H, W]
-        try:
-            mask = np.array(Image.open(masks_path).convert("RGB"))
-        except Exception as e:
-            print(f"Corrupted file skipped: {masks_path} — {e}")
-            image = torch.zeros(3, 128, 128)
-            encode_mask = torch.zeros(128, 128, dtype=torch.long)
-            return image, encode_mask
-        #create 2d array of 0s, then proper pixel values for sclera, iris and pupil are initialised
-        encode_mask = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.int64)
-        encode_mask[np.all(mask == [0,   0,   255], axis=2)] = 1  # sclera
-        encode_mask[np.all(mask == [0,   255, 0],   axis=2)] = 2  # iris
-        encode_mask[np.all(mask == [255, 0,   0],   axis=2)] = 3  # pupil 
-        # black pixels stay 0, the background
-
-        encode_mask = torch.tensor(encode_mask, dtype=torch.long)
-
-        seed = np.random.randint(2147483647) # make a seed with numpy generator
-        random.seed(seed) # apply this seed to img transform
-        torch.manual_seed(seed) # needed for torchvision 0.7
-        if self.transform:
-            image = self.transform(image)
-
-        random.seed(seed) # apply this seed to target transform
-        torch.manual_seed(seed) # needed for torchvision 0.7
-        if self.target_transform:
-            encode_mask = self.target_transform(encode_mask)
-
-        encode_mask=encode_mask.squeeze(0) # from torch.Size([1, H, W]) to torch.Size([H, W])
-
         return image, encode_mask

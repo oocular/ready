@@ -13,7 +13,6 @@ import torch
 import torch.nn as nn
 import torch.onnx
 import torch.optim as optim
-from torchvision import transforms
 from loguru import logger
 from omegaconf import OmegaConf
 from torchvision.transforms import v2 as transforms
@@ -21,8 +20,6 @@ from torchvision.transforms import v2 as transforms
 from ready.models.unet import UNet
 from ready.utils.datasets import EyeDataset
 from ready.utils.utils import set_data_directory
-
-torch.set_num_threads(1)    #reduce number of processing threads to avoid deadlocks when using DataLoader with num_workers > 0
 
 torch.cuda.empty_cache()
 
@@ -160,7 +157,7 @@ if __name__ == "__main__":
     # input_image shape torch.Size([1, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
 
-    model = UNet(nch_in=3, nch_out=4, nch_ker=16)  # for openEDS with 3 channels and four mask
+    model = UNet(nch_in=3, nch_out=4)  # for openEDS with 3 channels and four mask
     # input_image shape torch.Size([3, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
     # model.summary()
@@ -270,4 +267,3 @@ if __name__ == "__main__":
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
-
