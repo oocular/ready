@@ -16,6 +16,7 @@ import torch.optim as optim
 from torchvision import transforms
 from loguru import logger
 from omegaconf import OmegaConf
+from torchvision.transforms import v2 as transforms
 
 from ready.models.unet import UNet
 from ready.utils.datasets import EyeDataset
@@ -128,10 +129,20 @@ if __name__ == "__main__":
     logger.info(f"cuda_available: {cuda_available}")
 
     trainset = EyeDataset(
-        #Change back to original path when done testing with sample data from repo
-        FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
-        #FULL_DATA_PATH+"/openEDS/openEDS/test"
+        # FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
+        FULL_DATA_PATH+"/openEDS/openEDS/",
+        transform=transforms.Compose([
+            transforms.ToImage(),
+            transforms.Resize((400, 640), interpolation=transforms.InterpolationMode.BILINEAR),
+        ]),
+        target_transform=transforms.Compose([
+            transforms.ToImage(),
+            transforms.Resize((400, 640), interpolation=transforms.InterpolationMode.NEAREST),
+        ]),
     )
+    
+    
+    
     logger.info(f"Length of trainset: {len(trainset)}")
 
     batch_size = config.model_hyperparameters.batch_size
@@ -224,7 +235,7 @@ if __name__ == "__main__":
             optimizer.step()
 
             sum_loss += loss.item()
-            if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
+            if j % 10 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
                 print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
                 # sanity_check(trainloader, model, cuda_available)
                 # save_checkpoint(

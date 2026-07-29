@@ -5,6 +5,7 @@ datasets
 import os
 import random
 
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -24,8 +25,13 @@ class EyeDataset(Dataset):
         self.f_dir = f_dir
 
         self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
+<<<<<<< HEAD
         #self.labels_path = [i.replace(".png", ".npy") for i in self.img_path]
         self.labels_path =  self.img_path
+=======
+        self.labels_path = [i.replace(".jpg", ".png") for i in self.img_path]
+        #self.labels_path = self.img_path  
+>>>>>>> origin/mohamed
 
     def __len__(self):
         return len(self.img_path)
@@ -33,6 +39,7 @@ class EyeDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
         image = read_image(img_path).type(torch.float) / 255
+<<<<<<< HEAD
             
         image = torch.stack([image, image, image], 1)
         image = torch.squeeze(image)
@@ -40,6 +47,30 @@ class EyeDataset(Dataset):
         label_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
         label = Image.open(label_path).convert("P")
         label = torch.tensor(np.array(label), dtype=torch.long)  # .unsqueeze(0)
+=======
+        if image.shape[0] == 1: # grayscale -> RGB
+            image = image.repeat(3, 1, 1)
+
+        # TODO add if for grayscale or rgb input image
+        # grayscale to rgb
+        # https://discuss.pytorch.org/t/grayscale-to-rgb-transform/18315
+        # print(f'grayscale to rgb')
+        # # print(f"{type(image) = }, {image.dtype = }, {image.shape = }")
+        # type(image) = <class 'torch.Tensor'>, image.dtype = torch.float32,
+        # image.shape = torch.Size([3, 400, 640])
+
+        label_path = os.path.join(self.f_dir, "masks", self.labels_path[idx])
+        label=Image.open(label_path).convert("P")
+        # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
+        label = torch.tensor(np.array(label), dtype=torch.long)  # .unsqueeze(0)
+        #TODO add module to DEBUG LABELS
+        # import matplotlib.pyplot as plt
+        # print(label.long().min(), label.long().max()) # tensor(0) tensor(3)
+        # tensor(0) sclera plt.imshow(label>0)
+        # tensor(1) iris  plt.imshow(label>1)
+        # tensor(2) pupil plt.imshow(label>2)
+        # tensor(3) background plt.imshow(label>3)
+>>>>>>> origin/mohamed
 
         #label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
         #label = torch.tensor(label, dtype=torch.long) 
@@ -49,6 +80,8 @@ class EyeDataset(Dataset):
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
+        
+        label=label.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])
 
         label = label.squeeze()
 
@@ -129,6 +162,7 @@ class MobiousDataset(Dataset):
         random.seed(seed) # apply this seed to target transform
         torch.manual_seed(seed) # needed for torchvision 0.7
         if self.target_transform:
+            encode_mask = encode_mask.unsqueeze(0)
             encode_mask = self.target_transform(encode_mask)
 
         encode_mask=encode_mask.squeeze(0) # from torch.Size([1, 400, 640]) to #torch.Size([400, 640])

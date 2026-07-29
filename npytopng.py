@@ -2,8 +2,8 @@ import pathlib
 import numpy as np
 from PIL import Image
 
-npy_masks = pathlib.Path("datasets/ready/openEDS/openEDS/masks-main")
-masks_out = pathlib.Path("datasets/ready/openEDS/openEDS/masks")
+npy_masks = pathlib.Path("datasets/archive/openEDS/openEDS/masks_npy")
+masks_out = pathlib.Path("datasets/archive/openEDS/openEDS/masks")
 masks_out.mkdir(exist_ok=True)
 
 count = 0
