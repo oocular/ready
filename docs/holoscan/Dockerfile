@@ -1,6 +1,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE} as base
 
+ARG OPEN_CV_VERSION=4.10.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Set default shell to /bin/bash
@@ -12,14 +13,13 @@ RUN apt-get update && apt-get install -y build-essential cmake git \
     libjpeg-dev libpng-dev libtiff5-dev libdc1394-dev libeigen3-dev libtheora-dev \
     libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm \
     libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev \
-    libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libjsoncpp-dev ffmpeg tree \
+    libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libjsoncpp-dev ffmpeg \
      && apt-get clean
 
+RUN chmod +rwx /usr/bin/python3.10
 
 # Install WebRTC Video Client (aiohttp aiortc) python modules
-ARG OPEN_CV_HEADLESS_VERSION=4.12.0
-RUN pip3 install aiohttp aiortc opencv-python-headless~=${OPEN_CV_HEADLESS_VERSION}
-
+RUN pip3 install aiohttp aiortc opencv-python-headless #opencv-python for full version
 
 # # Build and Install OpenCV
 # RUN git clone --depth 1 --branch $OPEN_CV_VERSION https://github.com/opencv/opencv.git && \
