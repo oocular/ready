@@ -51,5 +51,6 @@ data/mobious/models/loss_values_**
 **live_app_graph**.dot
 
 ## labelstudio
-myfiles/ready**
-mydata/**
+**/myfiles/ready**
+**/mydata/**
+**/myproject/**
