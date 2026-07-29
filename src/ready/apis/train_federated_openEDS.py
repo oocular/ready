@@ -1,6 +1,4 @@
-"""
-Train pipeline for UNET
-"""
+
 
 import os
 import time
@@ -11,18 +9,18 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-import torch.onnx
 import torch.optim as optim
-from torchvision import transforms
+#from torchvision import transform
 from loguru import logger
 from omegaconf import OmegaConf
-from torchvision.transforms import v2 as transforms
 
 from ready.models.unet import UNet
 from ready.utils.datasets import EyeDataset
 from ready.utils.utils import set_data_directory
 
-torch.set_num_threads(1)    #reduce number of processing threads to avoid deadlocks when using DataLoader with num_workers > 0
+#torch.set_num_threads(1)    #reduce number of processing threads to avoid deadlocks when using DataLoader with num_workers > 0
+#torch.set_num_interop_threads(1)
+#torch.backends.mkldnn.enabled = False    
 
 torch.cuda.empty_cache()
 
@@ -118,9 +116,12 @@ if __name__ == "__main__":
     MODEL_PATH = config.dataset.models_path
     GITHUB_DATA_PATH = config.dataset.github_data_path
 
+    PRETRAINED_MODEL = config.pretrained_model.models_folder_path
+
     FULL_DATA_PATH = os.path.join(Path.home(), DATA_PATH)
     FULL_GITHUG_DATA_PATH = os.path.join(Path.cwd(), GITHUB_DATA_PATH)
     FULL_MODEL_PATH = os.path.join(Path.home(), MODEL_PATH)
+    FULL_PRETRAINED_MODEL_PATH = os.path.join(Path.home(), PRETRAINED_MODEL)
     if not os.path.exists(FULL_MODEL_PATH):
         os.mkdir(FULL_MODEL_PATH)
 
@@ -129,20 +130,11 @@ if __name__ == "__main__":
     logger.info(f"cuda_available: {cuda_available}")
 
     trainset = EyeDataset(
-        # FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
-        FULL_DATA_PATH+"/openEDS/openEDS/",
-        transform=transforms.Compose([
-            transforms.ToImage(),
-            transforms.Resize((400, 640), interpolation=transforms.InterpolationMode.BILINEAR),
-        ]),
-        target_transform=transforms.Compose([
-            transforms.ToImage(),
-            transforms.Resize((400, 640), interpolation=transforms.InterpolationMode.NEAREST),
-        ]),
+        #Change back to original path when done testing with sample data from repo
+        #FULL_GITHUG_DATA_PATH+"/sample-frames/val3frames"
+        #FULL_DATA_PATH+"/openEDS/openEDS"
+        FULL_DATA_PATH
     )
-    
-    
-    
     logger.info(f"Length of trainset: {len(trainset)}")
 
     batch_size = config.model_hyperparameters.batch_size
@@ -160,12 +152,21 @@ if __name__ == "__main__":
     # input_image shape torch.Size([1, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
 
-    model = UNet(nch_in=3, nch_out=4, nch_ker=16)  # for openEDS with 3 channels and four mask
+    model = UNet(nch_in=3, nch_out=4, nch_ker=64)
+    weighted_files = list(Path(FULL_PRETRAINED_MODEL_PATH).rglob("*.pth"))
+    if weighted_files:
+        latest_modification = max(weighted_files, key=lambda f: f.stat().st_mtime)
+        logger.info(f"loading {latest_modification}")
+        print(f"Loading: {latest_modification}")
+        model.load_state_dict(torch.load(latest_modification))
+    else:
+        logger.info("No .pth files found")
+    # for openEDS with 3 channels and four mask
     # input_image shape torch.Size([3, 400, 640])
     # outpu_image shape torch.Size([4, 400, 640])
     # model.summary()
-
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.2, 1, 0.8, 10]).float())
     # TOCHECK TESTS
     # do we need default loss? loss_fn = nn.CrossEntropyLoss()
@@ -235,7 +236,7 @@ if __name__ == "__main__":
             optimizer.step()
 
             sum_loss += loss.item()
-            if j % 10 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
+            if j % 100 == 0 or j == 1:  # if j % 2 == 0 or j == 1:
                 print(f"Loss at {j} mini-batch {loss.item()/trainloader.batch_size}")
                 # sanity_check(trainloader, model, cuda_available)
                 # save_checkpoint(
@@ -257,10 +258,14 @@ if __name__ == "__main__":
     if not os.path.exists(PATH):
         os.mkdir(PATH)
 
-    model_name = PATH+"/_weights_" + current_time_stamp + ".pth"
-    torch.save(model.state_dict(), model_name)
-    logger.info(f"Saved PyTorch Model State to {model_name}")
+    #model_name = PATH+"/_weights_" + current_time_stamp + ".pth"
+    #torch.save(model.state_dict(), model_name)
+    #logger.info(f"Saved PyTorch Model State to {model_name}")
 
+    openEDS_weights = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/openEDS_weights.pth")
+    os.makedirs(os.path.dirname(openEDS_weights), exist_ok=True)
+    torch.save(model.state_dict(), openEDS_weights)
+    logger.info(f"Saved openEDS weight to {openEDS_weights}")
     # TODO
     # path_name="weights/ADD_MODEL_NAME_VAR.onnx"
     # batch_size = 1    # just a random number
@@ -270,4 +275,3 @@ if __name__ == "__main__":
     endtime = time.time()
     elapsedtime = endtime - starttime
     print(f"Elapsed time for the training loop: {elapsedtime/60} (mins)")
-

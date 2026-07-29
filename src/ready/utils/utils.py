@@ -242,7 +242,7 @@ def evaluate_model(model, test_loader, device):
     """
     Evaluate model using test data
     """
-
+    model.eval()
     total_elements = 0.0
     num_matches = 0
     with torch.set_grad_enabled(False):

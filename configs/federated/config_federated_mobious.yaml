@@ -1,0 +1,37 @@
+model:
+    debug_print_flag: False #Use 1 (True) to enable to look plots and logs and don't save files or 0 (False) to disable and save files with logs
+    weight_fn: None #True #False #TOTEST
+
+dataset:
+    use_github_data_path_flag : False
+    github_data_path: "data/mobious/sample-frames/test640x400"
+    #data_path: "downloads/ready/datasets/mobious/MOBIOUS/train100per_1144" 
+    data_path: "Scratch/scratch/ccaekqu/datasets/mobious/mobious/MOBIOUS/train100per_1144"
+    models_path: "Scratch/scratch/ccaekqu/datasets/ready/ready/mobious/models" 
+    checkpoint_path: "datasets/?" 
+
+transforms:
+    transform_operation: transforms_img 
+    target_transform_operation: transforms_rotations
+
+
+datasets_splitting_ratios: 
+    train_set: 0.70
+    validation_set : 0.15
+    test_set : 0.15 
+
+
+pretrained_model:
+    evaluation_with_pretrained_model_flag : False
+        # Set to True to skip training and validation, and instead use a pretrained model for evaluation only. Load desired model using above variables
+        # Set to False if you want to use the standard workflow: run training and validation, then perform evaluation.
+    models_folder_path : "Scratch/scratch/ccaekqu/datasets/ready/ready/mobious/models" # LOCAL and SERVER paths
+    checkpoint_path : "datasets/?"
+    model_name_for_eval : "weights_24-Jul-2025_16-55-48.pth" # weights_[date]_[time].pth .Please remember to add your own model.
+
+model_hyperparameters:
+    batch_size: 8
+     #set to 0 to save enough RAM for training on CPU
+    num_workers: 0
+    epochs: 5
+    learning_rate: 0.003

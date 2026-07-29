@@ -13,7 +13,7 @@ from omegaconf import OmegaConf
 from torch import nn
 from torch import optim as optim
 
-from ready.models.unet import UNet
+from ready.models.lraspp import LRASPP, lraspp_mobilenet_v3_large
 from ready.utils.datasets import MobiousDataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, create_data_loaders, evaluate_model,
@@ -26,6 +26,8 @@ from ready.utils.utils import (HOME_PATH, create_data_loaders, evaluate_model,
 torch.cuda.empty_cache()
 # import gc
 # gc.collect()
+
+
 
 def save_checkpoint(state, path):
     """
@@ -230,22 +232,22 @@ def main(args):
     #TODO calculate the mean and std of the dataset and use them to normalize the images.
     # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
     transforms_img = transforms.Compose([
-                                            #transforms.ToImage(),
-                                            transforms.Resize((640,400)),
-                                            #transforms.RandomHorizontalFlip(p=0.5),
-                                            #transforms.RandomVerticalFlip(p=0.5),
-                                            #transforms.RandomRotation(45),
-                                            #transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
-                                            #transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
-                                            #transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
+                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
+                                            transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.Resize((128, 128)),
                                             ])
 
     transforms_rotations = transforms.Compose([
-                                            #transforms.ToImage(),
-                                            transforms.Resize((640,400)),
-                                            #transforms.RandomHorizontalFlip(p=0.5),
-                                            #transforms.RandomVerticalFlip(p=0.5),
-                                            #transforms.RandomRotation(45),
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.Resize((128, 128)),
                                             ])
 
     transform_map = {
@@ -279,7 +281,7 @@ def main(args):
     current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
     PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
 
-    model = UNet(nch_in=3, nch_out=4)
+    model = LRASPP(nch_out=4)
 
     if not evaluation_with_pretrained_model_flag:
 
@@ -314,12 +316,13 @@ def main(args):
         # Training Metrics
 
         training_loss_values = []
-        
+       
 
         # Validation metrics
 
         validation_loss_values = []
         
+
         logger.info("Commencing Training and Validation Loop")
         logger.info(f"#########################")
 
@@ -348,7 +351,6 @@ def main(args):
             "miou": 0.0,
             "dice": 0.0,
         }
-            
             # Training
             logger.info(f"Training Section")
             for j, data in enumerate(train_loader, 1):
@@ -367,8 +369,9 @@ def main(args):
 
             # Validation
             logger.info("Validation Section")
+            model.eval()
             with torch.set_grad_enabled(False):
-                     for j, data in enumerate(validation_loader, 10):
+                     for j, data in enumerate(validation_loader, 1):
                         current_validation_loss, num_samples_processed = validation_loop(model=model,
                                         current_idx=j,
                                         current_data=data,
@@ -379,6 +382,7 @@ def main(args):
 
                         total_validation_running_loss += current_validation_loss
                         total_num_validation_samples += num_samples_processed
+            model.train()
 
             training_epoch_loss = calculate_epoch_loss(total_training_running_loss, total_num_training_samples)
             validation_epoch_loss = calculate_epoch_loss(total_validation_running_loss, total_num_validation_samples)

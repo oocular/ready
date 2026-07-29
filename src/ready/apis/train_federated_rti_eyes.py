@@ -6,15 +6,14 @@ from datetime import datetime
 from pathlib import Path
 
 import torch
-import torch.onnx
-import torchvision.transforms.v2 as transforms  # https://pytorch.org/vision/main/transforms.html
+import torchvision.transforms.v2 as transforms  
 from loguru import logger
 from omegaconf import OmegaConf
 from torch import nn
 from torch import optim as optim
 
 from ready.models.unet import UNet
-from ready.utils.datasets import MobiousDataset
+from ready.utils.datasets import Rti_Eyes_Dataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, create_data_loaders, evaluate_model,
                                loss_values_file_writer,
@@ -230,22 +229,22 @@ def main(args):
     #TODO calculate the mean and std of the dataset and use them to normalize the images.
     # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
     transforms_img = transforms.Compose([
-                                            #transforms.ToImage(),
-                                            transforms.Resize((640,400)),
-                                            #transforms.RandomHorizontalFlip(p=0.5),
-                                            #transforms.RandomVerticalFlip(p=0.5),
-                                            #transforms.RandomRotation(45),
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
                                             #transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
-                                            #transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
+                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
                                             #transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.Resize((128, 128), antialias=True)
                                             ])
 
     transforms_rotations = transforms.Compose([
-                                            #transforms.ToImage(),
-                                            transforms.Resize((640,400)),
-                                            #transforms.RandomHorizontalFlip(p=0.5),
-                                            #transforms.RandomVerticalFlip(p=0.5),
-                                            #transforms.RandomRotation(45),
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.Resize((128, 128), antialias=True)
                                             ])
 
     transform_map = {
@@ -259,7 +258,7 @@ def main(args):
 
     ## Length 5; github_data_path
     ## Length 1143;  data_path
-    full_dataset = MobiousDataset(
+    full_dataset = Rti_Eyes_Dataset(
         data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
 
@@ -279,7 +278,14 @@ def main(args):
     current_time_stamp= datetime.now().strftime("%d-%b-%Y_%H-%M-%S")
     PATH = FULL_MODEL_PATH+"/"+ current_time_stamp + "_" + device_name
 
-    model = UNet(nch_in=3, nch_out=4)
+    model = UNet(nch_in=3, nch_out=4, nch_ker=64)
+    weighted_files = list(Path(FULL_PRETRAINED_MODEL_PATH).rglob("*.pth"))
+    if weighted_files:
+        latest_modification = max(weighted_files, key=lambda f: f.stat().st_mtime)
+        print(f"loading: {latest_modification}")
+        model.load_state_dict(torch.load(latest_modification))
+    else:
+        logger.info("cannot find .pth files")
 
     if not evaluation_with_pretrained_model_flag:
 
@@ -288,7 +294,7 @@ def main(args):
 
         # model.summary()
 
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
         loss_fn = nn.CrossEntropyLoss()
         # TODO: check which criterium properties to setup
         # ?loss_fn = nn.CrossEntropyLoss(ignore_index=-1).cuda()
@@ -309,17 +315,37 @@ def main(args):
                                       "precision",
                                       "fbeta",
                                       "miou",
-                                      "dice"
+                                      "dice",
+                                      "hausdorff_distance"
                                       ]
         # Training Metrics
 
         training_loss_values = []
-        
+        training_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+            "hausdorff_distance": 0.0
+        }
 
         # Validation metrics
 
         validation_loss_values = []
-        
+        validation_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+            "hausdorff_distance": 0.0
+        }
+
         logger.info("Commencing Training and Validation Loop")
         logger.info(f"#########################")
 
@@ -329,26 +355,7 @@ def main(args):
             total_num_training_samples, total_num_validation_samples= 0, 0
             # num_batches = 0
             # performance_epoch = {key: 0.0 for key in performance.keys()}
-            training_performance = {
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "recall": 0.0,
-            "precision": 0.0,
-            "fbeta": 0.0,
-            "miou": 0.0,
-            "dice": 0.0,
-        }
-            
-            validation_performance = {
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "recall": 0.0,
-            "precision": 0.0,
-            "fbeta": 0.0,
-            "miou": 0.0,
-            "dice": 0.0,
-        }
-            
+
             # Training
             logger.info(f"Training Section")
             for j, data in enumerate(train_loader, 1):
@@ -368,7 +375,7 @@ def main(args):
             # Validation
             logger.info("Validation Section")
             with torch.set_grad_enabled(False):
-                     for j, data in enumerate(validation_loader, 10):
+                     for j, data in enumerate(validation_loader, 1):
                         current_validation_loss, num_samples_processed = validation_loop(model=model,
                                         current_idx=j,
                                         current_data=data,
@@ -411,9 +418,17 @@ def main(args):
             # if not os.path.exists(PATH):
             #     os.makedirs(PATH, exist_ok=True)
 
-            model_name = PATH+"/weights_" + current_time_stamp + ".pth"
-            torch.save(model.state_dict(), model_name)
-            logger.info(f"Saved PyTorch Model State to {model_name}")
+            #model_name = PATH+"/weights_" + current_time_stamp + ".pth"
+            #torch.save(model.state_dict(), model_name)
+            #logger.info(f"Saved PyTorch Model State to {model_name}")
+
+
+            #rti_eyes_weights_path = os.path.join(Path.home(), "Scratch/scratch/ccaekqu/datasets/ready/ready/federated/rti_eyes_weights.pth")
+            rti_eyes_weights_path = os.path.join(Path.home(), "downloads/ready/datasets/ready/federated/rti_eyes_weights.pth")
+            os.makedirs(os.path.dirname(rti_eyes_weights_path), exist_ok=True)
+            torch.save(model.state_dict(), rti_eyes_weights_path)
+            logger.info(f"Saved mobious model weights to {rti_eyes_weights_path}")
+
 
             performance_file_prefix_to_performance_dict = {
                 "/training_performance_" : training_performance,
@@ -483,17 +498,9 @@ def main(args):
     logger.info(f"Completed!")
 
 if __name__ == "__main__":
-    """
-    Script to train the Mobious model using the READY API.
-
-    Usage:
-        python src/ready/apis/train_mobious.py -df <debug_flag>
-
-    Arguments:
-        -c, --config_file: Config filename with path.
-    Example:
-        python src/ready/apis/train_mobious.py -c src/ready/configs/mobious_config.yaml
-    """
+    #torch.set_num_threads(1)    
+    #torch.set_num_interop_threads(1)
+    #torch.backends.mkldnn.enabled = False  
     parser = ArgumentParser(description="READY demo application.")
     parser.add_argument("-c", "--config_file", help="Config filename with path", type=str)
 

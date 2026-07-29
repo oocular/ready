@@ -81,7 +81,7 @@ def test_mobious_dataset_labels():
     """
     print("mobious")
     # set_data_directory("datasets/mobious/MOBIOUS") #TODO test main data
-    set_data_directory(data_path="data/mobious/sample-frames/test640x400")
+    set_data_directory(data_path="data/mobious/sample-frames/test640x400_5samples")
 
     #TODO: TEST each of the following images
     # imagename="1_1i_Ll_1"

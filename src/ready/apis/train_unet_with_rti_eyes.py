@@ -14,7 +14,7 @@ from torch import nn
 from torch import optim as optim
 
 from ready.models.unet import UNet
-from ready.utils.datasets import MobiousDataset
+from ready.utils.datasets import Rti_Eyes_Dataset
 from ready.utils.metrics import evaluate
 from ready.utils.utils import (HOME_PATH, create_data_loaders, evaluate_model,
                                loss_values_file_writer,
@@ -230,22 +230,22 @@ def main(args):
     #TODO calculate the mean and std of the dataset and use them to normalize the images.
     # https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
     transforms_img = transforms.Compose([
-                                            #transforms.ToImage(),
-                                            transforms.Resize((640,400)),
-                                            #transforms.RandomHorizontalFlip(p=0.5),
-                                            #transforms.RandomVerticalFlip(p=0.5),
-                                            #transforms.RandomRotation(45),
-                                            #transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
-                                            #transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
-                                            #transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.GaussianBlur(kernel_size=(5, 13), sigma=(1, 50)),
+                                            transforms.Normalize(mean=[0.285, 0.456, 0.406], std=[0.529, 0.524, 0.525]),
+                                            transforms.ElasticTransform(alpha=100.0, sigma=5.0),
+                                            transforms.Resize((128, 128))
                                             ])
 
     transforms_rotations = transforms.Compose([
-                                            #transforms.ToImage(),
-                                            transforms.Resize((640,400)),
-                                            #transforms.RandomHorizontalFlip(p=0.5),
-                                            #transforms.RandomVerticalFlip(p=0.5),
-                                            #transforms.RandomRotation(45),
+                                            transforms.ToImage(),
+                                            transforms.RandomHorizontalFlip(p=0.5),
+                                            transforms.RandomVerticalFlip(p=0.5),
+                                            transforms.RandomRotation(45),
+                                            transforms.Resize((128, 128))
                                             ])
 
     transform_map = {
@@ -259,7 +259,7 @@ def main(args):
 
     ## Length 5; github_data_path
     ## Length 1143;  data_path
-    full_dataset = MobiousDataset(
+    full_dataset = Rti_Eyes_Dataset(
         data_path, transform=transform_arg ,target_transform=target_transform_arg
         )
 
@@ -309,17 +309,37 @@ def main(args):
                                       "precision",
                                       "fbeta",
                                       "miou",
-                                      "dice"
+                                      "dice",
+                                      "hausdorff_distance"
                                       ]
         # Training Metrics
 
         training_loss_values = []
-        
+        training_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+            "hausdorff_distance": 0.0
+        }
 
         # Validation metrics
 
         validation_loss_values = []
-        
+        validation_performance = {
+            "accuracy": 0.0,
+            "f1": 0.0,
+            "recall": 0.0,
+            "precision": 0.0,
+            "fbeta": 0.0,
+            "miou": 0.0,
+            "dice": 0.0,
+            "hausdorff_distance": 0.0
+        }
+
         logger.info("Commencing Training and Validation Loop")
         logger.info(f"#########################")
 
@@ -329,26 +349,7 @@ def main(args):
             total_num_training_samples, total_num_validation_samples= 0, 0
             # num_batches = 0
             # performance_epoch = {key: 0.0 for key in performance.keys()}
-            training_performance = {
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "recall": 0.0,
-            "precision": 0.0,
-            "fbeta": 0.0,
-            "miou": 0.0,
-            "dice": 0.0,
-        }
-            
-            validation_performance = {
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "recall": 0.0,
-            "precision": 0.0,
-            "fbeta": 0.0,
-            "miou": 0.0,
-            "dice": 0.0,
-        }
-            
+
             # Training
             logger.info(f"Training Section")
             for j, data in enumerate(train_loader, 1):
@@ -368,7 +369,7 @@ def main(args):
             # Validation
             logger.info("Validation Section")
             with torch.set_grad_enabled(False):
-                     for j, data in enumerate(validation_loader, 10):
+                     for j, data in enumerate(validation_loader, 1):
                         current_validation_loss, num_samples_processed = validation_loop(model=model,
                                         current_idx=j,
                                         current_data=data,
