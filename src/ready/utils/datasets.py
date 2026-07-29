@@ -25,13 +25,8 @@ class EyeDataset(Dataset):
         self.f_dir = f_dir
 
         self.img_path = list(os.listdir(os.path.join(self.f_dir, "images")))
-<<<<<<< HEAD
         #self.labels_path = [i.replace(".png", ".npy") for i in self.img_path]
         self.labels_path =  self.img_path
-=======
-        self.labels_path = [i.replace(".jpg", ".png") for i in self.img_path]
-        #self.labels_path = self.img_path  
->>>>>>> origin/mohamed
 
     def __len__(self):
         return len(self.img_path)
@@ -39,15 +34,6 @@ class EyeDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.f_dir, "images", self.img_path[idx])
         image = read_image(img_path).type(torch.float) / 255
-<<<<<<< HEAD
-            
-        image = torch.stack([image, image, image], 1)
-        image = torch.squeeze(image)
-
-        label_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
-        label = Image.open(label_path).convert("P")
-        label = torch.tensor(np.array(label), dtype=torch.long)  # .unsqueeze(0)
-=======
         if image.shape[0] == 1: # grayscale -> RGB
             image = image.repeat(3, 1, 1)
 
@@ -59,7 +45,7 @@ class EyeDataset(Dataset):
         # type(image) = <class 'torch.Tensor'>, image.dtype = torch.float32,
         # image.shape = torch.Size([3, 400, 640])
 
-        label_path = os.path.join(self.f_dir, "masks", self.labels_path[idx])
+        label_path = os.path.join(self.f_dir, "labels", self.labels_path[idx])
         label=Image.open(label_path).convert("P")
         # print(f"{type(label) = }, {label.dtype = }, {label.shape = }")
         label = torch.tensor(np.array(label), dtype=torch.long)  # .unsqueeze(0)
@@ -70,7 +56,6 @@ class EyeDataset(Dataset):
         # tensor(1) iris  plt.imshow(label>1)
         # tensor(2) pupil plt.imshow(label>2)
         # tensor(3) background plt.imshow(label>3)
->>>>>>> origin/mohamed
 
         #label = np.load(os.path.join(self.f_dir, "labels", self.labels_path[idx]))
         #label = torch.tensor(label, dtype=torch.long) 
