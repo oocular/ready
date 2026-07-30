@@ -89,7 +89,7 @@ def main(args):
     #
     #
     # 10epochs:
-    # Eliapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
+    # Elapsed time for the training loop: 4.8 (mins) #for mobious (1143length trainset)
     # Average loss @ epoch: 12.10 in cricket
     #
     # run_epoch = 100  # noweights
