@@ -79,8 +79,8 @@ To exit dev container image, just type exit in the launched container.
 ```
 docker images
 docker ps
-docker attach <ID>
-docker stop <ID>
+docker attach <ID> e.g. `docker attach $(docker ps -aq)`
+docker stop <ID> e.g. `docker stop $(docker ps -aq)`
 docker rename keen_einstein mycontainer
 docker rmi --force <ID>
 
