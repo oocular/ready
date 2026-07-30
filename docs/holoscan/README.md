@@ -1,4 +1,4 @@
-# [NVIDIA Holoscan SDK](https://developer.nvidia.com/holoscan-sdk)
+# NVIDIA Holoscan SDK [:link:](https://developer.nvidia.com/holoscan-sdk)
 
 ## Requirements
 ```bash
