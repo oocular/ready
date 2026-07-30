@@ -19,7 +19,7 @@ sudo systemctl restart dock
 #REBOOT MACHINE!
 ```
 
-## Build and update to latest version
+## Build image with specific version
 ```bash
 ## [First time] Clone repo
 cd $HOME/repositories
@@ -48,9 +48,31 @@ git checkout holoscan-sdk-3.2.0
 #./dev_container vscode --docker_file $PATH/Dockerfile
 ```
 
+## Docker image version and size
+```bash
+$ docker images
+REPOSITORY   TAG               IMAGE ID       CREATED        SIZE
+holohub      ngc-v3.2.0-dgpu   1dccea45da8d   14 hours ago   17.6GB
+```
+
 ## Run and debug
 
-See [apis](apis.md)
+See [apis](apis.md) for further details but a quick test are as follows:
+
+* Launch dev container
+```bash
+cd $HOME/repositories/oocular/ready/docs/holoscan
+bash launch_dev_container.bash
+```
+
+* Run v4l2_camera
+```bash
+cd /workspace/volumes/ready/scripts/apis #cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
+bash v4l2_cam.bash
+```
+
+* Exit
+To exit dev container image, just type exit in the launched container.
 
 
 ## Docker commands
@@ -67,8 +89,7 @@ docker system prune -f --volumes #clean unused systems
 ```
 
 
-## v4l2
-
+## Debugging features of `v4l2` device
 
 * /dev/video0
 ```
