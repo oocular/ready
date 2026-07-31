@@ -8,6 +8,13 @@ mkdir -p webrtc && cd webrtc
 openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key #JUST PRESS ENTER TO USE DEFAULT VALUES
 ```
 
+## Edit configuration file to setup model and recorderd path and filenames
+```bash
+cd $HOME/repositories/oocular/ready/
+vim configs/apis/config_webrtc_ready.yaml
+#TODO include logger_webrtc_ready_tag.log in config_webrtc_ready.yaml and remove it from webrtc_ready.bash
+```
+
 ## Launch dev container
 ```
 cd $HOME/repositories/oocular/ready/docs/holoscan
@@ -99,7 +106,6 @@ kill $(ps aux | grep "python webrtc_client.py" | awk '{print $2}')
 
 #EDIT SCRIPTS LOCALLY
 cd $HOME/repositories/oocular/ready/
-vim configs/apis/config_webrtc_ready.yaml
 vim scripts/apis/webrtc_ready.bash
 vim src/ready/apis/holoscan/webrtc_ready/webrtc_client.py
 
