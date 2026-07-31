@@ -55,9 +55,7 @@ REPOSITORY   TAG               IMAGE ID       CREATED        SIZE
 holohub      ngc-v3.2.0-dgpu   1dccea45da8d   14 hours ago   17.6GB
 ```
 
-## Run and debug
-
-See [apis](apis.md) for further details but a quick test are as follows:
+## Quick test
 
 * Launch dev container
 ```bash
@@ -74,6 +72,13 @@ bash v4l2_cam.bash
 * Exit
 To exit dev container image, just type exit in the launched container.
 
+
+## Run APIS
+
+* [apis](apis.md): v4l2_camera, Bring Your Own Model
+* [apis_ready](apis_ready.md): READY 
+* [apis_webrtc](apis_webrtc.md)
+* [apis_webrtc_ready](apis_webrtc_ready.md)
 
 ## Docker commands
 ```
