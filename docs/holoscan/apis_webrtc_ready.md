@@ -26,10 +26,12 @@ bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG webrtc True
 ```
 
 * Check your host IP
+
+Using `ifconfig` command in your terminal you can see a log like the following where the `000.000.0.000` is your YOU_HOST_IP.
 ```bash
 $ifconfig
 wlp0s20f3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet {YOU_HOST_IP: 000.000.0.000}  netmask 255.255.255.0  broadcast 000.00.0.000
+        inet 000.000.0.000 netmask 255.255.255.0  broadcast 000.00.0.000
 ```
 
 * Open browser in your mobile phone or any device connect to the network
@@ -102,7 +104,7 @@ vim scripts/apis/webrtc_ready.bash
 vim src/ready/apis/holoscan/webrtc_ready/webrtc_client.py
 
 ## STOP dev container
-docker stop $(docker ps -aq)
+docker stop $(docker ps -q | head -n 1) # choose the dev container ID from `docker ps` or get ids by using `$(docker ps -aq)`
 ```
 
 
