@@ -27,6 +27,7 @@ def build(session: nox.Session) -> None:
     """Build an SDist and wheel."""
     session.run("python", "-m", "build")
 
+
 @nox_uv.session(uv_groups=["docs"])
 def docs(session: nox.Session) -> None:
     """Build the docs. Pass "serve" to serve."""
