@@ -12,7 +12,6 @@ openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertific
 ```bash
 cd $HOME/repositories/oocular/ready/
 vim configs/apis/config_webrtc_ready.yaml
-#TODO include logger_webrtc_ready_tag.log in config_webrtc_ready.yaml and remove it from webrtc_ready.bash
 ```
 
 ## Launch dev container
