@@ -17,6 +17,9 @@ docs = [
     "mkdocstrings-python",
     "zensical",
 ]
+lint = [
+    "prek",
+]
 
 [project]
 name = "ready"
