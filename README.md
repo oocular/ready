@@ -53,3 +53,10 @@ See [apis](docs/holoscan/apis.md) for detailed instructions on running applicati
 mkdir $HOME/repositories/oocular && cd $HOME/repositories/oocular
 git clone git@github.com:oocular/ready.git
 ```
+
+## Building docs locally
+
+```sh
+uv sync --only-group docs
+uv run zensical build --strict
+```
