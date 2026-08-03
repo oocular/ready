@@ -1,4 +1,4 @@
-# [NVIDIA Holoscan SDK](https://developer.nvidia.com/holoscan-sdk)
+# NVIDIA Holoscan SDK [:link:](https://developer.nvidia.com/holoscan-sdk)
 
 ## Requirements
 ```bash
@@ -19,7 +19,7 @@ sudo systemctl restart dock
 #REBOOT MACHINE!
 ```
 
-## Build and update to latest version
+## Build image with specific version
 ```bash
 ## [First time] Clone repo
 cd $HOME/repositories
@@ -48,17 +48,44 @@ git checkout holoscan-sdk-3.2.0
 #./dev_container vscode --docker_file $PATH/Dockerfile
 ```
 
-## Run and debug
+## Docker image version and size
+```bash
+$ docker images
+REPOSITORY   TAG               IMAGE ID       CREATED        SIZE
+holohub      ngc-v3.2.0-dgpu   1dccea45da8d   14 hours ago   17.6GB
+```
 
-See [apis](apis.md)
+## Quick test
 
+* Launch dev container
+```bash
+cd $HOME/repositories/oocular/ready/docs/holoscan
+bash launch_dev_container.bash
+```
+
+* Run v4l2_camera
+```bash
+cd /workspace/volumes/ready/scripts/apis #cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
+bash v4l2_cam.bash
+```
+
+* Exit
+To exit dev container image, just type exit in the launched container.
+
+
+## Run APIS
+
+* [apis](apis.md): v4l2_camera, Bring Your Own Model
+* [apis_ready](apis_ready.md): READY 
+* [apis_webrtc](apis_webrtc.md)
+* [apis_webrtc_ready](apis_webrtc_ready.md)
 
 ## Docker commands
 ```
 docker images
 docker ps
-docker attach <ID>
-docker stop <ID>
+docker attach <ID> e.g. `docker attach $(docker ps -aq)`
+docker stop <ID> e.g. `docker stop $(docker ps -aq)`
 docker rename keen_einstein mycontainer
 docker rmi --force <ID>
 
@@ -67,8 +94,7 @@ docker system prune -f --volumes #clean unused systems
 ```
 
 
-## v4l2
-
+## Debugging features of `v4l2` device
 
 * /dev/video0
 ```
