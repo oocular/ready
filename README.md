@@ -56,7 +56,10 @@ git clone git@github.com:oocular/ready.git
 
 ## Building docs locally
 
+If you build the docs locally you can review what the site
+looks like on localhost:8000 with the following code:
+
 ```sh
 uv sync --only-group docs
-uv run zensical build --strict
+uv run nox -s docs -- serve
 ```
