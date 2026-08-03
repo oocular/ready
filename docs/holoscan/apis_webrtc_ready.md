@@ -15,7 +15,7 @@ vim configs/apis/config_webrtc_ready.yaml
 ```
 
 ## Launch dev container
-```
+```bash
 cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
 ```
@@ -26,9 +26,9 @@ bash launch_dev_container.bash
 ```bash
 cd /workspace/volumes/ready/scripts/apis
 #RECORDER FALSE
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG webrtc False
+bash webrtc_ready.bash PUBLIC DEGUG webrtc False
 #RECORDER TRUE
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG webrtc True
+bash webrtc_ready.bash PUBLIC DEGUG webrtc True
 ```
 
 * Check your host IP
@@ -51,9 +51,9 @@ Go to `chrome://flags`, search for the flag `unsafely-treat-insecure-origin-as-s
 * Replay recordings
 ```bash
 #REPLAYER replayer_raw
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG replayer_raw False
+bash webrtc_ready.bash PUBLIC DEGUG replayer_raw False
 #REPLAYER replayer_inference
-bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG replayer_inference False
+bash webrtc_ready.bash PUBLIC DEGUG replayer_inference False
 ```
 
 
@@ -63,9 +63,9 @@ bash webrtc_ready.bash logger_webrtc_ready_tag.log PUBLIC DEGUG replayer_inferen
 ```bash
 cd /workspace/volumes/ready/scripts/apis
 #RECORDER FALSE
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL DEGUG webrtc False
+bash webrtc_ready.bash LOCAL DEGUG webrtc False
 #RECORDER TRUE
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL DEGUG webrtc True
+bash webrtc_ready.bash LOCAL DEGUG webrtc True
 ```
 
 * Open browser on local network
@@ -86,16 +86,16 @@ firefox http://127.0.0.1:8080/
 * Replay recordings
 ```bash
 #REPLAYER replayer_raw
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL DEGUG replayer_raw False
+bash webrtc_ready.bash LOCAL DEGUG replayer_raw False
 #REPLAYER replayer_inference
-bash webrtc_ready.bash logger_webrtc_ready_tag.log LOCAL DEGUG replayer_inference False
+bash webrtc_ready.bash LOCAL DEGUG replayer_inference False
 ```
 
 ## Useful commands
 
 * USAGE of webrtc_ready.bash
 ```bash
-bash webrtc_ready.bash <$1:LOGGER_NAME.log> <$2:NET: LOCAL/PUBLIC> <$3:HOLOSCAN_LOG_LEVEL: OFF/DEBUG/TRACE/INFO/ERROR> <$4:SOURCE: webrtc/replayer> <$5:ENABLE_RECORDING: True/False>
+bash webrtc_ready.bash <$1:NET: LOCAL/PUBLIC> <$2:HOLOSCAN_LOG_LEVEL: OFF/DEBUG/TRACE/INFO/ERROR> <$3:SOURCE: webrtc/replayer> <$4:ENABLE_RECORDING: True/False>
 ```
 
 * Various commands
