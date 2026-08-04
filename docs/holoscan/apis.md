@@ -8,16 +8,19 @@ bash launch_dev_container.bash
 ## v4l2_camera
 
 * On dev container
-```
+```bash
 cd /workspace/volumes/ready/scripts/apis #cd /workspace/volumes/ready/src/ready/apis/holoscan/v4l2_camera/python
 bash v4l2_cam.bash
 ```
 
 * On local device host
-```
+```bash
 cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/v4l2_camera/python/
 vim -O v4l2_camera.py v4l2_camera.yaml
 ```
+
+* On the GitHub repository [/src/ready/apis/holoscan/v4l2_camera/python](https://github.com/oocular/ready/tree/main/src/ready/apis/holoscan/v4l2_camera/python)
+
 
 ## Bring Your Own Model
 This example shows how to run inference with Holoscan and provides a mechanism, to replace the existing identity model with another model.
