@@ -54,7 +54,21 @@ mkdir $HOME/repositories/oocular && cd $HOME/repositories/oocular
 git clone git@github.com:oocular/ready.git
 ```
 
-## Building docs locally
+## Building docs locally and adding new sub pages
+
+To add new pages to the docs, you can modify the `nav` section
+of [mkdocs.yml](/mkdocs.yml) to refer to new subpages added under
+a new folder within `docs/` e.g. `docs/new-sub-page` where
+you can add `.md` files:
+
+```yaml
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+  - New sub page:
+    - Instructions: new-sub-page/README.md
+```
 
 If you build the docs locally you can review what the site
 looks like on localhost:8000 with the following code:
