@@ -35,9 +35,26 @@ theme:
     repo: fontawesome/brands/github
 
 nav:
-  - Overview: index.md
-  - API reference: api.md
-  - License: LICENSE.md
+  - Home: getting-started/README.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+  - Cricket:
+    - Instructions: cricket/README.md
+  - Demos:
+    - Demos: demos/README.md
+  - Hackathons:
+    - Overview: hackathons/README.md
+    - Hawkes2024: hackathons/hawkes2024/README.md
+  - Holoscan:
+    - Overview: holoscan/README.md
+    - APIs ready: holoscan/apis_ready.md
+    - APIs webrtc_ready: holoscan/apis_webrtc_ready.md
+    - APIs webrtc: holoscan/apis_webrtc.md
+    - APIs: holoscan/apis.md
+  - Models:
+    - Models: models/README.md
+  - Pose Mobile Human:
+    - Pose Mobile Human: pose-mobile-human/README.md
 
 markdown_extensions:
   - pymdownx.tasklist
