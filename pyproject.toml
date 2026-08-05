@@ -2,6 +2,25 @@
 requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+build = [
+    "build",
+]
+dev = [
+    "nox",
+    "nox-uv",
+    {include-group = "build"},
+    {include-group = "lint"},
+]
+docs = [
+    "mkdocstrings",
+    "mkdocstrings-python",
+    "zensical",
+]
+lint = [
+    "prek",
+]
+
 [project]
 name = "ready"
 dynamic = ["version", "readme"]

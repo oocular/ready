@@ -1,0 +1,41 @@
+---
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@6ee6290f1cbc4156c0bdd66691b2c144ef8df19a # v7
+        with:
+          python-version: 3.14
+
+      - name: Cache nox
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        with:
+          key:
+            docs-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('noxfile.py')
+            }}
+          path: .nox
+
+      - name: Install only dev dependencies
+        run: uv sync --only-dev
+
+      - name: Build HTML documentation with nox
+        run: uv run nox -s docs
+
+      - name: Upload built docs as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: site

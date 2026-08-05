@@ -48,3 +48,6 @@ data/mobious/models/loss_values_**
 **avg_values**.png
 **avg_plot_**.png
 **live_app_graph**.dot
+
+## docs
+site/

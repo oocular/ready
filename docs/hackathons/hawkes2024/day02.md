@@ -1,7 +1,7 @@
 # Friday 8th Nov 2024
 
 ## Hacking: Deploying models to nvidia-clara-agx
-* Building [holoscan](https://github.com/UCL/ready/tree/main/docs/holoscan)
+* Building [holoscan](https://github.com/oocular/ready/tree/main/docs/holoscan)
 * Tesing v4l2-ctl -d /dev/video0 
 
 ## Application design, testing, and evaluation
