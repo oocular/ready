@@ -24,11 +24,10 @@ bash launch_dev_container.bash
 
 * Launching `webrtc_client`
 ```bash
-cd /workspace/volumes/ready/scripts/apis
 #RECORDER FALSE
-bash webrtc_ready.bash PUBLIC DEGUG webrtc False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEGUG webrtc False
 #RECORDER TRUE
-bash webrtc_ready.bash PUBLIC DEGUG webrtc True
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEGUG webrtc True
 ```
 
 * Check your host IP
@@ -51,9 +50,9 @@ Go to `chrome://flags`, search for the flag `unsafely-treat-insecure-origin-as-s
 * Replay recordings
 ```bash
 #REPLAYER replayer_raw
-bash webrtc_ready.bash PUBLIC DEGUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEGUG replayer_raw False
 #REPLAYER replayer_inference
-bash webrtc_ready.bash PUBLIC DEGUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEGUG replayer_inference False
 ```
 
 
@@ -61,11 +60,10 @@ bash webrtc_ready.bash PUBLIC DEGUG replayer_inference False
 
 * Launching `webrtc_client`
 ```bash
-cd /workspace/volumes/ready/scripts/apis
 #RECORDER FALSE
-bash webrtc_ready.bash LOCAL DEGUG webrtc False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEGUG webrtc False
 #RECORDER TRUE
-bash webrtc_ready.bash LOCAL DEGUG webrtc True
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEGUG webrtc True
 ```
 
 * Open browser on local network
@@ -86,9 +84,9 @@ firefox http://127.0.0.1:8080/
 * Replay recordings
 ```bash
 #REPLAYER replayer_raw
-bash webrtc_ready.bash LOCAL DEGUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEGUG replayer_raw False
 #REPLAYER replayer_inference
-bash webrtc_ready.bash LOCAL DEGUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEGUG replayer_inference False
 ```
 
 ## Useful commands
