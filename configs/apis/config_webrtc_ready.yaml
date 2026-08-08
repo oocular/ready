@@ -25,8 +25,10 @@ model:
 
 recorder:
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
+  loggername: "logger"
+  loggerextension: ".log"
   ##MOBILE_MODEL
-  basename: "mobile_date_time"
+  basename: "mobileMODEL_date_time"
   ##PIXEL8
   #basename: "pixel8_date_time"
   ##PIXEL9
