@@ -91,12 +91,21 @@ wlp0s20f3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 000.000.0.000  netmask 255.255.255.0  broadcast 0.0.0.0
 ```
 
-### 4.3 Connect from a browser
+### 4.3 Connect a browser to stream video from the mobile phone to the Holoscan server (device with GPU).
 
 On your mobile phone (or any other device on the same network):
 
-1. If using Chrome, go to `chrome://flags`, search for **`unsafely-treat-insecure-origin-as-secure`**, enter the origin you want to treat as secure — e.g. `http://{YOUR_HOST_IP}:8080` — enable the flag, and relaunch the browser. See the [upstream README](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client) for details.
-2. Navigate to `http://{YOUR_HOST_IP}:8080/`.
+1. If using Chrome, go to `chrome://flags`, search for **`unsafely-treat-insecure-origin-as-secure`**, enter the origin you want to treat as secure — e.g. `https://{YOUR_HOST_IP}:8080` — enable the flag, and relaunch the browser. See the [upstream README](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client) for details.
+2. Navigate to `https://{YOUR_HOST_IP}:8080/`.
+
+The following figure shows screenshots of the Brave browser connected to the client at `https://{YOUR_HOST_IP}:8080/`. You will need to click through the browser's "not private" warning, since the certificate is self-signed, the browser cannot verify it against a trusted authority and flags the connection as unsafe. You will also need to grant the site camera permission, since the browser uses it to capture and stream video.
+
+![fig](../../docs/figs/webrtc_ready/webrtc_ready_in_brave_mobile_browser.svg)
+
+
+The figure below shows the terminal output with debug logs from `webrtc_client.py`, alongside the viewer window displaying the streamed video with segmentation overlay.
+![fig](../../docs/figs/webrtc_ready/screenshot-running_webrtc_client.png)
+
 
 ### 4.4 Stop the pipeline
 
@@ -153,7 +162,7 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG replaye
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG replayer_inference False
 ```
 
-## Script usage reference
+## `webrtc_ready.bash` script usage reference
 
 ```bash
 bash webrtc_ready.bash <$1:NET> <$2:HOLOSCAN_LOG_LEVEL> <$3:SOURCE> <$4:ENABLE_RECORDING>
