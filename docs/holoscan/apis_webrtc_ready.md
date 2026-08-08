@@ -10,7 +10,7 @@ Streams video from a browser (webcam) to a Holoscan pipeline over WebRTC, with o
 - [3. Launch the dev container](#3-launch-the-dev-container)
 - [4. Run on a `PUBLIC` network](#4-run-on-a-public-network)
 - [5. Run on a `LOCAL` network](#5-run-on-a-local-network)
-- [Script usage reference](#script-usage-reference)
+- [`webrtc_ready` script usage reference](#webrtc_readybash-script-usage-reference)
 - [Graph structure](#graph-structure-for-webrtc_clientpy)
 - [Troubleshooting](#troubleshooting)
 
