@@ -5,7 +5,24 @@
 ```bash
 cd $HOME/datasets/ready
 mkdir -p webrtc && cd webrtc
-openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key #JUST PRESS ENTER TO USE DEFAULT VALUES
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out MyCertificate.crt -keyout MyKey.key 
+#JUST PRESS ENTER TO USE DEFAULT VALUES, e.g.
+# .....+...++++++
+# -----
+# You are about to be asked to enter information that will be incorporated
+# into your certificate request.
+# What you are about to enter is what is called a Distinguished Name or a DN.
+# There are quite a few fields but you can leave some blank
+# For some fields there will be a default value,
+# If you enter '.', the field will be left blank.
+# -----
+# Country Name (2 letter code) [AU]:
+# State or Province Name (full name) [Some-State]:
+# Locality Name (eg, city) []:
+# Organization Name (eg, company) [Internet Widgits Pty Ltd]:
+# Organizational Unit Name (eg, section) []:
+# Common Name (e.g. server FQDN or YOUR name) []:
+# Email Address []:
 ```
 
 ## Edit configuration file to setup model and recorderd path and filenames
@@ -32,20 +49,20 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEGUG webrtc
 
 * Check your host IP
 
-Using `ifconfig` command in your terminal you can see a log like the following where the `000.000.0.000` is your YOU_HOST_IP.
+Using `ifconfig` command in your terminal you can see a log like the following where the `000.000.0.000` is your `{YOUR_HOST_IP}`.
 ```bash
 $ifconfig
 wlp0s20f3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 000.000.0.000 netmask 255.255.255.0  broadcast 000.00.0.000
+        inet 000.000.0.000 netmask 255.255.255.0  broadcast 0.0.0.0
 ```
 
-* Open browser in your mobile phone or any device connect to the network
-Go to `chrome://flags`, search for the flag `unsafely-treat-insecure-origin-as-secure`, enter the origin you want to treat as secure such as `http://{YOUR HOST IP}:8080`, enable the feature and relaunch the browser. See further details [here](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client).
+* Open a browser in your mobile phone or any device connect to the network
+If using `chrome`, go to `chrome://flags`, search for the flag `unsafely-treat-insecure-origin-as-secure`, enter the origin you want to treat as secure such as `http://${YOUR_HOST_IP}:8080`, enable the feature and relaunch the browser. 
+See further details [here](https://github.com/nvidia-holoscan/holohub/tree/main/applications/webrtc_video_client).
 
 
-* Stop and exit api
-    * Stop streaming
-    * Close api
+* Stop pipeline
+    * CTRL-D in the bash and then Stop and exit api
 
 * Replay recordings
 ```bash
@@ -96,20 +113,6 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEGUG replaye
 bash webrtc_ready.bash <$1:NET: LOCAL/PUBLIC> <$2:HOLOSCAN_LOG_LEVEL: OFF/DEBUG/TRACE/INFO/ERROR> <$3:SOURCE: webrtc/replayer> <$4:ENABLE_RECORDING: True/False>
 ```
 
-* Various commands
-```bash
-#KILL script
-kill $(ps aux | grep "python webrtc_client.py" | awk '{print $2}')
-
-#EDIT SCRIPTS LOCALLY
-cd $HOME/repositories/oocular/ready/
-vim scripts/apis/webrtc_ready.bash
-vim src/ready/apis/holoscan/webrtc_ready/webrtc_client.py
-
-## STOP dev container
-docker stop $(docker ps -q | head -n 1) # choose the dev container ID from `docker ps` or get ids by using `$(docker ps -aq)`
-```
-
 
 ## Graph structure for [webrtc_client.py](../../src/ready/apis/holoscan/webrtc/webrtc_client.py)
 ```mermaid
@@ -136,3 +139,16 @@ flowchart LR
 
 See more [flow_benchmarking]( ../../data/webrtc/flow_benchmarking/)
 
+## Troubleshouting
+```bash
+#KILL script
+kill $(ps aux | grep "python webrtc_client.py" | awk '{print $2}')
+
+#EDIT SCRIPTS LOCALLY
+cd $HOME/repositories/oocular/ready/
+vim scripts/apis/webrtc_ready.bash
+vim src/ready/apis/holoscan/webrtc_ready/webrtc_client.py
+
+## STOP dev container
+docker stop $(docker ps -q | head -n 1) # choose the dev container ID from `docker ps` or get ids by using `$(docker ps -aq)`
+```
