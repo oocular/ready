@@ -9,7 +9,8 @@ Please note we have a [code of conduct](CODE_OF_CONDUCT.md), please follow it in
 1. Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 2 Setup you commit signature verification as shown [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification)
 3. Clone the repository by typing (or copying) the following lines in a terminal
-```
+```bash
+mkdir -p ~/repositories/oocular && cd ~/repositories/oocular
 git clone git@github.com:oocular/ready.git
 ```
 
@@ -33,15 +34,16 @@ The following commands are typed or copied via command line.
 Alternatively, you can use the features of your integrated development environment (pycharm, code, vim, etc).
 
 1. Clone this repo 
-```
+```bash
+mkdir -p ~/repositories/oocular && cd ~/repositories/oocular
 git clone git@github.com:oocular/ready.git
 ``` 
 2. Create new branch `{FEATURE_BRANCH_NAME}` using issue number `{ISSUE_NUMBER}`
-```
+```bash
 git checkout -b ISSUE_NUMBER-FEATURE_BRANCH_NAME #(e.g. `git checkout -b 422-my-feature-branch`)
 ```
 3. Commit changes and push to your branch
-```
+```bash
 git add .
 git commit -m 'short message #ISSUE_NUMBER' #(e.g. git commit -m 'adding a message to my feature branch #422' 
 git push origin ISSUENUMBER-branch-name
@@ -55,7 +57,7 @@ git push origin ISSUENUMBER-branch-name
 4. Please keep your PR in sync with the base branch.
 It is recommended that you use [Squashing and merging a long-running branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squashing-and-merging-a-long-running-branch).
 Otherwise, you have the option to rebase your `{ISSUE_NUMBER-FEATURE_BRANCH_NAME}` branch with the base branch (e.g. `main`).
-```
+```bash
 ## MERGING using merge main
 git fetch
 git merge main
@@ -84,7 +86,7 @@ See [collaborating-with-pull-requests](https://docs.github.com/en/pull-requests/
 9. Delete and remove your merged branch   
 9.1 You can navigate branches in https://github.com/oocular/ready/branches and removed merged branches by clickling :wastebasket: icon.    
 9.2 Alternatively, you can delete your local and merged branches using the following commands:     
-```
+```bash
 #Local git clear
 git branch --merged | grep -v '\*\|master\|main\|develop' | xargs -n 1 git branch -d
 #Remote git clear
