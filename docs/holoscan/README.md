@@ -1,8 +1,9 @@
 # NVIDIA Holoscan SDK [:link:](https://developer.nvidia.com/holoscan-sdk)
 
 ## Requirements
+
+* install CUDA drivers 
 ```bash
-#install CUDA drivers 
 cd ~/Downloads/
 wget https://raw.githubusercontent.com/mxochicale/code/refs/heads/main/gpu/installation/installing_cuda.bash
 bash installing_cuda.bash
@@ -19,6 +20,11 @@ sudo systemctl restart dock
 #REBOOT MACHINE!
 ```
 
+* install v4l
+```bash
+sudo apt-get install v4l-utils
+```
+
 ## Build image with specific version
 ```bash
 ## [First time] Clone repo
@@ -33,6 +39,9 @@ git tag #check tags
 git checkout holoscan-sdk-3.2.0
 ./run clear_cache
 ./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 452.4s (8/8) FINISHED
+#
+#
+#
 ##logs
 #git checkout 1a67c53 #holoscan-sdk-2.0.0
 #git checkout 3834a7b #holoscan-sdk-2.5.0 #WORKS! pointing to "holohub:ngc-v2.4.0" > https://github.com/nvidia-holoscan/holohub/blob/3834a7b057501d6dbc564df05692866d2b775324/dev_container#L472
@@ -43,7 +52,8 @@ git checkout holoscan-sdk-3.2.0
 #git checkout holoscan-sdk-3.0.0.7 #Sat  1 Mar 18:34:41 GMT 2025
 #git checkout holoscan-sdk-3.0.0 #Thu 20 Mar 21:57:14 GMT 2025
 #git checkout holoscan-sdk-3.4.0 #Sun 27 Jul 15:09:08 BST 2025 #=> ERROR [3/4] RUN chmod +rwx /usr/bin/python3.10
-#git checkout holoscan-sdk-3.2.0 #2025-07-27 14:46:27
+#
+#
 #TOTEST
 #./dev_container vscode --docker_file $PATH/Dockerfile
 ```
@@ -51,8 +61,14 @@ git checkout holoscan-sdk-3.2.0
 ## Docker image version and size
 ```bash
 $ docker images
-REPOSITORY   TAG               IMAGE ID       CREATED        SIZE
-holohub      ngc-v3.2.0-dgpu   1dccea45da8d   14 hours ago   17.6GB
+IMAGE                                    ID             DISK USAGE   CONTENT SIZE   EXTRA
+holohub:ngc-v3.2.0-dgpu                  3ec1e840fdbe       26.6GB          8.8GB  
+```
+
+## Register the runtime with Docker
+```bash
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker # Restart Docker
 ```
 
 ## Quick test
@@ -69,6 +85,11 @@ cd /workspace/volumes/ready/scripts/apis #cd /workspace/volumes/ready/src/ready/
 bash v4l2_cam.bash
 ```
 
+* Edit v4l device number
+```bash
+vim src/ready/apis/holoscan/v4l2_camera/python/v4l2_camera.yaml
+```
+
 * Exit
 To exit dev container image, just type exit in the launched container.
 
@@ -81,7 +102,7 @@ To exit dev container image, just type exit in the launched container.
 * [apis_webrtc_ready](apis_webrtc_ready.md)
 
 ## Docker commands
-```
+```bash
 docker images
 docker ps
 docker attach <ID> e.g. `docker attach $(docker ps -aq)`
@@ -94,96 +115,3 @@ docker system prune -f --volumes #clean unused systems
 ```
 
 
-## Debugging features of `v4l2` device
-
-* /dev/video0
-```
-
-v4l2-ctl -d /dev/video0 --list-formats-ext
-ioctl: VIDIOC_ENUM_FMT
-	Type: Video Capture
-
-	[0]: 'MJPG' (Motion-JPEG, compressed)
-		Size: Discrete 1280x720
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 640x480
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 640x360
-			Interval: Discrete 0.033s (30.000 fps)
-	[1]: 'YUYV' (YUYV 4:2:2)
-		Size: Discrete 1280x720
-			Interval: Discrete 0.100s (10.000 fps)
-		Size: Discrete 640x480
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 640x360
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 320x240
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 320x180
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 160x120
-			Interval: Discrete 0.033s (30.000 fps)
-```
-
-* /dev/video4
-
-```
- v4l2-ctl -d /dev/video4 --list-formats-ext
-ioctl: VIDIOC_ENUM_FMT
-	Type: Video Capture
-
-	[0]: 'YUYV' (YUYV 4:2:2)
-		Size: Discrete 640x480
-			Interval: Discrete 0.033s (30.000 fps)
-			Interval: Discrete 0.042s (24.000 fps)
-			Interval: Discrete 0.050s (20.000 fps)
-			Interval: Discrete 0.067s (15.000 fps)
-			Interval: Discrete 0.100s (10.000 fps)
-			Interval: Discrete 0.133s (7.500 fps)
-			Interval: Discrete 0.200s (5.000 fps)
-
-...
-
-		Size: Discrete 2304x1536
-			Interval: Discrete 0.500s (2.000 fps)
-	[1]: 'MJPG' (Motion-JPEG, compressed)
-		Size: Discrete 640x480
-			Interval: Discrete 0.033s (30.000 fps)
-			Interval: Discrete 0.042s (24.000 fps)
-			Interval: Discrete 0.050s (20.000 fps)
-			Interval: Discrete 0.067s (15.000 fps)
-			Interval: Discrete 0.100s (10.000 fps)
-			Interval: Discrete 0.133s (7.500 fps)
-			Interval: Discrete 0.200s (5.000 fps)
-
-		Size: Discrete 1920x1080
-			Interval: Discrete 0.033s (30.000 fps)
-			Interval: Discrete 0.042s (24.000 fps)
-			Interval: Discrete 0.050s (20.000 fps)
-			Interval: Discrete 0.067s (15.000 fps)
-			Interval: Discrete 0.100s (10.000 fps)
-			Interval: Discrete 0.133s (7.500 fps)
-			Interval: Discrete 0.200s (5.000 fps)
-
-```
-
-
-* USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
-```
-v4l2-ctl -d /dev/video4 --list-formats-ext
-ioctl: VIDIOC_ENUM_FMT
-	Type: Video Capture
-
-	[0]: 'YUYV' (YUYV 4:2:2)
-		Size: Discrete 640x480
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 352x288
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 320x240
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 176x144
-			Interval: Discrete 0.033s (30.000 fps)
-		Size: Discrete 160x120
-			Interval: Discrete 0.033s (30.000 fps)
-
-```
