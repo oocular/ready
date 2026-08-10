@@ -21,6 +21,9 @@ Streams video from a browser (webcam) to a Holoscan pipeline over WebRTC, with o
     - You need to bind models requirting to installing dependencies and utils
 - Docker installed, with the Holoscan dev container image available
 - `openssl` installed (for certificate generation)
+```bash
+sudo apt-get install net-tools
+```
 
 ## 1. Generate certificates (for connecting from a different machine)
 
