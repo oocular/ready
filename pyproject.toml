@@ -59,13 +59,15 @@ test = [
     "pre-commit"
 ]
 learning = [
-    "torch", #2.4.1 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
-    "torchvision", #0.19.1 local
+    "torch", #2.13.0 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
+    "torchvision", #0.28.0 local
 ]
 model_optimisation = [
-    "onnx", #1.16.2  local
-    "onnxruntime",#1.19.2 local
-    "onnxsim",#0.4.36 local
+    "onnx", #1.22.0 local
+    "onnxruntime",#1.28.0 local
+    "onnxsim",#0.7.1 local
+    "onnxscript", #0.7.1 local
+    "onnx-ir", #0.2.1 local
 ]
 
 [tool.setuptools.dynamic]
