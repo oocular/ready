@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
     - name: Set up Python 3.12
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3  # v5.2.0
       with:
         python-version: 3.12
     - name: Install dependencies
@@ -18,7 +18,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install .[test]
     - name: Cache pre-commit hooks
-      uses: actions/cache@v2
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: ~/.cache/pre-commit
         key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
