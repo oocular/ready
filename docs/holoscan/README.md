@@ -29,7 +29,7 @@ sudo apt-get install v4l-utils
 ```bash
 cd ~/repositories
 git clone git@github.com:nvidia-holoscan/holoscan-sdk.git
-git checkout v2.2.0
+git checkout v2.2.0 #todo git checkout v4.5.0
 ```
 
 ## Build image with specific version
