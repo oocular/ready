@@ -20,7 +20,7 @@ This repository contains documentation and code for the project `READY: REal-tim
 ```
 uv venv --python 3.12
 source .venv/bin/activate
-uv pip install -e '.[test,learning,model_optimisation]'
+uv pip install -e '.[test,learning,model_optimisation]' 
 uv pip list --verbose
 uv run pre-commit run -a
 ```

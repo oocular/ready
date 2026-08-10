@@ -63,12 +63,20 @@ learning = [
     "torchvision", #0.28.0 local
 ]
 model_optimisation = [
-    "onnx", #1.22.0 local
-    "onnxruntime",#1.28.0 local
-    "onnxsim",#0.7.1 local
-    "onnxscript", #0.7.1 local
-    "onnx-ir", #0.2.1 local
+    "onnx==1.18.0",
+    "onnxruntime==1.28.0",
+    "onnxsim==0.7.1",
+    "onnxscript==0.7.1",
+    "onnx-ir==0.2.1",
+    "onnx_graphsurgeon==0.3.27", # from https://pypi.ngc.nvidia.com
 ]
+
+[[tool.uv.index]]
+name = "ngc"
+url = "https://pypi.ngc.nvidia.com"
+
+[tool.uv.sources]
+onnx_graphsurgeon = { index = "ngc" }
 
 [tool.setuptools.dynamic]
 version = {attr = "ready.__version__"}

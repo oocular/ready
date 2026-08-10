@@ -29,6 +29,13 @@ vim configs/models/unet/config_convert_to_onnx_and_simplify_it.yaml #Modify mode
 bash scripts/models/convert_to_onnx_and_simplify_it.bash
 ```
 
+3. Rebinding model to new nodes (NCHW to NHWC)
+
+```bash
+cd $HOME/repositories/oocular/ready
+bash scripts/models/rebing_model_NCWH_to_NHWC.bash
+```
+
 
 ## Example of model Path
 Below is an example of how the models and files are organised after training and optimisation:
@@ -43,14 +50,14 @@ Below is an example of how the models and files are organised after training and
 ├── [ 89M]  weights_27-Jul-2025_03-44-52.onnx
 ├── [ 89M]  weights_27-Jul-2025_03-44-52.pth
 ├── [ 91M]  weights_27-Jul-2025_03-44-52-sim-BHWC.NVIDIARTXA20008GBLaptopGPU.8.6.20.trt.10.3.0.26.engine.fp32
+            weights_27-Jul-2025_03-44-52-sim-BHWC.NVIDIARTX2000AdaGenerationLaptopGPU.8.9.24.trt.10.3.0.26.engine.fp32
 ├── [ 89M]  weights_27-Jul-2025_03-44-52-sim-BHWC.onnx
 └── [ 89M]  weights_27-Jul-2025_03-44-52-sim.onnx
-0 directories, 10 files
 ```
 
 ## Inference in local device (NVIDIARTXA20008GBLaptopGPU)
 ```
-cd $HOME_REPO
+cd $HOME/repositories/oocular/ready
 bash scripts/models/inference_unet_with_mobious.bash
 ```
 

@@ -1,16 +1,20 @@
 # Download holoscan utils
 # Usage: bash holohub-utils-dependencies.sh
+# LAUNCH PYTHON VIRTUAL ENV source .venv/bin/activate
 
-# (1) LAUNCH PYTHON VIRTUAL ENV
-# pip install nvidia-pyindex
-python -m ensurepip --default-pip
-python -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
+download_if_missing() {
+    local url="$1"
+    local out="$2"
+    if [ -f "$out" ]; then
+        echo "Skipping $out (already exists)"
+    else
+        wget "$url" -O "$out"
+    fi
+}
 
-# TODO check paths for scripts
-# TODO -N or -nc https://www.baeldung.com/linux/wget-skip-download-existing-file
-wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/analyze.py -O analyze.py
-wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/log_parser.py -O log_parser.py
-wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/bar_plot_avg_datewise.py -O bar_plot_avg_datewise.py
-wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/app_perf_graph.py -O app_perf_graph.py
-wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/convert_video_to_gxf_entities.py -O convert_video_to_gxf_entities.py
-wget https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/gxf_entity_codec.py -O gxf_entity_codec.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/analyze.py analyze.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/log_parser.py log_parser.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/bar_plot_avg_datewise.py bar_plot_avg_datewise.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/app_perf_graph.py app_perf_graph.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/convert_video_to_gxf_entities.py convert_video_to_gxf_entities.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/gxf_entity_codec.py gxf_entity_codec.py

@@ -18,6 +18,7 @@ Streams video from a browser (webcam) to a Holoscan pipeline over WebRTC, with o
 
 - Repository cloned at `$HOME/repositories/oocular/ready`
 - Dataset directory, including models available at `$HOME/datasets/ready`. See [mobious/models](../../data/mobious/models/)
+    - You need to bind models requirting to installing dependencies and utils
 - Docker installed, with the Holoscan dev container image available
 - `openssl` installed (for certificate generation)
 
