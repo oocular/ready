@@ -59,7 +59,14 @@ Email Address []:
 
 ## 2. Configure the application
 
-Set the model and recording paths/filenames in the config file:
+* Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
+```bash
+mkdir -p ~/datasets/ready/webrtc/recordings
+```
+
+* Set up Model bindings as shown in [model-dev](../../data/mobious/models/)
+
+* Set the model and recording paths/filenames in the config file:
 
 ```bash
 cd $HOME/repositories/oocular/ready/

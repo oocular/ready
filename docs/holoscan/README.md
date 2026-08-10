@@ -25,6 +25,13 @@ sudo systemctl restart dock
 sudo apt-get install v4l-utils
 ```
 
+## Clone holoscan-sdk (useful for `VideoStreamRecorderOp, VideoStreamReplayerOp`)
+```bash
+cd ~/repositories
+git clone git@github.com:nvidia-holoscan/holoscan-sdk.git
+git checkout v2.2.0
+```
+
 ## Build image with specific version
 ```bash
 ## [First time] Clone repo
