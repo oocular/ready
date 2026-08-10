@@ -90,10 +90,11 @@ function start() {
         resolution = resolution.split('x');
         constraints.video = {
             width: parseInt(resolution[0], 0),
-            height: parseInt(resolution[1], 0)
+            height: parseInt(resolution[1], 0),
+            facingMode: { ideal: 'environment' }
         };
     } else {
-        constraints.video = true;
+        constraints.video = {facingMode: { ideal: 'environment' }};
     }
 
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
