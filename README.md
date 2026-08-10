@@ -2,7 +2,8 @@
 
 See [documentation](/docs/index.md) for full details.
 
-We are using [Discussions](https://github.com/oocular/ready/discussions) as a place to connect with other members of our community.
+We are using [Discussions](https://github.com/oocular/ready/discussions)
+as a place to connect with other members of our community.
 Ask questions you’re wondering about, share ideas, engage with other community members, welcome others and are open-minded. 
 Remember that this is a community we build together 💪!
 
