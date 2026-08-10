@@ -3,6 +3,6 @@ losses:
     "30-Jul-2025_22-34-06_NVIDIA_A100_80GB_PCI/training_loss_values_30-Jul-2025_22-34-06.csv"]
     validation_loss: ["27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/validation_loss_values_27-Jul-2025_03-44-52.csv",
     "30-Jul-2025_22-34-06_NVIDIA_A100_80GB_PCI/validation_loss_values_30-Jul-2025_22-34-06.csv"]
-    
+
 dataset:
     models_path: "datasets/ready/mobious/models"
