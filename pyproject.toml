@@ -59,8 +59,8 @@ test = [
     "pre-commit"
 ]
 learning = [
-    "torch", #2.13.0 local #cricket PyTorch Version 2.3.0a0+6ddf5cf
-    "torchvision", #0.28.0 local
+    "torch==2.10.0", #cricket PyTorch Version 2.3.0a0+6ddf5cf
+    "torchvision==0.25.0",
 ]
 model_optimisation = [
     "onnx==1.18.0",

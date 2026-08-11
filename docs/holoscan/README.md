@@ -29,7 +29,7 @@ sudo apt-get install v4l-utils
 ```bash
 cd ~/repositories
 git clone git@github.com:nvidia-holoscan/holoscan-sdk.git
-git checkout v2.2.0 #todo git checkout v4.5.0
+git checkout v2.2.0 # Use `git tag` to discover other available versions
 ```
 
 ## Build image with specific version
@@ -95,8 +95,7 @@ bash v4l2_cam.bash
 * Edit v4l device number
 ```bash
 vim src/ready/apis/holoscan/v4l2_camera/python/v4l2_camera.yaml
-```
-
+#  default device is /dev/video0" but for logitech in rtx2000 8gb gpu is device "/dev/video48"
 * Exit
 To exit dev container image, just type exit in the launched container.
 

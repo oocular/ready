@@ -4,7 +4,7 @@
 
 * sudo dmesg
 
-Connect use camera and run
+Connect your camera and run
 
 ```bash
 sudo dmesg | grep -i logitech
@@ -18,7 +18,7 @@ sudo dmesg | grep -i logitech
 [ 3316.588598] uvcvideo 3-1.1:1.0: Found UVC 1.00 device Logitech Webcam C930e (046d:0843)
 ```
 
-* lusb
+* lsusb
 ```bash 
 lsusb | grep -i logitech
 Bus 003 Device 015: ID 046d:0843 Logitech, Inc. Webcam C930e

@@ -17,7 +17,7 @@ mkdir -p models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI && cd models_
 curl -L -O https://huggingface.co/mxochicale/ready_hf/resolve/main/models/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/weights_27-Jul-2025_03-44-52.pth
 ```
 
-## Conversion to ONNX (using .pth models) and ONNX symplification 
+## Conversion to ONNX (using .pth models) and ONNX simplification 
 
 1. Install dependencies as shown in [installation](../../../docs/index.md#nut_and_bolt-installation).
 

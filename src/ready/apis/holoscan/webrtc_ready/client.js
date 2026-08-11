@@ -94,7 +94,10 @@ function start() {
             facingMode: { ideal: 'environment' }
         };
     } else {
-        constraints.video = {facingMode: { ideal: 'environment' }};
+        constraints.video = {
+            facingMode: 
+            { ideal: 'environment' }
+        };
     }
 
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {

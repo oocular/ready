@@ -1,5 +1,5 @@
 # Download holoscan utils
-# Usage: bash holohub-utils-dependencies.sh
+# Usage: bash holohub-utils-dependencies.bash
 # LAUNCH PYTHON VIRTUAL ENV source .venv/bin/activate
 
 download_if_missing() {
