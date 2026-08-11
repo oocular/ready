@@ -32,9 +32,7 @@ jobs:
       - name: Cache nox
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
-          key:
-            docs-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('noxfile.py')
-            }}
+          key: docs-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('noxfile.py') }}
           path: .nox
 
       - name: Install only dev dependencies
