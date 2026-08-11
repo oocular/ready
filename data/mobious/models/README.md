@@ -10,7 +10,34 @@ After downloading, make sure to move the models into their corresponding directo
 Note: If you would like to use the model weights, ensure you download the actual model weights from the Hugging Face repository. This can be accomplished by using the following:
 `wget https://huggingface.co/mxochicale/ready_hf/resolve/main/models/{model_folder}/{model_weights.pth}`. Otherwise, you will encounter an UnpicklingError.
 
-## Model Path
+## Create path and download models
+```bash
+mkdir -p ~/datasets/ready/mobious/ && cd ~/datasets/ready/mobious/
+mkdir -p models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI && cd models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI
+curl -L -O https://huggingface.co/mxochicale/ready_hf/resolve/main/models/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI/weights_27-Jul-2025_03-44-52.pth
+```
+
+## Conversion to ONNX (using .pth models) and ONNX simplification 
+
+1. Install dependencies as shown in [installation](../../../docs/index.md#nut_and_bolt-installation).
+
+2. Convert pth to onnx models
+
+```bash
+cd $HOME/repositories/oocular/ready
+vim configs/models/unet/config_convert_to_onnx_and_simplify_it.yaml #Modify model name and path
+bash scripts/models/convert_to_onnx_and_simplify_it.bash
+```
+
+3. Rebinding model to new nodes (NCHW to NHWC)
+
+```bash
+cd $HOME/repositories/oocular/ready
+bash scripts/models/rebing_model_NCWH_to_NHWC.bash
+```
+
+
+## Example of model Path
 Below is an example of how the models and files are organised after training and optimisation:
 ```bash
 ~/datasets/ready/mobious/models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI$ tree -h
@@ -23,22 +50,14 @@ Below is an example of how the models and files are organised after training and
 ├── [ 89M]  weights_27-Jul-2025_03-44-52.onnx
 ├── [ 89M]  weights_27-Jul-2025_03-44-52.pth
 ├── [ 91M]  weights_27-Jul-2025_03-44-52-sim-BHWC.NVIDIARTXA20008GBLaptopGPU.8.6.20.trt.10.3.0.26.engine.fp32
+            weights_27-Jul-2025_03-44-52-sim-BHWC.NVIDIARTX2000AdaGenerationLaptopGPU.8.9.24.trt.10.3.0.26.engine.fp32
 ├── [ 89M]  weights_27-Jul-2025_03-44-52-sim-BHWC.onnx
 └── [ 89M]  weights_27-Jul-2025_03-44-52-sim.onnx
-0 directories, 10 files
-```
-
-## Preparations
-### Conversion to ONNX (using .pth models) and ONNX symplification 
-```
-cd $HOME_REPO
-vim configs/models/unet/config_convert_to_onnx_and_simplify_it.yaml #Modify model name and path
-bash scripts/models/convert_to_onnx_and_simplify_it.bash
 ```
 
 ## Inference in local device (NVIDIARTXA20008GBLaptopGPU)
 ```
-cd $HOME_REPO
+cd $HOME/repositories/oocular/ready
 bash scripts/models/inference_unet_with_mobious.bash
 ```
 

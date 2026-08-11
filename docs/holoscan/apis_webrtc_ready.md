@@ -17,9 +17,13 @@ Streams video from a browser (webcam) to a Holoscan pipeline over WebRTC, with o
 ## Prerequisites
 
 - Repository cloned at `$HOME/repositories/oocular/ready`
-- Dataset directory available at `$HOME/datasets/ready`
+- Dataset directory, including models available at `$HOME/datasets/ready`. See [mobious/models](../../data/mobious/models/)
+    - You need to bind the required models and install the required dependencies and utils
 - Docker installed, with the Holoscan dev container image available
 - `openssl` installed (for certificate generation)
+```bash
+sudo apt-get install net-tools
+```
 
 ## 1. Generate certificates (for connecting from a different machine)
 
@@ -55,7 +59,14 @@ Email Address []:
 
 ## 2. Configure the application
 
-Set the model and recording paths/filenames in the config file:
+* Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
+```bash
+mkdir -p ~/datasets/ready/webrtc/recordings
+```
+
+* Set up Model bindings as shown in [model-dev](../../data/mobious/models/)
+
+* Set the model and recording paths/filenames in the config file:
 
 ```bash
 cd $HOME/repositories/oocular/ready/
