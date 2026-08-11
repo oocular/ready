@@ -59,8 +59,8 @@ test = [
     "pre-commit"
 ]
 learning = [
-    "torch==2.10.0", #cricket PyTorch Version 2.3.0a0+6ddf5cf
-    "torchvision==0.25.0",
+    "torch==2.13.0", #cricket PyTorch Version 2.3.0a0+6ddf5cf
+    "torchvision==0.28.0",
 ]
 model_optimisation = [
     "onnx==1.18.0",
@@ -72,11 +72,12 @@ model_optimisation = [
 ]
 
 [[tool.uv.index]]
-name = "ngc"
-url = "https://pypi.ngc.nvidia.com"
+name = "nvidia-ngc"
+url = "https://pypi.ngc.nvidia.com/"
+explicit = true
 
 [tool.uv.sources]
-onnx_graphsurgeon = { index = "ngc" }
+onnx-graphsurgeon = { index = "nvidia-ngc" }
 
 [tool.setuptools.dynamic]
 version = {attr = "ready.__version__"}

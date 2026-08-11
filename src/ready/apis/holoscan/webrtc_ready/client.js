@@ -95,7 +95,7 @@ function start() {
         };
     } else {
         constraints.video = {
-            facingMode: 
+            facingMode:
             { ideal: 'environment' }
         };
     }

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     MODELS_PATH=os.path.join(Path.home(), config.dataset.models_path)
     TRAINING_PERFORMANCE_FILES = config.performance.training_performance
     VALIDATION_PERFORMANCE_FILES = config.performance.validation_performance
-    
+
     performance_metrics = [
         "accuracy",
         "f1",
@@ -48,16 +48,16 @@ if __name__ == "__main__":
         path_current_training_performance = os.path.join(MODELS_PATH, current_training_performance_file)
 
         directory, _ = os.path.split(current_training_performance_file)
-        
+
         current_training_performance = pd.read_json(path_current_training_performance, typ='series')
         current_training_performance_values = current_training_performance.array
-        
+
         current_training_performance_label = "training_performance_" + str(directory)
         plt.bar(x_axis - (i - (n_bars - 1) / 2) * width, current_training_performance_values, width=width, label=current_training_performance_label, alpha=0.5)
 
-    
+
     for i, current_validation_performance_file in enumerate(VALIDATION_PERFORMANCE_FILES, start=1):
-        
+
         path_current_validation_performance = os.path.join(MODELS_PATH, current_validation_performance_file)
 
         directory, _ = os.path.split(current_validation_performance_file)
@@ -66,8 +66,8 @@ if __name__ == "__main__":
         current_validation_performance_values = current_validation_performance.array
 
         current_validation_performance_label = "validation_performance_" + str(directory)
-        plt.bar(x_axis + (i - (n_bars -1 )/2) * width, current_validation_performance_values, width=width, label=current_validation_performance_label, alpha=0.5) 
-     
+        plt.bar(x_axis + (i - (n_bars -1 )/2) * width, current_validation_performance_values, width=width, label=current_validation_performance_label, alpha=0.5)
+
     plt.xticks(x_axis, performance_metrics)
     plt.ylabel('Values', fontsize=18)
     plt.xlabel('Performance Metrics', fontsize=18)
