@@ -149,6 +149,7 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG webrtc 
 
 ```bash
 firefox http://127.0.0.1:8080/
+brave-browser-nightly http://127.0.0.1:8080/
 ```
 
 Available settings in the UI:

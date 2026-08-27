@@ -27,8 +27,15 @@ recorder:
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings"
   loggername: "logger"
   loggerextension: ".log"
+  ##CAMERA_MODEL
+  #basename: "ID001_GAZETESTCENTRAL01_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTLEFT02_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTRIGTH03_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
+  basename: "ID001_GAZETESTCENTRAL06_logitechc930e_data28Aug2026time1400"
   ##MOBILE_MODEL
-  basename: "mobileMODEL_date_time"
+  #basename: "mobileMODEL_date_time"
   ##PIXEL8
   #basename: "pixel8_date_time"
   ##PIXEL9
