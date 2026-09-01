@@ -20,7 +20,10 @@ SCRIPT_PATH=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_PATH/../../
 
 source scripts/functions/parse_yaml.bash
-eval $(parse_yaml configs/apis/config_webrtc_ready.yaml)
+#TODO add argument for config file > https://github.com/oocular/ready/issues/137
+#eval $(parse_yaml configs/apis/config_webrtc_ready_template.yaml)
+eval $(parse_yaml configs/apis/config_webrtc_ready_poc_sep2026.yaml)
+
 cd ${workspace_apiPath}
 
 if [[ $1 == LOCAL ]]; then

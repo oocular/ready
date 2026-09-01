@@ -1,0 +1,91 @@
+---
+#Config file for webrtc_ready.bash
+workspace:
+  apiPath: "/workspace/volumes/ready/src/ready/apis/holoscan/webrtc_ready"
+  keysPath: "/workspace/volumes/datasets/ready/webrtc"
+
+model:
+  pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI"
+  name: "weights_27-Jul-2025_03-44-52-sim-BHWC.onnx"
+
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/10-May-2025_18-09-20_NVIDIA_A100_80GB_PCI"
+  # name: "weights_10-May-2025_18-09-20-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/26-Apr-2025_19-40-01"
+  # name: "_weights_26-Apr-2025_19-40-01-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/29-Mar-2025_16-23-29"
+  # name: "_weights_29-Mar-2025_16-23-29-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/28-Mar-2025_15-25-07"
+  # name: "_weights_28-Mar-2025_15-25-07-sim-BHWC.onnx"
+  #
+  # pathMap: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/15-12-24"
+  # name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+
+recorder:
+  ##PatientID001
+  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID001"
+  loggername: "logger"
+  loggerextension: ".log"
+  #basename: "ID001_GAZETESTCENTRAL01_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTLEFT02_logitechc930e_data28Aug2026time1400"
+  basename: "ID001_GAZETESTRIGTH03_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
+  #basename: "ID001_GAZETESTCENTRAL06_logitechc930e_data28Aug2026time1400"
+
+  ##PatientID002
+  #directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID002"
+  #loggername: "logger"
+  #loggerextension: ".log"
+  #basename: "ID002_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1400"
+  #basename: "ID002_GAZETESTLEFT02_logitechc930e_date04sep2026time1400"
+  #basename: "ID002_GAZETESTRIGTH03_logitechc930e_date04sep2026time1400"
+  #basename: "ID002_GAZETESTUP04_logitechc930e_date04sep2026time1400"
+  #basename: "ID002_GAZETESTDOWN05_logitechc930e_date04sep2026time1400"
+  #basename: "ID002_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1400"
+
+  ##PatientID006
+  #directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID006"
+  #loggername: "logger"
+  #loggerextension: ".log"
+  #basename: "ID006_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1430"
+  #basename: "ID006_GAZETESTLEFT02_logitechc930e_date04sep2026time1430"
+  #basename: "ID006_GAZETESTRIGTH03_logitechc930e_date04sep2026time1430"
+  #basename: "ID006_GAZETESTUP04_logitechc930e_date04sep2026time1430"
+  #basename: "ID006_GAZETESTDOWN05_logitechc930e_date04sep2026time1430"
+  #basename: "ID006_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1430"
+
+  ##PatientID003
+  #directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID003"
+  #loggername: "logger"
+  #loggerextension: ".log"
+  #basename: "ID003_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1500"
+  #basename: "ID003_GAZETESTLEFT02_logitechc930e_date04sep2026time1500"
+  #basename: "ID003_GAZETESTRIGTH03_logitechc930e_date04sep2026time1500"
+  #basename: "ID003_GAZETESTUP04_logitechc930e_date04sep2026time1500"
+  #basename: "ID003_GAZETESTDOWN05_logitechc930e_date04sep2026time1500"
+  #basename: "ID003_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1500"
+
+  ##PatientID005
+  #directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID005"
+  #loggername: "logger"
+  #loggerextension: ".log"
+  #basename: "ID005_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1530"
+  #basename: "ID005_GAZETESTLEFT02_logitechc930e_date04sep2026time1530"
+  #basename: "ID005_GAZETESTRIGTH03_logitechc930e_date04sep2026time1530"
+  #basename: "ID005_GAZETESTUP04_logitechc930e_date04sep2026time1530"
+  #basename: "ID005_GAZETESTDOWN05_logitechc930e_date04sep2026time1530"
+  #basename: "ID005_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1530"
+
+  ##PatientID004
+  #directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID004"
+  #loggername: "logger"
+  #loggerextension: ".log"
+  #basename: "ID004_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1600"
+  #basename: "ID004_GAZETESTLEFT02_logitechc930e_date04sep2026time1600"
+  #basename: "ID004_GAZETESTRIGTH03_logitechc930e_date04sep2026time1600"
+  #basename: "ID004_GAZETESTUP04_logitechc930e_date04sep2026time1600"
+  #basename: "ID004_GAZETESTDOWN05_logitechc930e_date04sep2026time1600"
+  #basename: "ID004_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1600"

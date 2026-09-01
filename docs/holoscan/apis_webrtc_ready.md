@@ -70,7 +70,9 @@ mkdir -p ~/datasets/ready/webrtc/recordings
 
 ```bash
 cd $HOME/repositories/oocular/ready/
-vim configs/apis/config_webrtc_ready.yaml
+vim configs/apis/config_webrtc_ready_template.yaml
+vim configs/apis/config_webrtc_ready_poc_sep2026.yaml
+#TODO https://github.com/oocular/ready/issues/137
 ```
 
 ## 3. Launch the dev container
@@ -135,6 +137,17 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG replay
 
 ## 5. Run on a `LOCAL` network
 
+### 5.0 Launch the dev container (in case you start from LOCAL)
+
+```bash
+cd $HOME/repositories/oocular/ready/docs/holoscan
+bash launch_dev_container.bash
+```
+
+
+
+
+
 ### 5.1 Launch the WebRTC client
 
 ```bash
@@ -149,6 +162,7 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG webrtc 
 
 ```bash
 firefox http://127.0.0.1:8080/
+brave-browser-nightly --new-window http://127.0.0.1:8080/
 ```
 
 Available settings in the UI:
