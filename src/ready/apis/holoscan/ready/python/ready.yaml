@@ -16,14 +16,17 @@ model:
   # model_name: "_weights_10-09-24_23-53-45-sim-BHWC.onnx"
   ###################
   ## others
-  # video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
+  #video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
   #video_path: "/workspace/volumes/datasets/ready/videos/novel"
-  video_path: "/workspace/volumes/datasets/ready/videos/shared"
+  #video_path: "/workspace/volumes/datasets/ready/videos/shared"
+  video_path: "/workspace/volumes/datasets/ready/ready_py/recordings"
   ###################
   ##UNET with mobious
-  model_path: "/workspace/volumes/datasets/ready/mobious/models"
+  # model_path: "/workspace/volumes/datasets/ready/mobious/models"
   # model_name: "_weights_10-09-24_06-35-14-sim-BHWC.onnx"
-  model_name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+  # model_name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
+  model_path: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI"
+  model_name: "weights_27-Jul-2025_03-44-52-sim-BHWC.onnx"
 
 replayer:
   #
@@ -78,7 +81,10 @@ v4l2_source:
   #
   #
   # | Input device. /dev/video0 is generally the default input
-  device: "/dev/video0"
+  #device: "/dev/video0"
+  #Logitech Webcam C930e (usb-0000:00:14.0-4.1)
+  device: "/dev/video48"
+  #device: "/dev/video49"
   #USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
   # device: "/dev/video4"
 

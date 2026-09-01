@@ -1,18 +1,36 @@
-# APIS
+# `ready_py` API
+
+## Edit config file: `video_path`, `model_path`, `model_name`, `v4l2_source`
+```bash
+vim src/ready/apis/holoscan/ready/python/ready.yaml
+```
+
+## Create data paths based on config file
+
+```bash
+mkdir -p ~/datasets/ready/ready_py/recordings && cd ~/datasets/ready/ready_py/recordings
+```
 
 ## Launch dev container
-```
+```bash
 cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
 ```
 
-## READY
-* Download videos (`*.gxf_entities`, `*.gxf_index`, `*.mp4`) and models (`*.sim-BHWC.onnx`) from this [shared directory](https://liveuclac-my.sharepoint.com/my?id=%2Fpersonal%2Fccaemxo%5Fucl%5Fac%5Fuk%2FDocuments%2FProjects%2FREADY%2Dshared%2Fready%2Fmodels%2Dand%2Dvideos%2Fmobious%2Fholoscan).
-
+## Run app and manage api files
 * Run app using your own repository in `dev_container` of clara-agx
 ```
-cd /workspace/volumes/ready/scripts/apis
-bash ready_py.bash replayer #or v4l2
+bash /workspace/volumes/ready/scripts/apis/ready_py.bash v4l2 #replayer or v4l2
+```
+
+* `ready_py`
+```bash
+cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
+clear && python ready.py -d /workspace/volumes/datasets/ready/ready_py/recordings -l logger.log -df TRUE -s v4l2
+#TODO 
+# * [ ] add model,path,name to config files and refactor script to pass such values to avoid long arguments inputs!
+# * [ ] 1/n move logger.log to recordings path
+# * [ ] 2/n adds recording and replyer
 ```
 
 * Debug application in local host device
@@ -21,10 +39,13 @@ cd $HOME/repositories/oocular/ready/src/ready/apis/holoscan/ready/python
 vim -O ready.py ready-mobious.yaml ##Ctrl+WW to swap windows; :vertical resize 100
 ```
 
-* TODO section!
+#TODO
+* [ ] 3/n remove and udpates this list of commands
 ```
-#TODO: add model,path,name to config files and refactor script to pass such values to avoid long arguments inputs!
+cd /workspace/volumes/ready/src/ready/apis/holoscan/ready/python
 #TODO: The following section is confusing. Let's clean it. Models were tested but need to be cleaned or perhaps just remove them!
+
+
 ## novel
 clear && python ready.py -d /workspace/volumes/ready/data/novel -m model3ch-23jul2024t0716-sim-BHWC.onnx -l logger.log -df TRUE
 ## openEDS
@@ -44,4 +65,9 @@ clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10
 clear && python ready.py -d /workspace/volumes/ready/data/mobious -m _weights_10-09-24_04-50-40-sim-BHWC.onnx -l logger.log -df TRUE -s replayer
 ```
 
+
+#TODO
+* [ ] Move this path to data or somehwere relevant Share path for videos
+
+Download videos (`*.gxf_entities`, `*.gxf_index`, `*.mp4`) and models (`*.sim-BHWC.onnx`) from this [shared directory](https://liveuclac-my.sharepoint.com/my?id=%2Fpersonal%2Fccaemxo%5Fucl%5Fac%5Fuk%2FDocuments%2FProjects%2FREADY%2Dshared%2Fready%2Fmodels%2Dand%2Dvideos%2Fmobious%2Fholoscan).
 
