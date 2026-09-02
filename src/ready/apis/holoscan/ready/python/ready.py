@@ -614,7 +614,7 @@ class READYApp(Application):
             self.add_flow(post_inference_op, viz, {("out", "receivers")})
             self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
-        elif self.source.lower() == "v4l2":            
+        elif self.source.lower() == "v4l2":
             self.add_flow(source, viz, {("signal", "receivers")})
 
             self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
