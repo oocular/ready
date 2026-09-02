@@ -423,28 +423,28 @@ class READYApp(Application):
             pass
 
         if self.source.lower() == "replayer":
-            n_channels = 1
+            # n_channels = 1
             bpp = 1  # bytes per pixel
-            block_size = model_width * model_height * n_channels * bpp
-            num_blocks = 1
-            source = VideoStreamReplayerOp(
-                self,
-                name="replayer",
-                ## [error] [block_memory_pool.cpp:125] Requested 768000 bytes of memory in a pool with block size 512000
-                # allocator=BlockMemoryPool(
-                #     self,
-                #     name="video_replayer_pool",
-                #     storage_type=0,
-                #     # storage_type=MemoryStorageType.DEVICE,
-                #     block_size=block_size,
-                #     num_blocks=num_blocks,
-                # ),
-                # allocator=host_allocator,
-                allocator=rmm_allocator,
-                # directory=self.video_dir,
-                directory=video_path,
-                **self.kwargs("replayer"),
-            )
+            # block_size = model_width * model_height * n_channels * bpp
+            # num_blocks = 1
+            # source = VideoStreamReplayerOp(
+            #     self,
+            #     name="replayer",
+            #     ## [error] [block_memory_pool.cpp:125] Requested 768000 bytes of memory in a pool with block size 512000
+            #     # allocator=BlockMemoryPool(
+            #     #     self,
+            #     #     name="video_replayer_pool",
+            #     #     storage_type=0,
+            #     #     # storage_type=MemoryStorageType.DEVICE,
+            #     #     block_size=block_size,
+            #     #     num_blocks=num_blocks,
+            #     # ),
+            #     # allocator=host_allocator,
+            #     allocator=rmm_allocator,
+            #     # directory=self.video_dir,
+            #     directory=video_path,
+            #     **self.kwargs("replayer"),
+            # )
 
         elif self.source.lower() == "v4l2":
             n_channels = 4  # RGBA
@@ -506,24 +506,6 @@ class READYApp(Application):
             cuda_stream_pool=formatter_cuda_stream_pool,
             **self.kwargs("preprocessor_replayer"),
         )
-
-        #IMPLEMENTED BELOW and TO REMOVE
-        # preprocessor_v4l2 = FormatConverterOp(
-        #     self,
-        #     name="preprocessor_v4l2",
-        #     resize_width=model_width,
-        #     resize_height=model_height,
-        #     # pool=rmm_allocator, #TOTEST
-        #     pool=BlockMemoryPool(
-        #         self,
-        #         name="preprocessor_v4l2_pool",
-        #         storage_type=MemoryStorageType.DEVICE,
-        #         block_size=model_width * model_height * bytes_per_float32 * in_components,
-        #         num_blocks=2*3,
-        #     ),
-        #     cuda_stream_pool=formatter_cuda_stream_pool,
-        #     **self.kwargs("preprocessor_v4l2"),
-        # )
 
         preprocessor_v4l2_recorder = FormatConverterOp(
             self,
