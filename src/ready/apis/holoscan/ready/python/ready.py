@@ -588,15 +588,69 @@ class READYApp(Application):
             basename=self._args.recording_basename,
         )
 
-        viz = HolovizOp(
+        # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/holoviz/holoviz.hpp
+        visualizer_sink = HolovizOp(
             self,
-            name="viz",
-            # window_title="READY demo",
-            width=model_width,
-            height=model_height,
-            **self.kwargs("viz"),
+            name="HolovizOp_sink",
+            window_title="READY v.0.1.0: POC",
+            width=640, #320 #TODO pass this as a width and height from index.html video-resolution
+            height=480, #240
+            # cuda_stream_pool=cuda_stream_pool,
+            tensors=[
+                dict(
+                    name="",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
+                dict(
+                    name="pupil_cXcY",
+                    type="crosses",
+                    priority=2,
+                    opacity=0.85,
+                    color=[0.6, 0.1, 0.6, 0.8], #RGBA vals
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    line_width=5.0, #for crosses only
+                    point_size=10.0, #for points only
+                ),
+                dict(
+                    name="x_coords_varing_array",
+                    type="points",
+                    priority=2,
+                    opacity=0.95,
+                    color=[1.0, 0.0, 0.0, 1.0], #RGBA vals
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    point_size=5.0, #for points only
+                ),
+                dict(
+                    name="y_coords_varing_array",
+                    type="points",
+                    priority=2,
+                    opacity=0.95,
+                    color=[0.0, 1.0, 0.0, 1.0], #RGBA vals
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    point_size=5.0, #for points only
+                ),
+                dict(
+                    name="out_tensor",
+                    type="color_lut",
+                    priority=0,
+                    opacity=1.0,
+                ),
+            ],
+            color_lut=[
+                [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+                [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+                [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+                [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
+                #https://rgbcolorpicker.com/0-1
+            ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+	    ## WORKFLOW
         if self.source.lower() == "replayer":
             self.add_flow(source, viz, {("", "receivers")})
 
@@ -615,18 +669,18 @@ class READYApp(Application):
             self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
         elif self.source.lower() == "v4l2":
-            self.add_flow(source, viz, {("signal", "receivers")})
+            self.add_flow(source, visualizer_sink, {("signal", "receivers")})
 
             self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
             self.add_flow(preprocessor_v4l2, inference, {("tensor", "receivers")})
 
             self.add_flow(inference, segpostprocessor, {("transmitter", "")})
-            self.add_flow(segpostprocessor, viz, {("", "receivers")})
+            self.add_flow(segpostprocessor, visualizer_sink, {("", "receivers")})
 
             ## Tracking
             self.add_flow(inference, post_inference_op, {("", "in")})
-            self.add_flow(post_inference_op, viz, {("out", "receivers")})
-            self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+            self.add_flow(post_inference_op, visualizer_sink, {("out", "receivers")})
+            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
             ## Recording
             self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
