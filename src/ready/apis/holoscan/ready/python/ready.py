@@ -11,7 +11,8 @@ from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,
-                                V4L2VideoCaptureOp, VideoStreamReplayerOp)
+                                V4L2VideoCaptureOp, VideoStreamRecorderOp,
+                                VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
                                 MemoryStorageType, UnboundedAllocator)
 
@@ -365,7 +366,7 @@ class PostInferenceOp(Operator):
 
 
 class READYApp(Application):
-    def __init__(self, source=None, debug_print_flag=None):
+    def __init__(self, args, source=None, debug_print_flag=None):
         """Initialize the application
         Parameters
         ----------
@@ -373,6 +374,7 @@ class READYApp(Application):
         model_name : Model name
         """
         super().__init__()
+        self._args = args
 
         self.name = "READY App"
         self.source = source
@@ -441,8 +443,8 @@ class READYApp(Application):
             )
 
         elif self.source.lower() == "v4l2":
-            n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
+            n_channels = 3
             drop_alpha_block_size = v4l2_width * v4l2_height * n_channels * bpp
             drop_alpha_num_blocks = 2
             source = V4L2VideoCaptureOp(
@@ -525,7 +527,6 @@ class READYApp(Application):
             **self.kwargs("format_input"),
         )
 
-
         n_channels_inference = 4
         bpp_inference = 4
         inference_block_size = model_width * model_height * n_channels_inference * bpp_inference
@@ -565,6 +566,24 @@ class READYApp(Application):
             **self.kwargs("segpostprocessor"),
         )
 
+        replayer_op = VideoStreamReplayerOp(
+            self,
+            name="replayer_op",
+            directory=self._args.recording_directory,
+            basename=self._args.recording_basename,
+            frame_rate=0,
+            repeat=True, # default: false
+            realtime=True, # default: true
+            count=0, # default: 0 (no frame count restriction)
+        )
+
+        recorder_op = VideoStreamRecorderOp(
+            name="recorder_op",
+            fragment=self,
+            directory=self._args.recording_directory,
+            basename=self._args.recording_basename,
+        )
+
         viz = HolovizOp(
             self,
             name="viz",
@@ -591,6 +610,7 @@ class READYApp(Application):
             self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
         elif self.source.lower() == "v4l2":
+            self.add_flow(source, recorder_op, {("signal", "input")})
             self.add_flow(source, viz, {("signal", "receivers")})
 
             self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
@@ -608,7 +628,7 @@ class READYApp(Application):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="READY demo application.")
+    parser = ArgumentParser(description="READY application.")
     parser.add_argument(
         "-cf",
         "--config_file",
@@ -638,11 +658,22 @@ if __name__ == "__main__":
                 WARNING: Setting this to True will slow down performance of the app!"
         ),
     )
+    parser.add_argument(
+        "-rd",
+        "--recording_directory",
+        help=("Set recording directory"),
+    )
+    parser.add_argument(
+        "-rb",
+        "--recording_basename",
+        help=("Set recording basename"),
+    )
     args = parser.parse_args()
 
     config_file = os.path.join(os.path.dirname(__file__), args.config_file)
 
     app = READYApp(
+        args,
         source=args.source,
         debug_print_flag=args.debug_print_flag,
     )

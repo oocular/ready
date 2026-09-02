@@ -1,4 +1,4 @@
----
+--
 #Config file for ready_py.bash
 workspace:
   apiPath: "/workspace/volumes/ready/src/ready/apis/holoscan/ready/python"
@@ -85,5 +85,3 @@ replayer:
   realtime: True # default: true
   repeat: True # default: false
   count: 0 # default: 0 (no frame count restriction)
-
-

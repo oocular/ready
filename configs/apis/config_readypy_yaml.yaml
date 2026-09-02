@@ -19,7 +19,7 @@ model:
   #video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
   #video_path: "/workspace/volumes/datasets/ready/videos/novel"
   #video_path: "/workspace/volumes/datasets/ready/videos/shared"
-  video_path: "/workspace/volumes/datasets/ready/ready_py/recordings"
+  video_path: "/workspace/volumes/datasets/ready/ready_py/recordings/test"
   ###################
   ##UNET with mobious
   # model_path: "/workspace/volumes/datasets/ready/mobious/models"
@@ -59,7 +59,8 @@ replayer:
   ########################
   ## Shared from video_path: "/workspace/volumes/datasets/ready/videos/shared"
   #basename: "video_640x400_Acute_VN_Left"
-  basename: "cropped_video_640x400_Acute_VN_Left"
+  #basename: "cropped_video_640x400_Acute_VN_Left"
+  basename: "ID001_GAZETESTCENTRAL01_logitechc930e_DATE_TIME"
   ########################
   ## Welgampola from video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
   # basename: "cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis"
