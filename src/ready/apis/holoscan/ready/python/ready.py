@@ -163,6 +163,10 @@ class PostInferenceOp(Operator):
     """
     Post Inference Operator
 
+    TODO:
+    Add debug flag for printing logs
+    in the meantime print are just commented
+
     Input:
 
     Output:
@@ -192,42 +196,42 @@ class PostInferenceOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
-        print(f"   PostInferenceOperator  ")
+        # print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        # print(f"   PostInferenceOperator  ")
         in_message = op_input.receive("in")
         # print(f"in_message={in_message}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
-        print(f"unet_out tensor.shape={tensor.shape}")  # tensor.shape=(1, 4, 400, 640)
+        # print(f"unet_out tensor.shape={tensor.shape}")  # tensor.shape=(1, 4, 400, 640)
 
         tensor_1ch_background = tensor[:, 0, :, :]
         tensor_1ch_sclera = tensor[:, 1, :, :]
         tensor_1ch_iris = tensor[:, 2, :, :]
 
-        print(f"shape of tensor_1ch_background: {tensor_1ch_background.shape}")
-        print(f"shape of tensor_1ch_sclera: {tensor_1ch_sclera.shape}")
-        print(f"shape of tensor_1ch_iris: {tensor_1ch_iris.shape}")
+        # print(f"shape of tensor_1ch_background: {tensor_1ch_background.shape}")
+        # print(f"shape of tensor_1ch_sclera: {tensor_1ch_sclera.shape}")
+        # print(f"shape of tensor_1ch_iris: {tensor_1ch_iris.shape}")
 
         ### CENTROID OF PUPIL MASK
         tensor_1ch_pupil = tensor[:, 3, :, :]
-        print(f"tensor.min {cp.min(tensor_1ch_pupil)}")
-        print(f"tensor.max {cp.max(tensor_1ch_pupil)}")
-        print(f"tensor.mean {cp.mean(tensor_1ch_pupil)}")
+        # print(f"tensor.min {cp.min(tensor_1ch_pupil)}")
+        # print(f"tensor.max {cp.max(tensor_1ch_pupil)}")
+        # print(f"tensor.mean {cp.mean(tensor_1ch_pupil)}")
 
-        print(
-            f"tensor_1ch_pupil.shape={tensor_1ch_pupil.shape}"
-        )  # tensor.shape=(1, 400, 640)
+        # print(
+            # f"tensor_1ch_pupil.shape={tensor_1ch_pupil.shape}"
+        # )  # tensor.shape=(1, 400, 640)
         tensor_1ch_pupil_sq = cp.squeeze(tensor_1ch_pupil, axis=None)
-        print(
-            f"tensor_1ch_pupil_sq.shape={tensor_1ch_pupil_sq.shape}"
-        )  # tensor.shape=(400, 640)
+        # print(
+            # f"tensor_1ch_pupil_sq.shape={tensor_1ch_pupil_sq.shape}"
+        # )  # tensor.shape=(400, 640)
         tensor_1ch_pupil_sq_uint8 = tensor_1ch_pupil_sq.astype(cp.uint8)
-        print(tensor_1ch_pupil_sq_uint8.dtype)  # uint8
+        # print(tensor_1ch_pupil_sq_uint8.dtype)  # uint8
 
         mask_pupil_bool = tensor_1ch_pupil_sq_uint8 > 1
-        print(
-            f"mask_pupil_bool.shape {mask_pupil_bool.shape}"
-        )  # tensor.shape=(1, 4, 400, 640)
-        print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}")  # bool
+        # print(
+        #     f"mask_pupil_bool.shape {mask_pupil_bool.shape}"
+        # )  # tensor.shape=(1, 4, 400, 640)
+        # print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}")  # bool
 
         # /usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:500:
         # UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
@@ -239,7 +243,7 @@ class PostInferenceOp(Operator):
         centroid = cp.mean(cp.argwhere(mask_pupil_bool), axis=0)
         centroid = cp.nan_to_num(centroid)  # convert float NaN to integer
         centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
-        print(f"centroid: {centroid}")
+        # print(f"centroid: {centroid}")
         # https://stackoverflow.com/questions/73131778/
 
         # 	#EXPERIMENTAL (to be removed or checked for multiple mask)
@@ -280,7 +284,7 @@ class PostInferenceOp(Operator):
         )
         # print(centroid_xy) #[[320. 200.]]
         centroid_xy = centroid_xy[cp.newaxis, :, :]
-        print(f"normalised centroid_xy: {centroid_xy}")
+        # print(f"normalised centroid_xy: {centroid_xy}")
 
         out_message = Entity(context)
 
@@ -443,8 +447,8 @@ class READYApp(Application):
             )
 
         elif self.source.lower() == "v4l2":
+            n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
-            n_channels = 4 #RGBA
             drop_alpha_block_size = v4l2_width * v4l2_height * n_channels * bpp
             drop_alpha_num_blocks = 2
             source = V4L2VideoCaptureOp(
@@ -605,12 +609,12 @@ class READYApp(Application):
             self.add_flow(inference, segpostprocessor, {("transmitter", "")})
             self.add_flow(segpostprocessor, viz, {("", "receivers")})
 
+            ## Tracking
             self.add_flow(inference, post_inference_op, {("", "in")})
             self.add_flow(post_inference_op, viz, {("out", "receivers")})
             self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
-        elif self.source.lower() == "v4l2":
-            self.add_flow(source, recorder_op, {("signal", "input")})
+        elif self.source.lower() == "v4l2":            
             self.add_flow(source, viz, {("signal", "receivers")})
 
             self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
@@ -619,9 +623,14 @@ class READYApp(Application):
             self.add_flow(inference, segpostprocessor, {("transmitter", "")})
             self.add_flow(segpostprocessor, viz, {("", "receivers")})
 
+            ## Tracking
             self.add_flow(inference, post_inference_op, {("", "in")})
             self.add_flow(post_inference_op, viz, {("out", "receivers")})
             self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+
+            ## Recording
+            self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
+            self.add_flow(preprocessor_v4l2, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
