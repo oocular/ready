@@ -444,7 +444,7 @@ class READYApp(Application):
 
         elif self.source.lower() == "v4l2":
             bpp = 4  # bytes per pixel
-            n_channels = 3
+            n_channels = 4 #RGBA
             drop_alpha_block_size = v4l2_width * v4l2_height * n_channels * bpp
             drop_alpha_num_blocks = 2
             source = V4L2VideoCaptureOp(
