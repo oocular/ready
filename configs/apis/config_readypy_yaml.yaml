@@ -161,20 +161,21 @@ preprocessor_replayer:
   #out_channel_order: [1, 0, 2]
   #out_channel_order: [1, 2, 0]
 
-preprocessor_v4l2:
-  #
-  #
-  # Preprocessor FormatConverterOp() for v4l2
-  # DROP ALPHA CHANNEL
-  #
-  #
-  out_tensor_name: out_preprocessor
-  in_dtype: "rgba8888" #for four channels
-  out_dtype: "float32"
-  scale_min: 1.0
-  scale_max: 252.0
-  # resize_width: defined with `model_width` #640
-  # resize_height: defined with `model_height` #400
+#ADDED IN preprocessor_v4l2_recorder
+# preprocessor_v4l2:
+#   #
+#   #
+#   # Preprocessor FormatConverterOp() for v4l2
+#   # DROP ALPHA CHANNEL
+#   #
+#   #
+#   out_tensor_name: out_preprocessor
+#   in_dtype: "rgba8888" #for four channels
+#   out_dtype: "float32"
+#   scale_min: 1.0
+#   scale_max: 252.0
+#   # resize_width: defined with `model_width` #640
+#   # resize_height: defined with `model_height` #400
 
 pre_info_op_replayer:  #Pre Info Operator
 format_input:  #FormatInferenceInputOp

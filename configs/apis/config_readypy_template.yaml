@@ -1,4 +1,5 @@
---
+%YAML 1.2
+---
 #Config file for ready_py.bash
 workspace:
   apiPath: "/workspace/volumes/ready/src/ready/apis/holoscan/ready/python"

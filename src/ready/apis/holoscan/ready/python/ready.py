@@ -507,21 +507,45 @@ class READYApp(Application):
             **self.kwargs("preprocessor_replayer"),
         )
 
-        preprocessor_v4l2 = FormatConverterOp(
+        #IMPLEMENTED BELOW and TO REMOVE
+        # preprocessor_v4l2 = FormatConverterOp(
+        #     self,
+        #     name="preprocessor_v4l2",
+        #     resize_width=model_width,
+        #     resize_height=model_height,
+        #     # pool=rmm_allocator, #TOTEST
+        #     pool=BlockMemoryPool(
+        #         self,
+        #         name="preprocessor_v4l2_pool",
+        #         storage_type=MemoryStorageType.DEVICE,
+        #         block_size=model_width * model_height * bytes_per_float32 * in_components,
+        #         num_blocks=2*3,
+        #     ),
+        #     cuda_stream_pool=formatter_cuda_stream_pool,
+        #     **self.kwargs("preprocessor_v4l2"),
+        # )
+
+        preprocessor_v4l2_recorder = FormatConverterOp(
             self,
-            name="preprocessor_v4l2",
+            name="preprocessor_v4l2_recorder",
+            # resize_width=v4l2_width,
+            # resize_height=v4l2_height,
             resize_width=model_width,
             resize_height=model_height,
+            out_tensor_name="out_preprocessor",
+            in_dtype="rgba8888", #for four channels
+            out_dtype="float32",
+            scale_min=1.0,
+            scale_max=252.0,
             # pool=rmm_allocator, #TOTEST
             pool=BlockMemoryPool(
                 self,
-                name="preprocessor_replayer_pool",
+                name="preprocessor_v4l2_recorder_pool",
                 storage_type=MemoryStorageType.DEVICE,
-                block_size=model_width * model_height * bytes_per_float32 * in_components,
-                num_blocks=2*3,
+                block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
+                num_blocks=2 * 3,
             ),
             cuda_stream_pool=formatter_cuda_stream_pool,
-            **self.kwargs("preprocessor_v4l2"),
         )
 
         format_input = FormatInferenceInputOp(
@@ -570,17 +594,6 @@ class READYApp(Application):
             **self.kwargs("segpostprocessor"),
         )
 
-        replayer_op = VideoStreamReplayerOp(
-            self,
-            name="replayer_op",
-            directory=self._args.recording_directory,
-            basename=self._args.recording_basename,
-            frame_rate=0,
-            repeat=True, # default: false
-            realtime=True, # default: true
-            count=0, # default: 0 (no frame count restriction)
-        )
-
         recorder_op = VideoStreamRecorderOp(
             name="recorder_op",
             fragment=self,
@@ -593,8 +606,8 @@ class READYApp(Application):
             self,
             name="HolovizOp_sink",
             window_title="READY v.0.1.0: POC",
-            width=640, #320 #TODO pass this as a width and height from index.html video-resolution
-            height=480, #240
+            width=v4l2_width,
+            height=v4l2_height,
             # cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(
@@ -650,29 +663,69 @@ class READYApp(Application):
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+        replayer_op = VideoStreamReplayerOp(
+            self,
+            name="replayer_op",
+            directory=self._args.recording_directory,
+            basename=self._args.recording_basename,
+            frame_rate=0,
+            repeat=True, # default: false
+            realtime=True, # default: true
+            count=0, # default: 0 (no frame count restriction)
+        )
+
+        visualizer_replayer = HolovizOp(
+            self,
+            name="Video Replayer",
+            window_title="Replayer",
+            width=v4l2_width,
+            height=v4l2_height,
+            cuda_stream_pool=formatter_cuda_stream_pool,
+            tensors=[
+                dict(
+                    name="out_preprocessor",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    # image_format="r8g8b8_srgb",
+                    # image_format="r32g32b32a32_sfloat",  # match recorded float32, 4ch
+                    # image_format="r32g32b32_sfloat",    # if out_channel_order was [0,1,2] (3ch)
+                ),
+            ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
+        )
+
+
 	    ## WORKFLOW
         if self.source.lower() == "replayer":
-            self.add_flow(source, viz, {("", "receivers")})
+            #RAW
+            self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
 
-            self.add_flow(source, pre_info_op_replayer, {("output", "source_video")})
-            self.add_flow(pre_info_op_replayer, preprocessor_replayer, {("", "")})
+            #TODO
+            #WITH INFERENCE
+            # self.add_flow(source, viz, {("", "receivers")})
 
-            self.add_flow(preprocessor_replayer, format_input)
-            self.add_flow(format_input, inference, {("", "receivers")})
+            # self.add_flow(source, pre_info_op_replayer, {("output", "source_video")})
+            # self.add_flow(pre_info_op_replayer, preprocessor_replayer, {("", "")})
 
-            self.add_flow(inference, segpostprocessor, {("transmitter", "")})
-            self.add_flow(segpostprocessor, viz, {("", "receivers")})
+            # self.add_flow(preprocessor_replayer, format_input)
+            # self.add_flow(format_input, inference, {("", "receivers")})
 
-            ## Tracking
-            self.add_flow(inference, post_inference_op, {("", "in")})
-            self.add_flow(post_inference_op, viz, {("out", "receivers")})
-            self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+            # self.add_flow(inference, segpostprocessor, {("transmitter", "")})
+            # self.add_flow(segpostprocessor, viz, {("", "receivers")})
+
+            # ## Tracking
+            # self.add_flow(inference, post_inference_op, {("", "in")})
+            # self.add_flow(post_inference_op, viz, {("out", "receivers")})
+            # self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
         elif self.source.lower() == "v4l2":
             self.add_flow(source, visualizer_sink, {("signal", "receivers")})
 
-            self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
-            self.add_flow(preprocessor_v4l2, inference, {("tensor", "receivers")})
+            self.add_flow(source, preprocessor_v4l2_recorder, {("signal", "source_video")})
+            self.add_flow(preprocessor_v4l2_recorder, inference, {("tensor", "receivers")})
 
             self.add_flow(inference, segpostprocessor, {("transmitter", "")})
             self.add_flow(segpostprocessor, visualizer_sink, {("", "receivers")})
@@ -683,8 +736,8 @@ class READYApp(Application):
             self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
             ## Recording
-            self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
-            self.add_flow(preprocessor_v4l2, recorder_op, {("tensor", "input")})
+            self.add_flow(source, preprocessor_v4l2_recorder, {("signal", "source_video")})
+            self.add_flow(preprocessor_v4l2_recorder, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
