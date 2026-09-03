@@ -750,6 +750,30 @@ class READYApp(Application):
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+        visualizer_live = HolovizOp(
+            self,
+            name="Live Capture",
+            window_title="Live Capture",
+            width=v4l2_width,
+            height=v4l2_height,
+            cuda_stream_pool=CudaStreamPool(          # its own pool, not the formatter's
+                self, name="live_cuda_stream_pool",
+                dev_id=0, stream_flags=0, stream_priority=0,
+                reserved_size=1, max_size=5,
+            ),
+            tensors=[
+                dict(
+                    name="out_preprocessor",           # must equal out_tensor_name of the converter
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r32g32b32a32_sfloat",  # match converter out_dtype
+                ),
+            ],
+            enable_render_buffer_input=False,
+            enable_render_buffer_output=False,
+        )
+
         probetensor = TensorProbeSaveNpyOp(self, name="probe")
 
 	    ## WORKFLOW
@@ -790,9 +814,13 @@ class READYApp(Application):
             self.add_flow(post_inference_op, visualizer_sink, {("out", "receivers")})
             self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
-            ## Recording
+            ## Debuggin Recording
             self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
-            self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
+            self.add_flow(recorder_format_converter, visualizer_live, {("tensor", "receivers")})
+
+            # ## Recording
+            # self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            # self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
