@@ -369,6 +369,25 @@ class PostInferenceOp(Operator):
         self.frame_count += 1
 
 
+class TensorProbeOp(Operator):
+    def __init__(self, *args, **kwargs):
+        self._logged = False
+        super().__init__(*args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        spec.input("in")
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        msg = op_input.receive("in")
+        if not self._logged:
+            for name, t in msg.items():
+                print(f"tensor '{name}': shape={t.shape} dtype={t.dtype} strides={t.strides}")
+            self._logged = True
+        op_output.emit(msg, "out")
+
+
+
 class READYApp(Application):
     def __init__(self, args, source=None, debug_print_flag=None):
         """Initialize the application
@@ -384,21 +403,6 @@ class READYApp(Application):
         self.source = source
         self.debug_print_flag = debug_print_flag
 
-        #TODO: check if these paths are needed
-        # if data == "none":
-        #     data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
-        # else:
-        #     self.video_dir = self.video_path #os.path.join(self.video_path, "")
-        #     if not os.path.exists(self.video_dir):
-        #         raise ValueError(f"Could not find video data: {self.video_dir=}")
-        #     self.models_path = os.path.join(self.data_path, "")
-        #     if not os.path.exists(self.models_path):
-        #         raise ValueError(f"Could not find models data: {self.models_path=}")
-
-        # self.model_name = model_name
-        # self.models_path_map = {
-        #     "ready_model": os.path.join(self.models_path, self.model_name),
-        # }
 
     def compose(self):
         v4l2_source_args = self.kwargs("v4l2_source")
@@ -454,15 +458,17 @@ class READYApp(Application):
             source = V4L2VideoCaptureOp(
                 self,
                 name="v4l2_source",
-                # allocator=rmm_allocator, #TOTEST
-                allocator=BlockMemoryPool(
-                    self,
-                    name="v4l2_replayer_pool",
-                    storage_type=0,
-                    # storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
-                    block_size=drop_alpha_block_size,
-                    num_blocks=drop_alpha_num_blocks,
-                ),
+                # pass_through=True, # emit the raw YUYV buffer #experimental
+                pass_through=False,
+                allocator=rmm_allocator, #TOTEST
+                # allocator=BlockMemoryPool(
+                #     self,
+                #     name="v4l2_replayer_pool",
+                #     storage_type=0,
+                #     # storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
+                #     block_size=drop_alpha_block_size,
+                #     num_blocks=drop_alpha_num_blocks,
+                # ),
                 **self.kwargs("v4l2_source"),
             )
 
@@ -493,14 +499,14 @@ class READYApp(Application):
             self,
             name="preprocessor_replayer",
             in_dtype=in_dtype,
-            # pool=rmm_allocator,
-            pool=BlockMemoryPool(
-                self,
-                name="preprocessor_replayer_pool",
-                storage_type=MemoryStorageType.DEVICE,
-                block_size=model_width * model_height * bytes_per_float32 * in_components,
-                num_blocks=2*3,
-            ),
+            pool=rmm_allocator, #TO TEST
+            # pool=BlockMemoryPool(
+            #     self,
+            #     name="preprocessor_replayer_pool",
+            #     storage_type=MemoryStorageType.DEVICE,
+            #     block_size=model_width * model_height * bytes_per_float32 * in_components,
+            #     num_blocks=2*3,
+            # ),
             resize_width=model_width,
             resize_height=model_height,
             cuda_stream_pool=formatter_cuda_stream_pool,
@@ -515,6 +521,7 @@ class READYApp(Application):
             resize_width=model_width,
             resize_height=model_height,
             out_tensor_name="out_preprocessor",
+            # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
             in_dtype="rgba8888", #for four channels
             out_dtype="float32",
             scale_min=1.0,
@@ -528,6 +535,22 @@ class READYApp(Application):
                 num_blocks=2 * 3,
             ),
             cuda_stream_pool=formatter_cuda_stream_pool,
+        )
+
+        recorder_format_converter = FormatConverterOp(
+            self,
+            name="recorder_format_converter",
+            # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
+            out_dtype="rgba8888",
+            out_tensor_name="out_preprocessor",
+            pool=rmm_allocator, #TO TEST
+            # pool=BlockMemoryPool(
+            #     self,
+            #     name="recorder_pool",
+            #     storage_type=1, # device
+            #     block_size=v4l2_width * v4l2_height * 4,
+            #     num_blocks=3,
+            # ),
         )
 
         format_input = FormatInferenceInputOp(
@@ -645,15 +668,22 @@ class READYApp(Application):
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+        #VideoStreamReplayer
+        # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/video_stream_replayer/video_stream_replayer.hpp
+        n_channels = 1
+        bpp = 1  # bytes per pixel
+        block_size = model_width * model_height * n_channels * bpp
+        num_blocks = 1
         replayer_op = VideoStreamReplayerOp(
             self,
             name="replayer_op",
             directory=self._args.recording_directory,
             basename=self._args.recording_basename,
-            frame_rate=0,
+            frame_rate=0.0,
             repeat=True, # default: false
             realtime=True, # default: true
             count=0, # default: 0 (no frame count restriction)
+            # allocator=rmm_allocator, #(don't see any differences with or without)
         )
 
         visualizer_replayer = HolovizOp(
@@ -662,6 +692,8 @@ class READYApp(Application):
             window_title="Replayer",
             width=v4l2_width,
             height=v4l2_height,
+            # width=model_width,
+            # height=model_height,
             cuda_stream_pool=formatter_cuda_stream_pool,
             tensors=[
                 dict(
@@ -669,21 +701,33 @@ class READYApp(Application):
                     type="color",
                     priority=0,
                     opacity=1.0,
-                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
-                    # image_format="r8g8b8_srgb",
-                    # image_format="r32g32b32a32_sfloat",  # match recorded float32, 4ch
-                    # image_format="r32g32b32_sfloat",    # if out_channel_order was [0,1,2] (3ch)
+                    # image_format="r8g8b8_unorm", #interlaced
+                    image_format="r8g8b8a8_unorm", #interlaced with no warnings
+                    # image_format="r8g8b8_srgb", #interlaced
+                    # image_format="r8g8b8a8_snorm", #black screen
+                    # image_format="r8g8b8a8_srgb", # interlaced
+                    # image_format="r16g16b16a16_unorm", #error
+                    # image_format="r16g16b16a16_snorm", #error
+                    # image_format="r16g16b16a16_sfloat", #error
+                    # image_format="r32g32b32a32_sfloat", #error
+                    # image_format="r16g16b16_unorm", # unrecognized format
+                    # image_format="r16g16b16_snorm", # unrecognized format
+                    # image_format="r16g16b16_sfloat",  # unrecognized format
+                    # image_format="r32g32b32_sfloat",  # unrecognized format
                 ),
             ],
             enable_render_buffer_input=False, #default: `false`
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+        probe = TensorProbeOp(self, name="probe")
 
 	    ## WORKFLOW
         if self.source.lower() == "replayer":
             #RAW
-            self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
+            # self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
+            self.add_flow(replayer_op, probe, {("output", "in")})
+            self.add_flow(probe, visualizer_replayer, {("out", "receivers")})
 
             #TODO
             #WITH INFERENCE
@@ -718,8 +762,8 @@ class READYApp(Application):
             self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
             ## Recording
-            self.add_flow(source, preprocessor_v4l2_recorder, {("signal", "source_video")})
-            self.add_flow(preprocessor_v4l2_recorder, recorder_op, {("tensor", "input")})
+            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")

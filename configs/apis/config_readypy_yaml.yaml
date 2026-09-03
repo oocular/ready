@@ -28,47 +28,6 @@ model:
   model_path: "/workspace/volumes/datasets/ready/mobious/models_a10080gb/27-Jul-2025_03-44-52_NVIDIA_A100_80GB_PCI"
   model_name: "weights_27-Jul-2025_03-44-52-sim-BHWC.onnx"
 
-replayer:
-  #
-  #
-  # VideoStreamReplayer
-  #
-  #
-  # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/video_stream_replayer/video_stream_replayer.hpp
-  #
-  #
-  ########################
-  ## OpenEDS from video_path: "/workspace/volumes/datasets/videos/openEDS"
-  ### Single frames
-  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels1"
-  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_rgb_channels3"
-  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels1"
-  # basename: "video_30_duplicated_frames_of_val-000180-640wX400h_channels3"
-  ## Various re-scaled frames
-  # basename: "video_30_duplicated_frames_of_four-frames-in-one_channels3"
-  # basename: "video_30_duplicated_frames_of_fractal-frames-in-one_channels3"
-  ## Multiple frames
-  # basename: "video_frames"
-  ########################
-  ## Novel from video_path: "/workspace/volumes/datasets/ready/videos/novel"
-  # basename: "cut_video_640x400_7117d0"
-  # basename: "cut_video_640x400_cc6b03"
-  # basename: "cropped_cut_video_640x400_cc6b03"
-  # basename: "cut_video_640x400_bf7bf0"
-  # basename: "cropped_cut_video_640x400_bf7bf0"
-  ########################
-  ## Shared from video_path: "/workspace/volumes/datasets/ready/videos/shared"
-  #basename: "video_640x400_Acute_VN_Left"
-  #basename: "cropped_video_640x400_Acute_VN_Left"
-  basename: "ID001_GAZETESTCENTRAL01_logitechc930e_DATE_TIME"
-  ########################
-  ## Welgampola from video_path: "/workspace/volumes/datasets/ready/videos/benign-positional-vertigo"
-  # basename: "cropped_cut_video_640x400_video2-left-posterior-cupulolithiasis"
-  ## Details
-  frame_rate: 0.0 # as specified in timestamps
-  realtime: True # default: true
-  repeat: True # default: false
-  count: 0 # default: 0 (no frame count restriction)
 
 v4l2_source:
   #
@@ -82,9 +41,9 @@ v4l2_source:
   #
   #
   # | Input device. /dev/video0 is generally the default input
-  #device: "/dev/video0"
+  device: "/dev/video0"
   #Logitech Webcam C930e (usb-0000:00:14.0-4.1)
-  device: "/dev/video48"
+  # device: "/dev/video48"
   #device: "/dev/video49"
   #USB endoscope camera (1/9 inch sensor size; 30fps; 70CAngleView)
   # device: "/dev/video4"
