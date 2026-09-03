@@ -369,8 +369,14 @@ class PostInferenceOp(Operator):
         self.frame_count += 1
 
 
-class TensorProbeOp(Operator):
+class TensorProbeSaveNpyOp(Operator):
     def __init__(self, *args, **kwargs):
+        """
+        #TODO
+        use recording path instead of np.save(f"/tmp/{name}.npy", a)
+        TOAVOID
+        cp /tmp/out_preprocessor.npy /workspace/volumes/datasets/ready/ready_py/recordings/test
+        """
         self._logged = False
         super().__init__(*args, **kwargs)
 
@@ -381,8 +387,21 @@ class TensorProbeOp(Operator):
     def compute(self, op_input, op_output, context):
         msg = op_input.receive("in")
         if not self._logged:
+            import numpy as np
             for name, t in msg.items():
-                print(f"tensor '{name}': shape={t.shape} dtype={t.dtype} strides={t.strides}")
+                try:
+                    import cupy as cp
+                    a = cp.asnumpy(cp.asarray(t))
+                except Exception:
+                    a = np.asarray(t)
+                np.save(f"/tmp/{name}.npy", a)
+                print(f"{name} {a.shape} {a.dtype}")
+                for c in range(a.shape[-1]):
+                    ch = a[..., c].astype(np.float32)
+                    print(f"  ch{c}: min={ch.min():.0f} max={ch.max():.0f} "
+                        f"mean={ch.mean():.1f} "
+                        f"even_cols={ch[:, 0::2].mean():.1f} "
+                        f"odd_cols={ch[:, 1::2].mean():.1f}")
             self._logged = True
         op_output.emit(msg, "out")
 
@@ -526,14 +545,14 @@ class READYApp(Application):
             out_dtype="float32",
             scale_min=1.0,
             scale_max=252.0,
-            # pool=rmm_allocator, #TOTEST
-            pool=BlockMemoryPool(
-                self,
-                name="preprocessor_v4l2_recorder_pool",
-                storage_type=MemoryStorageType.DEVICE,
-                block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
-                num_blocks=2 * 3,
-            ),
+            pool=rmm_allocator, #TOTEST
+            # pool=BlockMemoryPool(
+            #     self,
+            #     name="preprocessor_v4l2_recorder_pool",
+            #     storage_type=MemoryStorageType.DEVICE,
+            #     block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
+            #     num_blocks=2 * 3,
+            # ),
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
@@ -541,7 +560,10 @@ class READYApp(Application):
             self,
             name="recorder_format_converter",
             # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
-            out_dtype="rgba8888",
+            # out_dtype="rgba8888",
+            out_dtype="float32",
+            # scale_min=1.0,
+            # scale_max=252.0,
             out_tensor_name="out_preprocessor",
             pool=rmm_allocator, #TO TEST
             # pool=BlockMemoryPool(
@@ -613,7 +635,7 @@ class READYApp(Application):
             window_title="READY v.0.1.0: POC",
             width=v4l2_width,
             height=v4l2_height,
-            # cuda_stream_pool=cuda_stream_pool,
+            # cuda_stream_pool=cuda_stream_pool, #TOTEST
             tensors=[
                 dict(
                     name="",
@@ -689,11 +711,11 @@ class READYApp(Application):
         visualizer_replayer = HolovizOp(
             self,
             name="Video Replayer",
-            window_title="Replayer",
+            window_title="Video Replayer",
             width=v4l2_width,
             height=v4l2_height,
-            # width=model_width,
-            # height=model_height,
+            # width=960,
+            # height=480,
             cuda_stream_pool=formatter_cuda_stream_pool,
             tensors=[
                 dict(
@@ -701,33 +723,37 @@ class READYApp(Application):
                     type="color",
                     priority=0,
                     opacity=1.0,
+                    # image_format="r8g8b8_snorm", #interlaced
+                        # [warning] [buffer_info.cpp:440] Image format '14' with component count '3' mismatches tensor 'out_preprocessor' with component count '4'
                     # image_format="r8g8b8_unorm", #interlaced
-                    image_format="r8g8b8a8_unorm", #interlaced with no warnings
+                        # [warning] [buffer_info.cpp:440] Image format '13' with component count '3' mismatches tensor 'out_preprocessor' with component count '4'
+                    # image_format="r8g8b8a8_unorm", #interlaced with no warnings
                     # image_format="r8g8b8_srgb", #interlaced
                     # image_format="r8g8b8a8_snorm", #black screen
                     # image_format="r8g8b8a8_srgb", # interlaced
                     # image_format="r16g16b16a16_unorm", #error
                     # image_format="r16g16b16a16_snorm", #error
                     # image_format="r16g16b16a16_sfloat", #error
-                    # image_format="r32g32b32a32_sfloat", #error
+                    image_format="r32g32b32a32_sfloat", #WORK
                     # image_format="r16g16b16_unorm", # unrecognized format
                     # image_format="r16g16b16_snorm", # unrecognized format
                     # image_format="r16g16b16_sfloat",  # unrecognized format
                     # image_format="r32g32b32_sfloat",  # unrecognized format
+                    # image_format="y8u8y8v8_422_unorm",# Image format '32' with component count '2' mismatches tensor 'out_preprocessor' with component count '4'
                 ),
             ],
             enable_render_buffer_input=False, #default: `false`
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
-        probe = TensorProbeOp(self, name="probe")
+        probetensor = TensorProbeSaveNpyOp(self, name="probe")
 
 	    ## WORKFLOW
         if self.source.lower() == "replayer":
             #RAW
             # self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
-            self.add_flow(replayer_op, probe, {("output", "in")})
-            self.add_flow(probe, visualizer_replayer, {("out", "receivers")})
+            self.add_flow(replayer_op, probetensor, {("output", "in")})
+            self.add_flow(probetensor, visualizer_replayer, {("out", "receivers")})
 
             #TODO
             #WITH INFERENCE
