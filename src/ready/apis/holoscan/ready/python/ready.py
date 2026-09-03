@@ -473,21 +473,21 @@ class READYApp(Application):
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
             drop_alpha_block_size = v4l2_width * v4l2_height * n_channels * bpp
-            drop_alpha_num_blocks = 2
+            drop_alpha_num_blocks = 3
             source = V4L2VideoCaptureOp(
                 self,
                 name="v4l2_source",
                 # pass_through=True, # emit the raw YUYV buffer #experimental
                 pass_through=False,
-                allocator=rmm_allocator, #TOTEST
-                # allocator=BlockMemoryPool(
-                #     self,
-                #     name="v4l2_replayer_pool",
-                #     # storage_type=0,
-                #     storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
-                #     block_size=drop_alpha_block_size,
-                #     num_blocks=drop_alpha_num_blocks,
-                # ),
+                # allocator=rmm_allocator,
+                allocator=BlockMemoryPool(
+                    self,
+                    name="v4l2_replayer_pool",
+                    storage_type=0,
+                    # storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
+                    block_size=drop_alpha_block_size,
+                    num_blocks=drop_alpha_num_blocks,
+                ),
                 **self.kwargs("v4l2_source"),
             )
 
@@ -753,7 +753,6 @@ class READYApp(Application):
 	    ## WORKFLOW
         if self.source.lower() == "replayer":
             #RAW
-            # self.add_flow(replayer_op, visualizer_replayer, {("output", "receivers")})
             self.add_flow(replayer_op, probetensor, {("output", "in")})
             self.add_flow(probetensor, visualizer_replayer, {("out", "receivers")})
 
