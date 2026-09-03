@@ -562,6 +562,7 @@ class READYApp(Application):
             # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
             # out_dtype="rgba8888",
             out_dtype="float32",
+            # out_dtype="rgba8888", #(4 bytes/pixel, 4× smaller)
             # out_dtype="r8g8b8a8_unorm",
             # scale_min=1.0,
             # scale_max=252.0,
@@ -705,7 +706,8 @@ class READYApp(Application):
             basename=self._args.recording_basename,
             frame_rate=0.0,
             repeat=True, # default: false
-            realtime=True, # default: true
+            # realtime=True, # default: true
+            realtime=False,   # decouple from wall clock while diagnosing
             count=0, # default: 0 (no frame count restriction)
             # allocator=rmm_allocator, #(don't see any differences with or without)
         )
@@ -716,7 +718,7 @@ class READYApp(Application):
             window_title="Video Replayer",
             width=v4l2_width,
             height=v4l2_height,
-            # width=960,
+            # width=640,
             # height=480,
             cuda_stream_pool=formatter_cuda_stream_pool,
             tensors=[
@@ -736,7 +738,7 @@ class READYApp(Application):
                     # image_format="r16g16b16a16_unorm", #error
                     # image_format="r16g16b16a16_snorm", #error
                     # image_format="r16g16b16a16_sfloat", #error
-                    image_format="r32g32b32a32_sfloat", #WORK
+                    image_format="r32g32b32a32_sfloat", #WORK with out_dtype="float32" in recorder_format_converter = FormatConverterOp
                     # image_format="r16g16b16_unorm", # unrecognized format
                     # image_format="r16g16b16_snorm", # unrecognized format
                     # image_format="r16g16b16_sfloat",  # unrecognized format
