@@ -556,6 +556,9 @@ class READYApp(Application):
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
+        bytes_per_float32 =4
+        in_components=4
+        # in_components=3
         recorder_format_converter = FormatConverterOp(
             self,
             name="recorder_format_converter",
@@ -564,6 +567,7 @@ class READYApp(Application):
             out_dtype="float32",
             # out_dtype="rgba8888", #(4 bytes/pixel, 4× smaller)
             # out_dtype="r8g8b8a8_unorm",
+            # out_dtype="r32g32b32_sfloat",
             # scale_min=1.0,
             # scale_max=252.0,
             out_tensor_name="out_preprocessor",
@@ -571,8 +575,8 @@ class READYApp(Application):
             pool=BlockMemoryPool(
                 self,
                 name="recorder_pool",
-                # storage_type=1, # device
-                storage_type=MemoryStorageType.DEVICE,
+                storage_type=1, # device
+                # storage_type=MemoryStorageType.DEVICE,
                 block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
                 num_blocks=3,
             ),
@@ -767,7 +771,10 @@ class READYApp(Application):
                     type="color",
                     priority=0,
                     opacity=1.0,
-                    image_format="r32g32b32a32_sfloat",  # match converter out_dtype
+                    # image_format="r32g32b32a32_sfloat",#for out_dtype="rgba8888", in recorder_format_converter = FormatConverterOp
+                    image_format="r32g32b32a32_sfloat",#for out_dtype="float32", in recorder_format_converter = FormatConverterOp
+                    # image_format="r32g32b32_sfloat",
+                    # image_format="r8g8b8a8_unorm",
                 ),
             ],
             enable_render_buffer_input=False,
@@ -814,13 +821,13 @@ class READYApp(Application):
             self.add_flow(post_inference_op, visualizer_sink, {("out", "receivers")})
             self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
-            ## Debuggin Recording
-            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
-            self.add_flow(recorder_format_converter, visualizer_live, {("tensor", "receivers")})
-
-            # ## Recording
+            ## Debugging Recording
             # self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
-            # self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
+            # self.add_flow(recorder_format_converter, visualizer_live, {("tensor", "receivers")})
+
+            ## Recording
+            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
