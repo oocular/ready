@@ -483,8 +483,8 @@ class READYApp(Application):
                 # allocator=BlockMemoryPool(
                 #     self,
                 #     name="v4l2_replayer_pool",
-                #     storage_type=0,
-                #     # storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
+                #     # storage_type=0,
+                #     storage_type=MemoryStorageType.DEVICE, #RuntimeError: Failed to allocate output buffer.
                 #     block_size=drop_alpha_block_size,
                 #     num_blocks=drop_alpha_num_blocks,
                 # ),
@@ -513,7 +513,7 @@ class READYApp(Application):
 
         in_dtype = "rgb888" # float32
         bytes_per_float32 =4
-        in_components=3
+        in_components=4
         preprocessor_replayer = FormatConverterOp(
             self,
             name="preprocessor_replayer",
@@ -545,14 +545,14 @@ class READYApp(Application):
             out_dtype="float32",
             scale_min=1.0,
             scale_max=252.0,
-            pool=rmm_allocator, #TOTEST
-            # pool=BlockMemoryPool(
-            #     self,
-            #     name="preprocessor_v4l2_recorder_pool",
-            #     storage_type=MemoryStorageType.DEVICE,
-            #     block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
-            #     num_blocks=2 * 3,
-            # ),
+            # pool=rmm_allocator, #TOTEST
+            pool=BlockMemoryPool(
+                self,
+                name="preprocessor_v4l2_recorder_pool",
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
+                num_blocks=2 * 3,
+            ),
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
@@ -562,17 +562,19 @@ class READYApp(Application):
             # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
             # out_dtype="rgba8888",
             out_dtype="float32",
+            # out_dtype="r8g8b8a8_unorm",
             # scale_min=1.0,
             # scale_max=252.0,
             out_tensor_name="out_preprocessor",
-            pool=rmm_allocator, #TO TEST
-            # pool=BlockMemoryPool(
-            #     self,
-            #     name="recorder_pool",
-            #     storage_type=1, # device
-            #     block_size=v4l2_width * v4l2_height * 4,
-            #     num_blocks=3,
-            # ),
+            # pool=rmm_allocator, #TO TEST
+            pool=BlockMemoryPool(
+                self,
+                name="recorder_pool",
+                # storage_type=1, # device
+                storage_type=MemoryStorageType.DEVICE,
+                block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
+                num_blocks=3,
+            ),
         )
 
         format_input = FormatInferenceInputOp(
