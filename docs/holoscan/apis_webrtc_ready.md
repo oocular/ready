@@ -179,9 +179,8 @@ mkdir -p test_IDOOO test_IDOO1
 
 * Edit file
 ```bash
-#Setup config file
+# Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
-CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 vim configs/apis/${CONFIG_YAML}
 ```
 
@@ -191,7 +190,6 @@ vim configs/apis/${CONFIG_YAML}
 ```bash
 #Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
-CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 
 # Recording disabled
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG webrtc False
@@ -216,15 +214,14 @@ Available settings in the UI:
 
 ### 5.3 Stop the pipeline
 
-1. Click **Stop** to stop streaming.
-2. Click **Exit API**.
+1. Press **Ctrl+D** in the terminal running the client.
+2. In the browser UI, click **Stop**, then **Exit API**.
 
 ### 5.4 Replay recordings
 
 ```bash
 #Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
-CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 
 # Raw replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
@@ -241,10 +238,11 @@ bash webrtc_ready.bash <$1:NET> <$2:HOLOSCAN_LOG_LEVEL> <$3:SOURCE> <$4:ENABLE_R
 
 | Arg | Name                   | Allowed values                         |
 |-----|------------------------|-----------------------------------------|
-| $1  | `NET`                  | `LOCAL`, `PUBLIC`                       |
-| $2  | `HOLOSCAN_LOG_LEVEL`   | `OFF`, `DEBUG`, `TRACE`, `INFO`, `ERROR`|
-| $3  | `SOURCE`               | `webrtc`, `replayer_raw`, `replayer_inference` |
-| $4  | `ENABLE_RECORDING`     | `True`, `False`                         |
+| $1  | `NET`                  | `${CONFIG_YAML}`                      |
+| $2  | `NET`                  | `LOCAL`, `PUBLIC`                       |
+| $3  | `HOLOSCAN_LOG_LEVEL`   | `OFF`, `DEBUG`, `TRACE`, `INFO`, `ERROR`|
+| $4  | `SOURCE`               | `webrtc`, `replayer_raw`, `replayer_inference` |
+| $5  | `ENABLE_RECORDING`     | `True`, `False`                         |
 
 ## Graph structure for [webrtc_client.py](../../src/ready/apis/holoscan/webrtc/webrtc_client.py)
 
