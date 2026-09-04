@@ -88,7 +88,8 @@ bash launch_dev_container.bash
 
 * Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
 ```bash
-mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
+mkdir -p ~/datasets/ready/webrtc/recordings/ && cd ~/datasets/ready/webrtc/recordings
+mkdir -p test_IDOOO test_IDOO1
 ```
 
 * Edit file
@@ -172,7 +173,8 @@ bash launch_dev_container.bash
 
 * Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
 ```bash
-mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
+mkdir -p ~/datasets/ready/webrtc/recordings/ && cd ~/datasets/ready/webrtc/recordings
+mkdir -p test_IDOOO test_IDOO1
 ```
 
 * Edit file
