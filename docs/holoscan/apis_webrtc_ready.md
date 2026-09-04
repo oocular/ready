@@ -87,11 +87,15 @@ bash launch_dev_container.bash
 ### 4.1 Launch the WebRTC client
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+
 # Recording disabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG webrtc False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG webrtc False
 
 # Recording enabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG webrtc True
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG webrtc True
 ```
 
 ### 4.2 Find your host IP
@@ -128,11 +132,15 @@ The figure below shows the terminal output with debug logs from `webrtc_client.p
 ### 4.5 Replay recordings
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+
 # Raw replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG replayer_raw False
 
 # Inference replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG replayer_inference False
 ```
 
 ## 5. Run on a `LOCAL` network
@@ -157,21 +165,19 @@ mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
 vim configs/apis/config_webrtc_ready_template.yaml
 ```
 
-* Edit webrtc_ready.bash to include config file
-```bash
-eval $(parse_yaml configs/apis/config_webrtc_ready_template.yaml)
-```
 
-
-
-### 5.1 Launch the WebRTC client
+### 5.1 Launch the WebRTC client via `webrtc_ready.bash`
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+
 # Recording disabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG webrtc False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG webrtc False
 
 # Recording enabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG webrtc True
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG webrtc True
 ```
 
 ### 5.2 Open the client in a browser
@@ -196,11 +202,15 @@ Available settings in the UI:
 ### 5.4 Replay recordings
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+
 # Raw replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
 
 # Inference replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
 
 ## `webrtc_ready.bash` script usage reference
