@@ -406,6 +406,34 @@ class TensorProbeSaveNpyOp(Operator):
         op_output.emit(msg, "out")
 
 
+class ShapeProbeOp(Operator):
+    """Pass-through op that prints tensor geometry, then forwards unchanged."""
+
+    def __init__(self, fragment, *args, tensor_name="out_preprocessor",
+                 max_prints=5, **kwargs):
+        self.tensor_name = tensor_name
+        self.max_prints = max_prints
+        self.count = 0
+        super().__init__(fragment, *args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        spec.input("in")
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        msg = op_input.receive("in")
+
+        if self.count < self.max_prints:
+            print(f"[probe] keys={list(msg.keys())}", flush=True)
+            t = msg[self.tensor_name]
+            print(
+                f"[probe] name={self.tensor_name} shape={t.shape} "
+                f"itemsize={t.itemsize} nbytes={t.nbytes} strides={t.strides}",
+                flush=True,
+            )
+            self.count += 1
+
+        op_output.emit(msg, "out")
 
 class READYApp(Application):
     def __init__(self, args, source=None, debug_print_flag=None):
@@ -568,6 +596,7 @@ class READYApp(Application):
             # out_dtype="rgba8888", #(4 bytes/pixel, 4× smaller)
             # out_dtype="r8g8b8a8_unorm",
             # out_dtype="r32g32b32_sfloat",
+            out_channel_order=[0, 1, 2, 3],   # keep alpha > genuinely 4 channels
             # scale_min=1.0,
             # scale_max=252.0,
             out_tensor_name="out_preprocessor",
@@ -752,12 +781,14 @@ class READYApp(Application):
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+        fb_size = [v4l2_width, v4l2_height]
         visualizer_live = HolovizOp(
             self,
             name="Live Capture",
             window_title="Live Capture",
             width=v4l2_width,
             height=v4l2_height,
+            framebuffer_size_callback=lambda w, h: fb_size.__setitem__(slice(None), (w, h)),
             cuda_stream_pool=CudaStreamPool(          # its own pool, not the formatter's
                 self, name="live_cuda_stream_pool",
                 dev_id=0, stream_flags=0, stream_priority=0,
@@ -780,6 +811,12 @@ class READYApp(Application):
         )
 
         probetensor = TensorProbeSaveNpyOp(self, name="probe")
+        shapeprobe_op = ShapeProbeOp(
+                self,
+                name="shape_probe",
+                tensor_name="out_preprocessor",
+                max_prints=5,
+                )
 
 	    ## WORKFLOW
         if self.source.lower() == "replayer":
@@ -820,12 +857,13 @@ class READYApp(Application):
             self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
 
             ## Debugging Recording
-            # self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
-            # self.add_flow(recorder_format_converter, visualizer_live, {("tensor", "receivers")})
+            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            self.add_flow(recorder_format_converter, shapeprobe_op, {("tensor", "in")})
+            self.add_flow(shapeprobe_op, visualizer_live, {("out", "receivers")})
 
             ## Recording
-            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
-            self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
+            # self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            # self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
