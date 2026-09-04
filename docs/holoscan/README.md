@@ -27,9 +27,20 @@ sudo apt-get install v4l-utils
 
 ## Clone holoscan-sdk (useful for `VideoStreamRecorderOp, VideoStreamReplayerOp`)
 ```bash
-cd ~/repositories
+cd $HOME/repositories
 git clone git@github.com:nvidia-holoscan/holoscan-sdk.git
-git checkout v2.2.0 # Use `git tag` to discover other available versions
+cd $HOME/repositories/holoscan-sdk
+git checkout main
+git pull origin main
+git tag #check tags
+git checkout v4.6.0
+./run clear_cache
+./run build_image # produces holoscan-sdk-build-x86_64:<tag>
+docker system prune -f --volumes #clean unused systems
+docker images 
+# holoscan-sdk-build-cu12-x86_64:latest      dcfe0ca2d68d       20.3GB            7GB        
+##v2.2.0
+# git checkout v2.2.0 # Use `git tag` to discover other available versions
 ```
 
 ## Build image with specific version
@@ -43,10 +54,17 @@ cd $HOME/repositories/holohub
 git checkout main
 git pull
 git tag #check tags
-git checkout holoscan-sdk-3.2.0
-./run clear_cache
-./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 452.4s (8/8) FINISHED
-#
+# git checkout holoscan-sdk-3.2.0
+# ./run clear_cache
+# ./dev_container build --docker_file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile #[+] Building 452.4s (8/8) FINISHED
+git checkout holoscan-sdk-4.6.0
+./holohub build-container --help
+#TODO: check if `ready/docs/holoscan/Dockerfile` is needed as it might cover it in the lastest versions
+./holohub build-container --docker-file $HOME/repositories/oocular/ready/docs/holoscan/Dockerfile --base-img holoscan-sdk-build-cu12-x86_64:latest
+docker system prune -f --volumes #clean unused systems
+docker images
+./holohub run-container
+docker system prune -f --volumes #clean unused systems
 #
 #
 ##logs
