@@ -75,7 +75,7 @@ Available settings in the UI:
 
 ```bash
 #Setup config file
-CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 
 # Raw replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
