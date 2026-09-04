@@ -84,10 +84,25 @@ bash launch_dev_container.bash
 
 ## 4. Run on a `PUBLIC` network
 
+### 4.0 Create data path and edit config file
+
+* Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
+```bash
+mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
+```
+
+* Edit file
+```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+vim configs/apis/${CONFIG_YAML}
+```
+
 ### 4.1 Launch the WebRTC client
 
 ```bash
-#Setup config file
+# Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
 CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 
@@ -162,7 +177,10 @@ mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
 
 * Edit file
 ```bash
-vim configs/apis/config_webrtc_ready_template.yaml
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+vim configs/apis/${CONFIG_YAML}
 ```
 
 
