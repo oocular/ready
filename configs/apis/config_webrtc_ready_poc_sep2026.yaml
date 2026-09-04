@@ -69,9 +69,9 @@ recorder:
   #basename: "ID003_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1500"
 
   ##PatientID005
-  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID005"
-  loggername: "logger"
-  loggerextension: ".log"
+  # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID005"
+  # loggername: "logger"
+  # loggerextension: ".log"
   # basename: "ID005_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1530"
   # basename: "ID005_GAZETESTLEFT02_logitechc930e_date04sep2026time1530"
   # basename: "ID005_GAZETESTRIGTH03_logitechc930e_date04sep2026time1530"
@@ -80,12 +80,12 @@ recorder:
   #basename: "ID005_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1530"
 
   ##PatientID004
-  #directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID004"
-  #loggername: "logger"
-  #loggerextension: ".log"
-  #basename: "ID004_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1600"
-  #basename: "ID004_GAZETESTLEFT02_logitechc930e_date04sep2026time1600"
-  #basename: "ID004_GAZETESTRIGTH03_logitechc930e_date04sep2026time1600"
-  #basename: "ID004_GAZETESTUP04_logitechc930e_date04sep2026time1600"
-  #basename: "ID004_GAZETESTDOWN05_logitechc930e_date04sep2026time1600"
+  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID004"
+  loggername: "logger"
+  loggerextension: ".log"
+  # basename: "ID004_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1600"
+  # basename: "ID004_GAZETESTLEFT02_logitechc930e_date04sep2026time1600"
+  # basename: "ID004_GAZETESTRIGTH03_logitechc930e_date04sep2026time1600"
+  # basename: "ID004_GAZETESTUP04_logitechc930e_date04sep2026time1600"
+  # basename: "ID004_GAZETESTDOWN05_logitechc930e_date04sep2026time1600"
   #basename: "ID004_GAZETESTCENTRAL06_logitechc930e_date04sep2026time1600"
