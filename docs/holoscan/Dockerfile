@@ -1,12 +1,23 @@
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE} as base
+ARG BASE_IMAGE=holoscan-sdk-build-cu12-x86_64:latest
+FROM ${BASE_IMAGE} AS base
 
-ARG OPEN_CV_VERSION=4.10.0
+#############################################################
+# Install common dependencies via HoloHub CLI
+#############################################################
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Set default shell to /bin/bash
-SHELL ["/bin/bash", "-cu"]
+FROM base AS holohub-setup
+RUN mkdir -p /tmp/scripts
+COPY holohub /tmp/scripts/
+RUN mkdir -p /tmp/scripts/utilities
+COPY utilities /tmp/scripts/utilities/
+RUN chmod +x /tmp/scripts/holohub
+RUN /tmp/scripts/holohub setup && rm -rf /var/lib/apt/lists/*
 
+#############################################################
+# Install Runtime Dependencies
+#############################################################
+FROM holohub-setup AS run
 
 RUN apt-get update && apt-get install -y build-essential cmake git \
     libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
@@ -16,8 +27,6 @@ RUN apt-get update && apt-get install -y build-essential cmake git \
     libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libjsoncpp-dev ffmpeg \
      && apt-get clean
 
-RUN chmod +rwx /usr/bin/python3.10
 
 # Install WebRTC Video Client (aiohttp aiortc) python modules
-RUN pip3 install aiohttp aiortc opencv-python-headless #opencv-python for full version
-
+RUN python3 -m pip install aiohttp aiortc opencv-python-headless

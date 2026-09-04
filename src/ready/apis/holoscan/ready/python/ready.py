@@ -11,7 +11,8 @@ from holoscan.core import Application, Operator, OperatorSpec, Tracker
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,
-                                V4L2VideoCaptureOp, VideoStreamReplayerOp)
+                                V4L2VideoCaptureOp, VideoStreamRecorderOp,
+                                VideoStreamReplayerOp)
 from holoscan.resources import (BlockMemoryPool, CudaStreamPool,
                                 MemoryStorageType, UnboundedAllocator)
 
@@ -38,7 +39,7 @@ class PreInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" \/ \/ \/ \/ \/ \/ ")
+        print(f" -------------- ")
         print(f"   PreInfoOp  ")
         in_message = op_input.receive("source_video")
         tensor = cp.asarray(in_message.get(""), dtype=cp.float32)
@@ -74,7 +75,7 @@ class FormatInferenceInputOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        print(f" ----------------------------- ")
         print(f"   FormatInferenceInputOp  ")
         in_message = op_input.receive("in")
         # print(in_message)
@@ -162,6 +163,10 @@ class PostInferenceOp(Operator):
     """
     Post Inference Operator
 
+    TODO:
+    Add debug flag for printing logs
+    in the meantime print are just commented
+
     Input:
 
     Output:
@@ -191,42 +196,42 @@ class PostInferenceOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
-        print(f"   PostInferenceOperator  ")
+        # print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        # print(f"   PostInferenceOperator  ")
         in_message = op_input.receive("in")
         # print(f"in_message={in_message}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
-        print(f"unet_out tensor.shape={tensor.shape}")  # tensor.shape=(1, 4, 400, 640)
+        # print(f"unet_out tensor.shape={tensor.shape}")  # tensor.shape=(1, 4, 400, 640)
 
         tensor_1ch_background = tensor[:, 0, :, :]
         tensor_1ch_sclera = tensor[:, 1, :, :]
         tensor_1ch_iris = tensor[:, 2, :, :]
 
-        print(f"shape of tensor_1ch_background: {tensor_1ch_background.shape}")
-        print(f"shape of tensor_1ch_sclera: {tensor_1ch_sclera.shape}")
-        print(f"shape of tensor_1ch_iris: {tensor_1ch_iris.shape}")
+        # print(f"shape of tensor_1ch_background: {tensor_1ch_background.shape}")
+        # print(f"shape of tensor_1ch_sclera: {tensor_1ch_sclera.shape}")
+        # print(f"shape of tensor_1ch_iris: {tensor_1ch_iris.shape}")
 
         ### CENTROID OF PUPIL MASK
         tensor_1ch_pupil = tensor[:, 3, :, :]
-        print(f"tensor.min {cp.min(tensor_1ch_pupil)}")
-        print(f"tensor.max {cp.max(tensor_1ch_pupil)}")
-        print(f"tensor.mean {cp.mean(tensor_1ch_pupil)}")
+        # print(f"tensor.min {cp.min(tensor_1ch_pupil)}")
+        # print(f"tensor.max {cp.max(tensor_1ch_pupil)}")
+        # print(f"tensor.mean {cp.mean(tensor_1ch_pupil)}")
 
-        print(
-            f"tensor_1ch_pupil.shape={tensor_1ch_pupil.shape}"
-        )  # tensor.shape=(1, 400, 640)
+        # print(
+            # f"tensor_1ch_pupil.shape={tensor_1ch_pupil.shape}"
+        # )  # tensor.shape=(1, 400, 640)
         tensor_1ch_pupil_sq = cp.squeeze(tensor_1ch_pupil, axis=None)
-        print(
-            f"tensor_1ch_pupil_sq.shape={tensor_1ch_pupil_sq.shape}"
-        )  # tensor.shape=(400, 640)
+        # print(
+            # f"tensor_1ch_pupil_sq.shape={tensor_1ch_pupil_sq.shape}"
+        # )  # tensor.shape=(400, 640)
         tensor_1ch_pupil_sq_uint8 = tensor_1ch_pupil_sq.astype(cp.uint8)
-        print(tensor_1ch_pupil_sq_uint8.dtype)  # uint8
+        # print(tensor_1ch_pupil_sq_uint8.dtype)  # uint8
 
         mask_pupil_bool = tensor_1ch_pupil_sq_uint8 > 1
-        print(
-            f"mask_pupil_bool.shape {mask_pupil_bool.shape}"
-        )  # tensor.shape=(1, 4, 400, 640)
-        print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}")  # bool
+        # print(
+        #     f"mask_pupil_bool.shape {mask_pupil_bool.shape}"
+        # )  # tensor.shape=(1, 4, 400, 640)
+        # print(f"mask_pupil_bool.dtype {mask_pupil_bool.dtype}")  # bool
 
         # /usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:500:
         # UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
@@ -238,7 +243,7 @@ class PostInferenceOp(Operator):
         centroid = cp.mean(cp.argwhere(mask_pupil_bool), axis=0)
         centroid = cp.nan_to_num(centroid)  # convert float NaN to integer
         centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
-        print(f"centroid: {centroid}")
+        # print(f"centroid: {centroid}")
         # https://stackoverflow.com/questions/73131778/
 
         # 	#EXPERIMENTAL (to be removed or checked for multiple mask)
@@ -279,7 +284,7 @@ class PostInferenceOp(Operator):
         )
         # print(centroid_xy) #[[320. 200.]]
         centroid_xy = centroid_xy[cp.newaxis, :, :]
-        print(f"normalised centroid_xy: {centroid_xy}")
+        # print(f"normalised centroid_xy: {centroid_xy}")
 
         out_message = Entity(context)
 
@@ -364,8 +369,74 @@ class PostInferenceOp(Operator):
         self.frame_count += 1
 
 
+class TensorProbeSaveNpyOp(Operator):
+    def __init__(self, *args, **kwargs):
+        """
+        #TODO
+        use recording path instead of np.save(f"/tmp/{name}.npy", a)
+        TOAVOID
+        cp /tmp/out_preprocessor.npy /workspace/volumes/datasets/ready/ready_py/recordings/test
+        """
+        self._logged = False
+        super().__init__(*args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        spec.input("in")
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        msg = op_input.receive("in")
+        if not self._logged:
+            import numpy as np
+            for name, t in msg.items():
+                try:
+                    import cupy as cp
+                    a = cp.asnumpy(cp.asarray(t))
+                except Exception:
+                    a = np.asarray(t)
+                np.save(f"/tmp/{name}.npy", a)
+                print(f"{name} {a.shape} {a.dtype}")
+                for c in range(a.shape[-1]):
+                    ch = a[..., c].astype(np.float32)
+                    print(f"  ch{c}: min={ch.min():.0f} max={ch.max():.0f} "
+                        f"mean={ch.mean():.1f} "
+                        f"even_cols={ch[:, 0::2].mean():.1f} "
+                        f"odd_cols={ch[:, 1::2].mean():.1f}")
+            self._logged = True
+        op_output.emit(msg, "out")
+
+
+class ShapeProbeOp(Operator):
+    """Pass-through op that prints tensor geometry, then forwards unchanged."""
+
+    def __init__(self, fragment, *args, tensor_name="out_preprocessor",
+                 max_prints=5, **kwargs):
+        self.tensor_name = tensor_name
+        self.max_prints = max_prints
+        self.count = 0
+        super().__init__(fragment, *args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        spec.input("in")
+        spec.output("out")
+
+    def compute(self, op_input, op_output, context):
+        msg = op_input.receive("in")
+
+        if self.count < self.max_prints:
+            print(f"[probe] keys={list(msg.keys())}", flush=True)
+            t = msg[self.tensor_name]
+            print(
+                f"[probe] name={self.tensor_name} shape={t.shape} "
+                f"itemsize={t.itemsize} nbytes={t.nbytes} strides={t.strides}",
+                flush=True,
+            )
+            self.count += 1
+
+        op_output.emit(msg, "out")
+
 class READYApp(Application):
-    def __init__(self, source=None, debug_print_flag=None):
+    def __init__(self, args, source=None, debug_print_flag=None):
         """Initialize the application
         Parameters
         ----------
@@ -373,26 +444,12 @@ class READYApp(Application):
         model_name : Model name
         """
         super().__init__()
+        self._args = args
 
         self.name = "READY App"
         self.source = source
         self.debug_print_flag = debug_print_flag
 
-        #TODO: check if these paths are needed
-        # if data == "none":
-        #     data = os.environ.get("HOLOSCAN_INPUT_PATH", "../data")
-        # else:
-        #     self.video_dir = self.video_path #os.path.join(self.video_path, "")
-        #     if not os.path.exists(self.video_dir):
-        #         raise ValueError(f"Could not find video data: {self.video_dir=}")
-        #     self.models_path = os.path.join(self.data_path, "")
-        #     if not os.path.exists(self.models_path):
-        #         raise ValueError(f"Could not find models data: {self.models_path=}")
-
-        # self.model_name = model_name
-        # self.models_path_map = {
-        #     "ready_model": os.path.join(self.models_path, self.model_name),
-        # }
 
     def compose(self):
         v4l2_source_args = self.kwargs("v4l2_source")
@@ -417,38 +474,40 @@ class READYApp(Application):
             pass
 
         if self.source.lower() == "replayer":
-            n_channels = 1
+            # n_channels = 1
             bpp = 1  # bytes per pixel
-            block_size = model_width * model_height * n_channels * bpp
-            num_blocks = 1
-            source = VideoStreamReplayerOp(
-                self,
-                name="replayer",
-                ## [error] [block_memory_pool.cpp:125] Requested 768000 bytes of memory in a pool with block size 512000
-                # allocator=BlockMemoryPool(
-                #     self,
-                #     name="video_replayer_pool",
-                #     storage_type=0,
-                #     # storage_type=MemoryStorageType.DEVICE,
-                #     block_size=block_size,
-                #     num_blocks=num_blocks,
-                # ),
-                # allocator=host_allocator,
-                allocator=rmm_allocator,
-                # directory=self.video_dir,
-                directory=video_path,
-                **self.kwargs("replayer"),
-            )
+            # block_size = model_width * model_height * n_channels * bpp
+            # num_blocks = 1
+            # source = VideoStreamReplayerOp(
+            #     self,
+            #     name="replayer",
+            #     ## [error] [block_memory_pool.cpp:125] Requested 768000 bytes of memory in a pool with block size 512000
+            #     # allocator=BlockMemoryPool(
+            #     #     self,
+            #     #     name="video_replayer_pool",
+            #     #     storage_type=0,
+            #     #     # storage_type=MemoryStorageType.DEVICE,
+            #     #     block_size=block_size,
+            #     #     num_blocks=num_blocks,
+            #     # ),
+            #     # allocator=host_allocator,
+            #     allocator=rmm_allocator,
+            #     # directory=self.video_dir,
+            #     directory=video_path,
+            #     **self.kwargs("replayer"),
+            # )
 
         elif self.source.lower() == "v4l2":
             n_channels = 4  # RGBA
             bpp = 4  # bytes per pixel
             drop_alpha_block_size = v4l2_width * v4l2_height * n_channels * bpp
-            drop_alpha_num_blocks = 2
+            drop_alpha_num_blocks = 3
             source = V4L2VideoCaptureOp(
                 self,
                 name="v4l2_source",
-                # allocator=rmm_allocator, #TOTEST
+                # pass_through=True, # emit the raw YUYV buffer #experimental
+                pass_through=False,
+                # allocator=rmm_allocator,
                 allocator=BlockMemoryPool(
                     self,
                     name="v4l2_replayer_pool",
@@ -482,40 +541,74 @@ class READYApp(Application):
 
         in_dtype = "rgb888" # float32
         bytes_per_float32 =4
-        in_components=3
+        in_components=4
         preprocessor_replayer = FormatConverterOp(
             self,
             name="preprocessor_replayer",
             in_dtype=in_dtype,
-            # pool=rmm_allocator,
-            pool=BlockMemoryPool(
-                self,
-                name="preprocessor_replayer_pool",
-                storage_type=MemoryStorageType.DEVICE,
-                block_size=model_width * model_height * bytes_per_float32 * in_components,
-                num_blocks=2*3,
-            ),
+            pool=rmm_allocator, #TO TEST
+            # pool=BlockMemoryPool(
+            #     self,
+            #     name="preprocessor_replayer_pool",
+            #     storage_type=MemoryStorageType.DEVICE,
+            #     block_size=model_width * model_height * bytes_per_float32 * in_components,
+            #     num_blocks=2*3,
+            # ),
             resize_width=model_width,
             resize_height=model_height,
             cuda_stream_pool=formatter_cuda_stream_pool,
             **self.kwargs("preprocessor_replayer"),
         )
 
-        preprocessor_v4l2 = FormatConverterOp(
+        preprocessor_v4l2_recorder = FormatConverterOp(
             self,
-            name="preprocessor_v4l2",
+            name="preprocessor_v4l2_recorder",
+            # resize_width=v4l2_width,
+            # resize_height=v4l2_height,
             resize_width=model_width,
             resize_height=model_height,
+            out_tensor_name="out_preprocessor",
+            # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
+            in_dtype="rgba8888", #for four channels
+            out_dtype="float32",
+            scale_min=1.0,
+            scale_max=252.0,
             # pool=rmm_allocator, #TOTEST
             pool=BlockMemoryPool(
                 self,
-                name="preprocessor_replayer_pool",
+                name="preprocessor_v4l2_recorder_pool",
                 storage_type=MemoryStorageType.DEVICE,
-                block_size=model_width * model_height * bytes_per_float32 * in_components,
-                num_blocks=2*3,
+                block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
+                num_blocks=2 * 3,
             ),
             cuda_stream_pool=formatter_cuda_stream_pool,
-            **self.kwargs("preprocessor_v4l2"),
+        )
+
+        bytes_per_channel =4
+        in_components=4
+        # in_components=3
+        recorder_format_converter = FormatConverterOp(
+            self,
+            name="recorder_format_converter",
+            # in_dtype="yuyv", #experimental for V4L2VideoCaptureOp pass_through=True,
+            # out_dtype="rgba8888",
+            out_dtype="float32",
+            # out_dtype="rgba8888", #(4 bytes/pixel, 4× smaller)
+            # out_dtype="r8g8b8a8_unorm",
+            # out_dtype="r32g32b32_sfloat",
+            out_channel_order=[0, 1, 2, 3],   # keep alpha > genuinely 4 channels
+            # scale_min=1.0,
+            # scale_max=252.0,
+            out_tensor_name="out_preprocessor",
+            # pool=rmm_allocator, #TO TEST
+            pool=BlockMemoryPool(
+                self,
+                name="recorder_pool",
+                storage_type=1, # device
+                # storage_type=MemoryStorageType.DEVICE,
+                block_size=v4l2_width * v4l2_height * bytes_per_channel * in_components,
+                num_blocks=3,
+            ),
         )
 
         format_input = FormatInferenceInputOp(
@@ -524,7 +617,6 @@ class READYApp(Application):
             allocator=host_allocator,
             **self.kwargs("format_input"),
         )
-
 
         n_channels_inference = 4
         bpp_inference = 4
@@ -565,50 +657,218 @@ class READYApp(Application):
             **self.kwargs("segpostprocessor"),
         )
 
-        viz = HolovizOp(
-            self,
-            name="viz",
-            # window_title="READY demo",
-            width=model_width,
-            height=model_height,
-            **self.kwargs("viz"),
+        recorder_op = VideoStreamRecorderOp(
+            name="recorder_op",
+            fragment=self,
+            directory=self._args.recording_directory,
+            basename=self._args.recording_basename,
         )
 
+        # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/holoviz/holoviz.hpp
+        visualizer_sink = HolovizOp(
+            self,
+            name="HolovizOp_sink",
+            window_title="READY v.0.1.0: POC",
+            width=v4l2_width,
+            height=v4l2_height,
+            # cuda_stream_pool=cuda_stream_pool, #TOTEST
+            tensors=[
+                dict(
+                    name="",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
+                dict(
+                    name="pupil_cXcY",
+                    type="crosses",
+                    priority=2,
+                    opacity=0.85,
+                    color=[0.6, 0.1, 0.6, 0.8], #RGBA vals
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    line_width=5.0, #for crosses only
+                    point_size=10.0, #for points only
+                ),
+                dict(
+                    name="x_coords_varing_array",
+                    type="points",
+                    priority=2,
+                    opacity=0.95,
+                    color=[1.0, 0.0, 0.0, 1.0], #RGBA vals
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    point_size=5.0, #for points only
+                ),
+                dict(
+                    name="y_coords_varing_array",
+                    type="points",
+                    priority=2,
+                    opacity=0.95,
+                    color=[0.0, 1.0, 0.0, 1.0], #RGBA vals
+                    # image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                    point_size=5.0, #for points only
+                ),
+                dict(
+                    name="out_tensor",
+                    type="color_lut",
+                    priority=0,
+                    opacity=1.0,
+                ),
+            ],
+            color_lut=[
+                [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+                [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+                [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+                [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
+                #https://rgbcolorpicker.com/0-1
+            ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
+        )
+
+        #VideoStreamReplayer
+        # https://github.com/nvidia-holoscan/holoscan-sdk/blob/main/include/holoscan/operators/video_stream_replayer/video_stream_replayer.hpp
+        n_channels = 1
+        bpp = 1  # bytes per pixel
+        block_size = model_width * model_height * n_channels * bpp
+        num_blocks = 1
+        replayer_op = VideoStreamReplayerOp(
+            self,
+            name="replayer_op",
+            directory=self._args.recording_directory,
+            basename=self._args.recording_basename,
+            frame_rate=0.0,
+            repeat=True, # default: false
+            # realtime=True, # default: true
+            realtime=False,   # decouple from wall clock while diagnosing
+            count=0, # default: 0 (no frame count restriction)
+            # allocator=rmm_allocator, #(don't see any differences with or without)
+        )
+
+        visualizer_replayer = HolovizOp(
+            self,
+            name="Video Replayer",
+            window_title="Video Replayer",
+            width=v4l2_width,
+            height=v4l2_height,
+            # width=640,
+            # height=480,
+            cuda_stream_pool=formatter_cuda_stream_pool,
+            tensors=[
+                dict(
+                    name="out_preprocessor",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    # image_format="r8g8b8_snorm", #[warning] [buffer_info.cpp:454]
+                    # image_format="r8g8b8_unorm", #[warning] [buffer_info.cpp:454]
+                    # image_format="r8g8b8a8_unorm", #no warnings but does not render well
+                    # image_format="r8g8b8_srgb", #[warning] [buffer_info.cpp:454]
+                    # image_format="r8g8b8a8_snorm", #dark-blue color
+                    # image_format="r8g8b8a8_srgb", # interlaced
+                    # image_format="r16g16b16a16_unorm", #no warnings but does not render well
+                    # image_format="r16g16b16a16_snorm", #no warnings but does not render well
+                    # image_format="r16g16b16a16_sfloat", #no warnings but does not render well
+                    image_format="r32g32b32a32_sfloat", #WORK with out_dtype="float32" in recorder_format_converter = FormatConverterOp
+                    # image_format="r16g16b16_unorm", # [warning] [buffer_info.cpp:454]
+                    # image_format="r16g16b16_snorm", # [warning] [buffer_info.cpp:454]
+                    # image_format="r16g16b16_sfloat",  # [warning] [buffer_info.cpp:454]
+                    # image_format="r32g32b32_sfloat",  # [warning] [buffer_info.cpp:454]
+                    # image_format="y8u8y8v8_422_unorm",# Image format '32' with component count '2' mismatches tensor 'out_preprocessor' with component count '4'
+                ),
+            ],
+            enable_render_buffer_input=False, #default: `false`
+            enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
+        )
+
+        visualizer_live = HolovizOp(
+            self,
+            name="Live Capture",
+            window_title="Live Capture",
+            width=v4l2_width,
+            height=v4l2_height,
+            cuda_stream_pool=CudaStreamPool(          # its own pool, not the formatter's
+                self, name="live_cuda_stream_pool",
+                dev_id=0, stream_flags=0, stream_priority=0,
+                reserved_size=1, max_size=5,
+            ),
+            tensors=[
+                dict(
+                    name="out_preprocessor",           # must equal out_tensor_name of the converter
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    # image_format="r32g32b32a32_sfloat",#for out_dtype="rgba8888", in recorder_format_converter = FormatConverterOp
+                    image_format="r32g32b32a32_sfloat",#for out_dtype="float32", in recorder_format_converter = FormatConverterOp
+                    # image_format="r32g32b32_sfloat",
+                    # image_format="r8g8b8a8_unorm",
+                ),
+            ],
+            enable_render_buffer_input=False,
+            enable_render_buffer_output=False,
+        )
+
+        probetensor = TensorProbeSaveNpyOp(self, name="probe")
+        shapeprobe_op = ShapeProbeOp(
+                self,
+                name="shape_probe",
+                tensor_name="out_preprocessor",
+                max_prints=5,
+                )
+
+	    ## WORKFLOW
         if self.source.lower() == "replayer":
-            self.add_flow(source, viz, {("", "receivers")})
+            #RAW
+            self.add_flow(replayer_op, probetensor, {("output", "in")})
+            self.add_flow(probetensor, visualizer_replayer, {("out", "receivers")})
 
-            self.add_flow(source, pre_info_op_replayer, {("output", "source_video")})
-            self.add_flow(pre_info_op_replayer, preprocessor_replayer, {("", "")})
+            #TODO
+            #WITH INFERENCE
+            # self.add_flow(source, viz, {("", "receivers")})
 
-            self.add_flow(preprocessor_replayer, format_input)
-            self.add_flow(format_input, inference, {("", "receivers")})
+            # self.add_flow(source, pre_info_op_replayer, {("output", "source_video")})
+            # self.add_flow(pre_info_op_replayer, preprocessor_replayer, {("", "")})
 
-            self.add_flow(inference, segpostprocessor, {("transmitter", "")})
-            self.add_flow(segpostprocessor, viz, {("", "receivers")})
+            # self.add_flow(preprocessor_replayer, format_input)
+            # self.add_flow(format_input, inference, {("", "receivers")})
 
-            self.add_flow(inference, post_inference_op, {("", "in")})
-            self.add_flow(post_inference_op, viz, {("out", "receivers")})
-            self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+            # self.add_flow(inference, segpostprocessor, {("transmitter", "")})
+            # self.add_flow(segpostprocessor, viz, {("", "receivers")})
+
+            # ## Tracking
+            # self.add_flow(inference, post_inference_op, {("", "in")})
+            # self.add_flow(post_inference_op, viz, {("out", "receivers")})
+            # self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
 
         elif self.source.lower() == "v4l2":
-            self.add_flow(source, viz, {("signal", "receivers")})
+            self.add_flow(source, visualizer_sink, {("signal", "receivers")})
 
-            self.add_flow(source, preprocessor_v4l2, {("signal", "source_video")})
-            self.add_flow(preprocessor_v4l2, inference, {("tensor", "receivers")})
+            self.add_flow(source, preprocessor_v4l2_recorder, {("signal", "source_video")})
+            self.add_flow(preprocessor_v4l2_recorder, inference, {("tensor", "receivers")})
 
             self.add_flow(inference, segpostprocessor, {("transmitter", "")})
-            self.add_flow(segpostprocessor, viz, {("", "receivers")})
+            self.add_flow(segpostprocessor, visualizer_sink, {("", "receivers")})
 
+            ## Tracking
             self.add_flow(inference, post_inference_op, {("", "in")})
-            self.add_flow(post_inference_op, viz, {("out", "receivers")})
-            self.add_flow(post_inference_op, viz, {("output_specs", "input_specs")})
+            self.add_flow(post_inference_op, visualizer_sink, {("out", "receivers")})
+            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+
+            ## Debugging Recording
+            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            self.add_flow(recorder_format_converter, shapeprobe_op, {("tensor", "in")})
+            self.add_flow(shapeprobe_op, visualizer_live, {("out", "receivers")})
+
+            ## Recording
+            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="READY demo application.")
+    parser = ArgumentParser(description="READY application.")
     parser.add_argument(
         "-cf",
         "--config_file",
@@ -638,11 +898,22 @@ if __name__ == "__main__":
                 WARNING: Setting this to True will slow down performance of the app!"
         ),
     )
+    parser.add_argument(
+        "-rd",
+        "--recording_directory",
+        help=("Set recording directory"),
+    )
+    parser.add_argument(
+        "-rb",
+        "--recording_basename",
+        help=("Set recording basename"),
+    )
     args = parser.parse_args()
 
     config_file = os.path.join(os.path.dirname(__file__), args.config_file)
 
     app = READYApp(
+        args,
         source=args.source,
         debug_print_flag=args.debug_print_flag,
     )

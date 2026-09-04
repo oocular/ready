@@ -24,16 +24,16 @@ model:
   # name: "_weights_15-12-24_07-00-10-sim-BHWC.onnx"
 
 recorder:
-  #PatientID001
-  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID001"
+  #Patient_test_IDOOO
+  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/test_IDOOO"
   loggername: "logger"
   loggerextension: ".log"
-  #basename: "ID001_GAZETESTCENTRAL01_logitechc930e_data28Aug2026time1400"
-  #basename: "ID001_GAZETESTLEFT02_logitechc930e_data28Aug2026time1400"
-  #basename: "ID001_GAZETESTRIGTH03_logitechc930e_data28Aug2026time1400"
-  #basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
-  #basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
-  basename: "ID001_GAZETESTCENTRAL06_logitechc930e_data28Aug2026time1400"
+  #basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME"
+  #basename: "ID000_GAZETESTLEFT02_DEVICENAME_DATE_TIME"
+  #basename: "ID000_GAZETESTRIGTH03_DEVICENAME_DATE_TIME"
+  #basename: "ID000_GAZETESTUP04_DEVICENAME_DATE_TIME"
+  #basename: "ID000_GAZETESTDOWN05_DEVICENAME_DATE_TIME"
+  basename: "ID000_GAZETESTCENTRAL06_DEVICENAME_DATE_TIME"
   ##MOBILE_MODEL
   #basename: "mobileMODEL_date_time"
   ##PIXEL8

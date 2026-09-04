@@ -145,6 +145,22 @@ bash launch_dev_container.bash
 ```
 
 
+### 5.0.1 Create data path and edit config file
+
+* Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
+```bash
+mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
+```
+
+* Edit file
+```bash
+vim configs/apis/config_webrtc_ready_template.yaml
+```
+
+* Edit webrtc_ready.bash to include config file
+```bash
+eval $(parse_yaml configs/apis/config_webrtc_ready_template.yaml)
+```
 
 
 
