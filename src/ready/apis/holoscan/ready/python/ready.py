@@ -584,7 +584,7 @@ class READYApp(Application):
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
-        bytes_per_float32 =4
+        bytes_per_channel =4
         in_components=4
         # in_components=3
         recorder_format_converter = FormatConverterOp(
@@ -606,7 +606,7 @@ class READYApp(Application):
                 name="recorder_pool",
                 storage_type=1, # device
                 # storage_type=MemoryStorageType.DEVICE,
-                block_size=v4l2_width * v4l2_height * bytes_per_float32 * in_components,
+                block_size=v4l2_width * v4l2_height * bytes_per_channel * in_components,
                 num_blocks=3,
             ),
         )
@@ -781,14 +781,12 @@ class READYApp(Application):
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
-        fb_size = [v4l2_width, v4l2_height]
         visualizer_live = HolovizOp(
             self,
             name="Live Capture",
             window_title="Live Capture",
             width=v4l2_width,
             height=v4l2_height,
-            framebuffer_size_callback=lambda w, h: fb_size.__setitem__(slice(None), (w, h)),
             cuda_stream_pool=CudaStreamPool(          # its own pool, not the formatter's
                 self, name="live_cuda_stream_pool",
                 dev_id=0, stream_flags=0, stream_priority=0,
@@ -862,8 +860,8 @@ class READYApp(Application):
             self.add_flow(shapeprobe_op, visualizer_live, {("out", "receivers")})
 
             ## Recording
-            # self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
-            # self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
+            self.add_flow(source, recorder_format_converter, {("signal", "source_video")})
+            self.add_flow(recorder_format_converter, recorder_op, {("tensor", "input")})
 
         else:
             print(f"plesea either choose v4l2 or replayer")
