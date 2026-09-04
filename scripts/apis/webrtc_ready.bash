@@ -21,8 +21,8 @@ cd $SCRIPT_PATH/../../
 
 source scripts/functions/parse_yaml.bash
 #TODO add argument for config file > https://github.com/oocular/ready/issues/137
-#eval $(parse_yaml configs/apis/config_webrtc_ready_template.yaml)
-eval $(parse_yaml configs/apis/config_webrtc_ready_poc_sep2026.yaml)
+eval $(parse_yaml configs/apis/config_webrtc_ready_template.yaml)
+# eval $(parse_yaml configs/apis/config_webrtc_ready_poc_sep2026.yaml)
 
 cd ${workspace_apiPath}
 
