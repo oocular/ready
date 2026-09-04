@@ -39,7 +39,7 @@ class PreInfoOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" \/ \/ \/ \/ \/ \/ ")
+        print(f" -------------- ")
         print(f"   PreInfoOp  ")
         in_message = op_input.receive("source_video")
         tensor = cp.asarray(in_message.get(""), dtype=cp.float32)
@@ -75,7 +75,7 @@ class FormatInferenceInputOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        print(f" \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ ")
+        print(f" ----------------------------- ")
         print(f"   FormatInferenceInputOp  ")
         in_message = op_input.receive("in")
         # print(in_message)
@@ -731,22 +731,20 @@ class READYApp(Application):
                     type="color",
                     priority=0,
                     opacity=1.0,
-                    # image_format="r8g8b8_snorm", #interlaced
-                        # [warning] [buffer_info.cpp:440] Image format '14' with component count '3' mismatches tensor 'out_preprocessor' with component count '4'
-                    # image_format="r8g8b8_unorm", #interlaced
-                        # [warning] [buffer_info.cpp:440] Image format '13' with component count '3' mismatches tensor 'out_preprocessor' with component count '4'
-                    # image_format="r8g8b8a8_unorm", #interlaced with no warnings
-                    # image_format="r8g8b8_srgb", #interlaced
-                    # image_format="r8g8b8a8_snorm", #black screen
+                    # image_format="r8g8b8_snorm", #[warning] [buffer_info.cpp:454]
+                    # image_format="r8g8b8_unorm", #[warning] [buffer_info.cpp:454]
+                    # image_format="r8g8b8a8_unorm", #no warnings but does not render well
+                    # image_format="r8g8b8_srgb", #[warning] [buffer_info.cpp:454]
+                    # image_format="r8g8b8a8_snorm", #dark-blue color
                     # image_format="r8g8b8a8_srgb", # interlaced
-                    # image_format="r16g16b16a16_unorm", #error
-                    # image_format="r16g16b16a16_snorm", #error
-                    # image_format="r16g16b16a16_sfloat", #error
+                    # image_format="r16g16b16a16_unorm", #no warnings but does not render well
+                    # image_format="r16g16b16a16_snorm", #no warnings but does not render well
+                    # image_format="r16g16b16a16_sfloat", #no warnings but does not render well
                     image_format="r32g32b32a32_sfloat", #WORK with out_dtype="float32" in recorder_format_converter = FormatConverterOp
-                    # image_format="r16g16b16_unorm", # unrecognized format
-                    # image_format="r16g16b16_snorm", # unrecognized format
-                    # image_format="r16g16b16_sfloat",  # unrecognized format
-                    # image_format="r32g32b32_sfloat",  # unrecognized format
+                    # image_format="r16g16b16_unorm", # [warning] [buffer_info.cpp:454]
+                    # image_format="r16g16b16_snorm", # [warning] [buffer_info.cpp:454]
+                    # image_format="r16g16b16_sfloat",  # [warning] [buffer_info.cpp:454]
+                    # image_format="r32g32b32_sfloat",  # [warning] [buffer_info.cpp:454]
                     # image_format="y8u8y8v8_422_unorm",# Image format '32' with component count '2' mismatches tensor 'out_preprocessor' with component count '4'
                 ),
             ],
