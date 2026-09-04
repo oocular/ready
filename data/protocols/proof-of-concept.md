@@ -30,7 +30,7 @@ bash launch_dev_container.bash
 * Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
 ```bash
 mkdir -p ~/datasets/ready/webrtc/recordings/ && cd ~/datasets/ready/webrtc/recordings
-mkdir -p IDOO2 IDOO3 IDOO4 IDOO5 IDOO6
+mkdir -p ID002 ID003 ID004 ID005 ID006
 ```
 
 * Edit file
