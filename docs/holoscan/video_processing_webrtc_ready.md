@@ -53,12 +53,38 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCA
 ### convert gxf to mp4
 ```bash
 cd /workspace/volumes/ready
-bash scripts/video_processing/convert_gxf_entities_to_video.bash config_webrtc_ready_template.yaml
+bash scripts/video_processing/convert_gxf_entities_to_video.bash config_webrtc_ready_processing_template.yaml
 # Guessed frame rate: 30.34931459907574 fps
 # Frame array shape: 480x640x3 (height x width x channels)
 ```
 
-###  View the result
+
+
+## Process videos
+
+The video processing step transforms raw camera input into a cropped and resized region of interest (ROI) suitable for downstream inference and streaming.
+
+The diagram below illustrates the processing geometry:
+* Blue rectangle, 640W × 480H: the native camera resolution.
+* Red rectangle, 640W × 400H: the model input size.
+* Green rectangle, 520W × 300H: the cropped and resized region of interest (ROI).
+[fig](../figs/videoprocessing.svg)!
+
+### Launch the development container
+```bash 
+cd $HOME/repositories/oocular/ready/docs/holoscan 
+bash launch_dev_container.bash 
+cd /workspace/volumes/ready
+```
+
+### Run the video processing script
+```bash
+cd /workspace/volumes/ready
+bash scripts/video_processing/postprocessing.bash config_webrtc_ready_processing_template.yaml
+```
+
+
+##  View the result
 Play the generated MP4 with ffplay:
 ```bash
 ffplay -vf \
