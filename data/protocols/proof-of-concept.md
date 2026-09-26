@@ -35,6 +35,8 @@ mkdir -p ID002 ID003 ID004 ID005 ID006
 
 * Edit file
 ```bash
+# Change to repo path
+cd $HOME/repositories/oocular/ready/
 # Setup config file
 CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 vim configs/apis/${CONFIG_YAML}
@@ -74,6 +76,8 @@ Available settings in the UI:
 ### Replay recordings
 
 ```bash
+# Change to repo path
+cd $HOME/repositories/oocular/ready/
 #Setup config file
 CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
 
