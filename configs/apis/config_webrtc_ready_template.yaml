@@ -2,6 +2,7 @@
 ---
 #Config template file for webrtc_ready.bash
 workspace:
+  rootPath: "/workspace/volumes/ready"
   apiPath: "/workspace/volumes/ready/src/ready/apis/holoscan/webrtc_ready"
   keysPath: "/workspace/volumes/datasets/ready/webrtc"
 

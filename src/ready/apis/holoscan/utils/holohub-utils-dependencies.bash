@@ -18,3 +18,4 @@ download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/ma
 download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/benchmarks/holoscan_flow_benchmarking/app_perf_graph.py app_perf_graph.py
 download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/convert_video_to_gxf_entities.py convert_video_to_gxf_entities.py
 download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holohub/main/utilities/gxf_entity_codec.py gxf_entity_codec.py
+download_if_missing https://raw.githubusercontent.com/nvidia-holoscan/holoscan-sdk/refs/heads/main/scripts/convert_gxf_entities_to_video.py convert_gxf_entities_to_video.py
