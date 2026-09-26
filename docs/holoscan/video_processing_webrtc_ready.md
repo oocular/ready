@@ -92,3 +92,23 @@ ffplay -vf \
     drawtext=text='%{pts\\:hms}':x=10:y=50:fontsize=40:fontcolor=blue" \
     -autoexit *.mp4
 ```
+
+## Convert video to gxf entities
+```bash
+cd /workspace/volumes/ready
+bash scripts/video_processing/convert_video_to_gxf_entities.bash config_webrtc_ready_processing_template.yaml
+```
+
+## Replay preprocessed video
+```bash
+# 1. Launch the dev container
+cd $HOME/repositories/oocular/ready/docs/holoscan
+bash launch_dev_container.bash
+
+# 2. Enter the workspace
+cd /workspace/volumes/ready
+
+# 3. Replay a recording
+bash scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_raw False
+bash scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_inference False
+```

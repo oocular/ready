@@ -17,7 +17,8 @@ recorder:
 
   # Patient_test_ID000
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings/test_ID000"
-  basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME"
+  # basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME"
+  basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME_postprocessed"
   # basename: "ID000_GAZETESTLEFT02_DEVICENAME_DATE_TIME"
   # basename: "ID000_GAZETESTRIGTH03_DEVICENAME_DATE_TIME"
   # basename: "ID000_GAZETESTUP04_DEVICENAME_DATE_TIME"

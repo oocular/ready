@@ -16,6 +16,8 @@ recorder:
   loggerextension: ".log"
   videoWidth: "640"
   videoHeight: "400"
+  videoChannels: "3"
+  videoFrameRate: "30"
   cropVideoWidth: "520"
   cropVideoHeight: "300"
   crop_xpos: "50"
