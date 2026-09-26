@@ -4,6 +4,8 @@ import json
 import logging
 import os
 import ssl
+from datetime import datetime
+from pathlib import Path
 from threading import Condition, Event, Thread
 
 import cupy as cp
@@ -708,7 +710,16 @@ if __name__ == "__main__":
         "--recording_basename",
         help=("Set recording basename"),
     )
+
+    def resolve_logger_filename(args) -> str:
+        directory = Path(args.recording_directory or ".")
+        directory.mkdir(parents=True, exist_ok=True)
+
+        basename = args.recording_basename
+        return str(directory / f"{basename}_{args.source}.log")
+
     cmdline_args = parser.parse_args()
+    logger_filename = resolve_logger_filename(cmdline_args)
 
     if cmdline_args.verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -731,5 +742,5 @@ if __name__ == "__main__":
     # )
     app.scheduler(scheduler)
 
-    with Tracker(app, filename=cmdline_args.logger_filename, num_start_messages_to_skip=2, num_last_messages_to_discard=2) as tracker:
+    with Tracker(app, filename=logger_filename, num_start_messages_to_skip=2, num_last_messages_to_discard=2) as tracker:
         app.run()

@@ -84,14 +84,34 @@ bash launch_dev_container.bash
 
 ## 4. Run on a `PUBLIC` network
 
+### 4.0 Create data path and edit config file
+
+* Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
+```bash
+mkdir -p ~/datasets/ready/webrtc/recordings/ && cd ~/datasets/ready/webrtc/recordings
+mkdir -p test_IDOOO test_IDOO1
+```
+
+* Edit file
+```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+vim configs/apis/${CONFIG_YAML}
+```
+
 ### 4.1 Launch the WebRTC client
 
 ```bash
+# Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+
 # Recording disabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG webrtc False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG webrtc False
 
 # Recording enabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG webrtc True
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG webrtc True
 ```
 
 ### 4.2 Find your host IP
@@ -128,11 +148,15 @@ The figure below shows the terminal output with debug logs from `webrtc_client.p
 ### 4.5 Replay recordings
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026.yaml
+
 # Raw replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG replayer_raw False
 
 # Inference replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash PUBLIC DEBUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} PUBLIC DEBUG replayer_inference False
 ```
 
 ## 5. Run on a `LOCAL` network
@@ -149,29 +173,29 @@ bash launch_dev_container.bash
 
 * Create `recordings` path otherwise you will get `: 'recorder_op' - Failed to open index_file_stream_ with error: GXF_FAILURE`
 ```bash
-mkdir -p ~/datasets/ready/webrtc/recordings/test_IDOOO
+mkdir -p ~/datasets/ready/webrtc/recordings/ && cd ~/datasets/ready/webrtc/recordings
+mkdir -p test_IDOOO test_IDOO1
 ```
 
 * Edit file
 ```bash
-vim configs/apis/config_webrtc_ready_template.yaml
-```
-
-* Edit webrtc_ready.bash to include config file
-```bash
-eval $(parse_yaml configs/apis/config_webrtc_ready_template.yaml)
+# Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+vim configs/apis/${CONFIG_YAML}
 ```
 
 
-
-### 5.1 Launch the WebRTC client
+### 5.1 Launch the WebRTC client via `webrtc_ready.bash`
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+
 # Recording disabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG webrtc False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG webrtc False
 
 # Recording enabled
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG webrtc True
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG webrtc True
 ```
 
 ### 5.2 Open the client in a browser
@@ -190,17 +214,20 @@ Available settings in the UI:
 
 ### 5.3 Stop the pipeline
 
-1. Click **Stop** to stop streaming.
-2. Click **Exit API**.
+1. Press **Ctrl+D** in the terminal running the client.
+2. In the browser UI, click **Stop**, then **Exit API**.
 
 ### 5.4 Replay recordings
 
 ```bash
+#Setup config file
+CONFIG_YAML=config_webrtc_ready_template.yaml
+
 # Raw replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
 
 # Inference replay
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash LOCAL DEBUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
 
 ## `webrtc_ready.bash` script usage reference
@@ -211,10 +238,11 @@ bash webrtc_ready.bash <$1:NET> <$2:HOLOSCAN_LOG_LEVEL> <$3:SOURCE> <$4:ENABLE_R
 
 | Arg | Name                   | Allowed values                         |
 |-----|------------------------|-----------------------------------------|
-| $1  | `NET`                  | `LOCAL`, `PUBLIC`                       |
-| $2  | `HOLOSCAN_LOG_LEVEL`   | `OFF`, `DEBUG`, `TRACE`, `INFO`, `ERROR`|
-| $3  | `SOURCE`               | `webrtc`, `replayer_raw`, `replayer_inference` |
-| $4  | `ENABLE_RECORDING`     | `True`, `False`                         |
+| $1  | `NET`                  | `${CONFIG_YAML}`                      |
+| $2  | `NET`                  | `LOCAL`, `PUBLIC`                       |
+| $3  | `HOLOSCAN_LOG_LEVEL`   | `OFF`, `DEBUG`, `TRACE`, `INFO`, `ERROR`|
+| $4  | `SOURCE`               | `webrtc`, `replayer_raw`, `replayer_inference` |
+| $5  | `ENABLE_RECORDING`     | `True`, `False`                         |
 
 ## Graph structure for [webrtc_client.py](../../src/ready/apis/holoscan/webrtc/webrtc_client.py)
 
