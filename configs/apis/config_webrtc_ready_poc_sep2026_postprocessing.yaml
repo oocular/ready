@@ -31,7 +31,7 @@ recorder:
   crop_ypos: "40"
 
   ##PatientID001
-  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID001"
+  # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID001"
   ### test01: Gaze Central
   # basename: "ID001_GAZETESTCENTRAL01_logitechc930e_data28Aug2026time1400"
   # videoStartFrameTime: "10.0"
@@ -49,17 +49,32 @@ recorder:
   # videoStartFrameTime: "11.0"
   # videoEndFrameTime: "34.0"
   ### test05: Gaze Down
-  basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
-  videoStartFrameTime: "16.0"
-  videoEndFrameTime: "35.0"
+  # basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
+  # videoStartFrameTime: "16.0"
+  # videoEndFrameTime: "35.0"
 
   ##PatientID002
-  # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID002"
+  directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID002"
+  ### test01: Gaze Central
   # basename: "ID002_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1400"
+  # videoStartFrameTime: "0.0"
+  # videoEndFrameTime: "0.0"
+  ### test02: Gaze Left
   # basename: "ID002_GAZETESTLEFT02_logitechc930e_date04sep2026time1400"
+  # videoStartFrameTime: "0.0"
+  # videoEndFrameTime: "0.0"
+  ### test03: Gaze Right
   # basename: "ID002_GAZETESTRIGTH03_logitechc930e_date04sep2026time1400"
+  # videoStartFrameTime: "0.0"
+  # videoEndFrameTime: "0.0"
+  ### test04: Gaze Up
   # basename: "ID002_GAZETESTUP04_logitechc930e_date04sep2026time1400"
+  # videoStartFrameTime: "0.0"
+  # videoEndFrameTime: "0.0"
+  ### test05: Gaze Down
   # basename: "ID002_GAZETESTDOWN05_logitechc930e_date04sep2026time1400"
+  # videoStartFrameTime: "0.0"
+  # videoEndFrameTime: "0.0"
 
   ##PatientID006
   # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID006"
