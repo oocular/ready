@@ -45,11 +45,13 @@ recorder:
   # videoStartFrameTime: "15.5"
   # videoEndFrameTime: "40.0"
   ### test04: Gaze Up
-  basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
-  videoStartFrameTime: "11.0"
-  videoEndFrameTime: "34.0"
-  # ?basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
-  # ?basename: "ID001_GAZETESTCENTRAL06_logitechc930e_data28Aug2026time1400"
+  # basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
+  # videoStartFrameTime: "11.0"
+  # videoEndFrameTime: "34.0"
+  ### test05: Gaze Down
+  basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
+  videoStartFrameTime: "16.0"
+  videoEndFrameTime: "35.0"
 
   ##PatientID002
   # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID002"
