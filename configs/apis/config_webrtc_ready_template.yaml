@@ -18,6 +18,9 @@ recorder:
   postProcessed: "TRUE"
   basenamePostProcessed: "_postprocessed"
   #
+  videoSensorWidth: "640"
+  videoSensorHeight: "480"
+  videoSensorFrameRate: "30"
   videoWidth: "640"
   videoHeight: "400"
   videoChannels: "3"

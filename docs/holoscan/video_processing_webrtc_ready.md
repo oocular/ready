@@ -27,6 +27,7 @@ vim configs/apis/${CONFIG_YAML}
 ```bash
 # Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
 # Raw replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
 
@@ -36,10 +37,7 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCA
 
 ### convert gxf to mp4
 ```bash
-cd /workspace/volumes/ready
-bash scripts/video_processing/convert_gxf_entities_to_video.bash config_webrtc_ready_processing_template.yaml
-# Guessed frame rate: 30.34931459907574 fps
-# Frame array shape: 480x640x3 (height x width x channels)
+bash /workspace/volumes/ready/scripts/video_processing/convert_gxf_entities_to_video.bash ${CONFIG_YAML}
 ```
 
 
@@ -64,9 +62,8 @@ cd /workspace/volumes/ready
 
 ### Run the video processing script
 ```bash
-bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash config_webrtc_ready_template.yaml
-```
-
+bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash ${CONFIG_YAML}
+``` 
 
 ###  View the result
 Play the generated MP4 with ffplay:
@@ -79,7 +76,7 @@ ffplay -vf \
 
 ## 3. Convert video to gxf entities
 ```bash
-bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash config_webrtc_ready_template.yaml
+bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash ${CONFIG_YAML}
 ```
 
 ### Replay preprocessed video
@@ -89,6 +86,6 @@ cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
 
 # 2. Replay a recording
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_raw False
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
