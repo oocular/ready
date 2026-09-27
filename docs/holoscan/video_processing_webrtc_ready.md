@@ -79,8 +79,7 @@ cd /workspace/volumes/ready
 
 ### Run the video processing script
 ```bash
-cd /workspace/volumes/ready
-bash scripts/video_processing/postprocessing.bash config_webrtc_ready_processing_template.yaml
+bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash config_webrtc_ready_template.yaml
 ```
 
 
@@ -95,8 +94,7 @@ ffplay -vf \
 
 ## Convert video to gxf entities
 ```bash
-cd /workspace/volumes/ready
-bash scripts/video_processing/convert_video_to_gxf_entities.bash config_webrtc_ready_processing_template.yaml
+bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash config_webrtc_ready_template.yaml
 ```
 
 ## Replay preprocessed video

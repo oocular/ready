@@ -29,14 +29,47 @@ eval $(parse_yaml $CONFIG_PATH_FILE)
 
 cd ${workspace_apiPath}
 
-if [[ $2 == LOCAL ]]; then
+
+if [ "$recorder_postProcessed" = "TRUE" ]; then
+    export HOLOSCAN_LOG_LEVEL=$3
+    clear && python webrtc_client.py \
+    --logger_filename ${recorder_directory}/${recorder_basename}${recorder_basenamePostProcessed}_${recorder_loggername}_${recorder_loggerextension} \
+    --model_name ${model_name} \
+    --models_path_map ${model_pathMap} \
+    --recording_directory ${recorder_directory} \
+    --recording_basename ${recorder_basename}${recorder_basenamePostProcessed} \
+    --source $4 \
+    --enable_recording $5 \
+    --replayer-tensor-name ""
+fi
+
+
+if [[ $2 == LOCAL ]] && [ "$recorder_postProcessed" = "FALSE" ]; then
     echo $2 LOCAL network
     export HOLOSCAN_LOG_LEVEL=$3
-    clear && python webrtc_client.py --logger_filename ${recorder_directory}/${recorder_basename}_${recorder_loggername}_${recorder_loggerextension} --model_name ${model_name} --models_path_map ${model_pathMap} --recording_directory ${recorder_directory} --recording_basename ${recorder_basename} --source $4 --enable_recording $5
-elif [[ $2 == PUBLIC ]]; then
+    clear && python webrtc_client.py \
+                --logger_filename ${recorder_directory}/${recorder_basename}_${recorder_loggername}_${recorder_loggerextension} \
+                --model_name ${model_name} \
+                --models_path_map ${model_pathMap} \
+                --recording_directory ${recorder_directory} \
+                --recording_basename ${recorder_basename} \
+                --source $4 \
+                --enable_recording $5 \
+                --replayer-tensor-name "frame"
+elif [[ $2 == PUBLIC ]] && [ "$recorder_postProcessed" = "FALSE" ]; then
     echo $2 PUBLIC network
     export HOLOSCAN_LOG_LEVEL=$3
-    clear && python webrtc_client.py --cert-file ${workspace_keysPath}/MyCertificate.crt --key-file ${workspace_keysPath}/MyKey.key --logger_filename ${recorder_directory}/${recorder_basename}_${recorder_loggername}_${recorder_loggerextension} --model_name ${model_name} --models_path_map ${model_pathMap} --recording_directory ${recorder_directory} --recording_basename ${recorder_basename} --source $4 --enable_recording $5
+    clear && python webrtc_client.py \
+                --cert-file ${workspace_keysPath}/MyCertificate.crt \
+                --key-file ${workspace_keysPath}/MyKey.key \
+                --logger_filename ${recorder_directory}/${recorder_basename}_${recorder_loggername}_${recorder_loggerextension} \
+                --model_name ${model_name} \
+                --models_path_map ${model_pathMap} \
+                --recording_directory ${recorder_directory} \
+                --recording_basename ${recorder_basename} \
+                --source $4 \
+                --enable_recording $5 \
+                --replayer-tensor-name "frame"
 else
     echo "not LOCAL nor PUBLIC"
 fi

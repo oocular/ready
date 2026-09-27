@@ -14,11 +14,24 @@ recorder:
   # General variables
   loggername: "logger"
   loggerextension: ".log"
+  #
+  postProcessed: "TRUE"
+  basenamePostProcessed: "_postprocessed"
+  #
+  videoWidth: "640"
+  videoHeight: "400"
+  videoChannels: "3"
+  videoFrameRate: "30"
+  cropVideoWidth: "520"
+  cropVideoHeight: "300"
+  crop_xpos: "50"
+  crop_ypos: "40"
 
   # Patient_test_ID000
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings/test_ID000"
-  # basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME"
-  basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME_postprocessed"
+  basename: "ID000_GAZETESTCENTRAL01_DEVICENAME_DATE_TIME"
+  videoStartFrameTime: "4.5"
+  videoEndFrameTime: "30.0"
   # basename: "ID000_GAZETESTLEFT02_DEVICENAME_DATE_TIME"
   # basename: "ID000_GAZETESTRIGTH03_DEVICENAME_DATE_TIME"
   # basename: "ID000_GAZETESTUP04_DEVICENAME_DATE_TIME"

@@ -47,7 +47,7 @@ CONVERTER="${workspace_rootPath}/src/ready/apis/holoscan/utils/convert_video_to_
 [[ -f "$CONVERTER" ]] || fail "Converter script not found: $CONVERTER"
 
 INPUT_VIDEO="${recorder_directory}/${recorder_basename}_640x400_timeframebound_cropresize_scale.mp4"
-BASENAME_VIDEO="${recorder_directory}/${recorder_basename}_postprocessed"
+BASENAME_VIDEO="${recorder_directory}/${recorder_basename}${recorder_basenamePostProcessed}"
 
 
 # ---------------------------------------------------------------------------

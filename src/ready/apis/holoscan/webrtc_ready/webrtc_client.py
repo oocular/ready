@@ -407,6 +407,14 @@ class WebRTCClientApp(Application):
         super().__init__()
         self._cmdline_args = cmdline_args
 
+        # Tensor name emitted by the replayer:
+        #   ""      -> preprocessed GXF entities (unnamed tensor)
+        #   "frame" -> original named video
+        # Falls back to "" if the argument isn't provided.
+        self.replayer_tensor_name = getattr(
+            self._cmdline_args, "replayer_tensor_name", "frame"
+        )
+
     def compose(self):
         cuda_stream_pool = CudaStreamPool(
             self,
@@ -429,7 +437,7 @@ class WebRTCClientApp(Application):
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(
-                    name="frame",
+                    name=self.replayer_tensor_name,
                     type="color",
                     priority=0,
                     opacity=1.0,
@@ -500,7 +508,7 @@ class WebRTCClientApp(Application):
                 num_blocks=2*3,
             ),
             # pool=UnboundedAllocator(self, name="FormatConverterOp allocator"),
-            in_tensor_name="frame",
+            in_tensor_name=self.replayer_tensor_name,
             out_tensor_name="out_format_op",
             scale_min=1.0,
             scale_max=252.0,
@@ -579,7 +587,7 @@ class WebRTCClientApp(Application):
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(
-                    name="frame",
+                    name=self.replayer_tensor_name,
                     type="color",
                     priority=0,
                     opacity=1.0,
@@ -709,6 +717,12 @@ if __name__ == "__main__":
         "-rb",
         "--recording_basename",
         help=("Set recording basename"),
+    )
+    parser.add_argument(
+        "--replayer-tensor-name",
+        default="frame",
+        choices=["", "frame"],
+        help='Replayer output tensor name: "" for preprocessed (unnamed), "frame" for original',
     )
 
     def resolve_logger_filename(args) -> str:
