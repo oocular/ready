@@ -41,10 +41,13 @@ recorder:
   # videoStartFrameTime: "25.0"
   # videoEndFrameTime: "53.0"
   ### test03: Gaze Right
-  basename: "ID001_GAZETESTRIGTH03_logitechc930e_data28Aug2026time1400"
-  videoStartFrameTime: "15.5"
-  videoEndFrameTime: "40.0"
-  # ?basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
+  # basename: "ID001_GAZETESTRIGTH03_logitechc930e_data28Aug2026time1400"
+  # videoStartFrameTime: "15.5"
+  # videoEndFrameTime: "40.0"
+  ### test04: Gaze Up
+  basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"
+  videoStartFrameTime: "11.0"
+  videoEndFrameTime: "34.0"
   # ?basename: "ID001_GAZETESTDOWN05_logitechc930e_data28Aug2026time1400"
   # ?basename: "ID001_GAZETESTCENTRAL06_logitechc930e_data28Aug2026time1400"
 
