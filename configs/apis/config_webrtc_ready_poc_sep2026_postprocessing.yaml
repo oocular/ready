@@ -33,8 +33,8 @@ recorder:
   ##PatientID001
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID001"
   basename: "ID001_GAZETESTCENTRAL01_logitechc930e_data28Aug2026time1400"
-  videoStartFrameTime: "4.5"
-  videoEndFrameTime: "30.0"
+  videoStartFrameTime: "10.0"
+  videoEndFrameTime: "44.0"
   # basename: "ID001_GAZETESTLEFT02_logitechc930e_data28Aug2026time1400"
   # basename: "ID001_GAZETESTRIGTH03_logitechc930e_data28Aug2026time1400"
   # basename: "ID001_GAZETESTUP04_logitechc930e_data28Aug2026time1400"

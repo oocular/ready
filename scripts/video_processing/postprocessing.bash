@@ -111,9 +111,6 @@ log "--------------------------------------"
 # ---------------------------------------------------------------------------
 # Cropped video
 # ---------------------------------------------------------------------------
-# ffmpeg -y -i "$PATH_OUTPUT_TFB_VIDEO" \
-#   -vf "crop=${recorder_cropVideoWidth}:${recorder_cropVideoHeight}:${recorder_crop_xpos}:${recorder_crop_ypos}" \
-#   -c:a copy "$PATH_OUTPUT_CR_VIDEO"
 log "Cropping ${recorder_cropVideoWidth}x${recorder_cropVideoHeight} at (${recorder_crop_xpos},${recorder_crop_ypos}) ..."
 "$FFMPEG_BIN" -y \
   -i "$PATH_OUTPUT_TFB_VIDEO" \
