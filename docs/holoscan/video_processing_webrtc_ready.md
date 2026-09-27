@@ -30,8 +30,8 @@ CONFIG_YAML=config_webrtc_ready_template.yaml
 CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
 # Setup flag for postprocessing
 CODEPATH=/workspace/volumes/ready/configs/apis/
-sed -i '18s/.*/  postProcessed: "FALSE"/' ${CODEPATH}${CONFIG_YAML} #change flag
-sed -n '18p' ${CODEPATH}${CONFIG_YAML} #verify change
+sed -i 's/^\([[:space:]]*\)postProcessed: "TRUE"/\1postProcessed: "FALSE"/g' ${CODEPATH}${CONFIG_YAML} 
+grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to FALSE
 
 # Raw replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
@@ -79,6 +79,7 @@ ffplay -vf \
 ```
 
 ## 3. Convert video to gxf entities
+Setup `videoStartFrameTime` and `videoEndFrameTime` in ${CONFIG_YAML} from ffplay
 ```bash
 bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash ${CONFIG_YAML}
 ```
@@ -93,8 +94,8 @@ bash launch_dev_container.bash
 ```bash
 CODEPATH=/workspace/volumes/ready/configs/apis/
 CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
-sed -i '18s/.*/  postProcessed: "TRUE"/' ${CODEPATH}${CONFIG_YAML} #change flag
-sed -n '18p' ${CODEPATH}${CONFIG_YAML} #verify change
+sed -i 's/^\([[:space:]]*\)postProcessed: "FALSE"/\1postProcessed: "TRUE"/g' ${CODEPATH}${CONFIG_YAML} 
+grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to TRUE
 ```
 
 # 3. Replay a recording
