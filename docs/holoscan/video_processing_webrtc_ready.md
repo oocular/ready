@@ -1,23 +1,7 @@
 # Video Processing API
 Convert and replay video recordings through the ready pipeline.
 
-
-## Get started in 3 steps:
-
-```bash
-# 1. Launch the dev container
-cd $HOME/repositories/oocular/ready/docs/holoscan
-bash launch_dev_container.bash
-
-# 2. Enter the workspace
-cd /workspace/volumes/ready
-
-# 3. Replay a recording
-bash scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_raw False
-bash scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_inference False
-```
-
-## convert_video_to_gxf_entities
+## 1. Convert_video_to_gxf_entities
 
 ### launch container
 ```bash 
@@ -60,7 +44,7 @@ bash scripts/video_processing/convert_gxf_entities_to_video.bash config_webrtc_r
 
 
 
-## Process videos
+## 2. Postprocess videos
 
 The video processing step transforms raw camera input into a cropped and resized region of interest (ROI) suitable for downstream inference and streaming.
 
@@ -68,7 +52,8 @@ The diagram below illustrates the processing geometry:
 * Blue rectangle, 640W × 480H: the native camera resolution.
 * Red rectangle, 640W × 400H: the model input size.
 * Green rectangle, 520W × 300H: the cropped and resized region of interest (ROI).
-[fig](../figs/videoprocessing.svg)!
+
+![fig](../figs/videoprocessing.svg)
 
 ### Launch the development container
 ```bash 
@@ -83,7 +68,7 @@ bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash confi
 ```
 
 
-##  View the result
+###  View the result
 Play the generated MP4 with ffplay:
 ```bash
 ffplay -vf \
@@ -92,21 +77,18 @@ ffplay -vf \
     -autoexit *.mp4
 ```
 
-## Convert video to gxf entities
+## 3. Convert video to gxf entities
 ```bash
 bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash config_webrtc_ready_template.yaml
 ```
 
-## Replay preprocessed video
+### Replay preprocessed video
 ```bash
 # 1. Launch the dev container
 cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
 
-# 2. Enter the workspace
-cd /workspace/volumes/ready
-
-# 3. Replay a recording
-bash scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_raw False
-bash scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_inference False
+# 2. Replay a recording
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_inference False
 ```

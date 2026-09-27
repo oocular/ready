@@ -140,3 +140,9 @@ log "--------------------------------------"
 
 
 
+# ---------------------------------------------------------------------------
+# Remove files
+# ---------------------------------------------------------------------------
+rm $PATH_OUTPUT_VIDEO #${recorder_basename}_${WIDTH}x${HEIGHT}.mp4"
+rm $PATH_OUTPUT_TFB_VIDEO #${recorder_basename}_${WIDTH}x${HEIGHT}_timeframebound.mp4"
+rm $PATH_OUTPUT_CR_VIDEO #${recorder_basename}_${WIDTH}x${HEIGHT}_timeframebound_cropresize.mp4"
