@@ -15,7 +15,7 @@ recorder:
   loggername: "logger"
   loggerextension: ".log"
   #
-  postProcessed: "FALSE"
+  postProcessed: "TRUE"
   basenamePostProcessed: "_postprocessed"
   #
   videoSensorWidth: "640"

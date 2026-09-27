@@ -28,6 +28,11 @@ vim configs/apis/${CONFIG_YAML}
 # Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
 CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
+# Setup flag for postprocessing
+CODEPATH=/workspace/volumes/ready/configs/apis/
+sed -i '18s/.*/  postProcessed: "FALSE"/' ${CODEPATH}${CONFIG_YAML} #change flag
+sed -n '18p' ${CODEPATH}${CONFIG_YAML} #verify change
+
 # Raw replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
 
@@ -39,7 +44,6 @@ bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCA
 ```bash
 bash /workspace/volumes/ready/scripts/video_processing/convert_gxf_entities_to_video.bash ${CONFIG_YAML}
 ```
-
 
 
 ## 2. Postprocess videos
@@ -85,7 +89,15 @@ bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_enti
 cd $HOME/repositories/oocular/ready/docs/holoscan
 bash launch_dev_container.bash
 
-# 2. Replay a recording
+# 2. Set postProcessed flag to TRUE
+```bash
+CODEPATH=/workspace/volumes/ready/configs/apis/
+CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
+sed -i '18s/.*/  postProcessed: "TRUE"/' ${CODEPATH}${CONFIG_YAML} #change flag
+sed -n '18p' ${CODEPATH}${CONFIG_YAML} #verify change
+```
+
+# 3. Replay a recording
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
