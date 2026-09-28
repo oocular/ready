@@ -115,13 +115,14 @@ recorder:
   # videoEndFrameTime: "44.0"
   # crop_xpos: "0"
   ### test03: Gaze Right
-  basename: "ID003_GAZETESTRIGTH03_logitechc930e_date04sep2026time1500"
-  videoStartFrameTime: "12.0"
-  videoEndFrameTime: "33.0"
+  # basename: "ID003_GAZETESTRIGTH03_logitechc930e_date04sep2026time1500"
+  # videoStartFrameTime: "12.0"
+  # videoEndFrameTime: "33.0"
   ### test04: Gaze Up
-  # basename: "ID003_GAZETESTUP04_logitechc930e_date04sep2026time1500"
-  # videoStartFrameTime: "10.0"
-  # videoEndFrameTime: "30.0"
+  basename: "ID003_GAZETESTUP04_logitechc930e_date04sep2026time1500"
+  videoStartFrameTime: "16.0"
+  videoEndFrameTime: "42.0"
+  crop_ypos: "100"
   ### test05: Gaze Down
   # basename: "ID003_GAZETESTDOWN05_logitechc930e_date04sep2026time1500"
   # videoStartFrameTime: "10.0"
