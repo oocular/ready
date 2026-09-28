@@ -1,13 +1,12 @@
-# Video Processing API
+# Video Processing Pipeline
 Convert and replay video recordings through the ready pipeline.
 
 ## 1. Convert_video_to_gxf_entities
 
-### launch container
+### Launch the development container
 ```bash 
 cd $HOME/repositories/oocular/ready/docs/holoscan 
 bash launch_dev_container.bash 
-cd /workspace/volumes/ready
 ```
 
 ### Replay recordings
@@ -27,22 +26,21 @@ vim configs/apis/${CONFIG_YAML}
 ```bash
 # Setup config file
 CONFIG_YAML=config_webrtc_ready_template.yaml
+CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
+# Setup flag for postprocessing
+CODEPATH=/workspace/volumes/ready/configs/apis/
+sed -i 's/^\([[:space:]]*\)postProcessed: "TRUE"/\1postProcessed: "FALSE"/g' ${CODEPATH}${CONFIG_YAML} 
+grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to FALSE
 # Raw replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
-
 # Inference replay
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
 
-### convert gxf to mp4
+### Convert gxf to mp4
 ```bash
-cd /workspace/volumes/ready
-bash scripts/video_processing/convert_gxf_entities_to_video.bash config_webrtc_ready_processing_template.yaml
-# Guessed frame rate: 30.34931459907574 fps
-# Frame array shape: 480x640x3 (height x width x channels)
+bash /workspace/volumes/ready/scripts/video_processing/convert_gxf_entities_to_video.bash ${CONFIG_YAML}
 ```
-
-
 
 ## 2. Postprocess videos
 
@@ -55,19 +53,6 @@ The diagram below illustrates the processing geometry:
 
 ![fig](../figs/videoprocessing.svg)
 
-### Launch the development container
-```bash 
-cd $HOME/repositories/oocular/ready/docs/holoscan 
-bash launch_dev_container.bash 
-cd /workspace/volumes/ready
-```
-
-### Run the video processing script
-```bash
-bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash config_webrtc_ready_template.yaml
-```
-
-
 ###  View the result
 Play the generated MP4 with ffplay:
 ```bash
@@ -77,18 +62,33 @@ ffplay -vf \
     -autoexit *.mp4
 ```
 
+### Post process video
+Setup `videoStartFrameTime` and `videoEndFrameTime` in ${CONFIG_YAML} from ffplay
+```bash
+bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash ${CONFIG_YAML}
+``` 
+
 ## 3. Convert video to gxf entities
 ```bash
-bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash config_webrtc_ready_template.yaml
+bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash ${CONFIG_YAML}
+```
+
+## 3. Replay a recording
+
+### Set postProcessed flag to TRUE
+```bash
+sed -i 's/^\([[:space:]]*\)postProcessed: "FALSE"/\1postProcessed: "TRUE"/g' ${CODEPATH}${CONFIG_YAML} 
+grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to TRUE
 ```
 
 ### Replay preprocessed video
 ```bash
-# 1. Launch the dev container
-cd $HOME/repositories/oocular/ready/docs/holoscan
-bash launch_dev_container.bash
-
-# 2. Replay a recording
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_raw False
-bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash config_webrtc_ready_template.yaml LOCAL DEBUG replayer_inference False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
+
+## 4. Replaying videos
+
+* Edit `CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml` by commenting and uncommenting lines for patients and tests.
+
+* Run script `webrtc_ready.bash` with replayer_raw or replayer_inference

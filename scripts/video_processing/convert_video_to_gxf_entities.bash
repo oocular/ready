@@ -53,13 +53,6 @@ BASENAME_VIDEO="${recorder_directory}/${recorder_basename}${recorder_basenamePos
 # ---------------------------------------------------------------------------
 # Convert
 # ---------------------------------------------------------------------------
-#pix_fmt rgb24
-#pix_fmt rgba: Outputs 4-channel RGBA
-#pix_fmt yuv420p
-# Resolution is not standard — 640x400 is fine for RGB24, 
-# but if your GXF converter expects standardized HD/4K or macro-block alignment, you may need to pad to 640x416 (divisible by 16) using:
-# -vf "pad=640:416:0:8:black"
-# --width 640 --height 416 --channels 3 --framerate 30
 log "Converting video to GXF entities -> ${BASENAME_VIDEO}"
 ffmpeg -y -loglevel error -i ${INPUT_VIDEO} \
     -fps_mode passthrough \

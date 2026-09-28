@@ -52,13 +52,18 @@ mkdir -p "$recorder_directory"
 # Convert
 # ---------------------------------------------------------------------------
 log "Converting GXF entities -> ${OUTPUT_VIDEO}"
-
 python "$CONVERTER" \
     --basename  "$recorder_basename" \
     --directory "$recorder_directory" \
 | ffmpeg \
-    -f rawvideo -pix_fmt rgb24 -s 640x480 -r 30 -i - \
-    -f mp4 -vcodec libx264 -pix_fmt yuv420p -r 30 \
+    -f rawvideo \
+    -pix_fmt rgb24 \
+    -s "$recorder_videoSensorWidth"x"$recorder_videoSensorHeight" \
+    -r "$recorder_videoSensorFrameRate" -i - \
+    -f mp4 \
+    -vcodec libx264 \
+    -pix_fmt yuv420p \
+    -r "$recorder_videoSensorFrameRate" \
     -y "$OUTPUT_VIDEO"
 
 # ---------------------------------------------------------------------------
