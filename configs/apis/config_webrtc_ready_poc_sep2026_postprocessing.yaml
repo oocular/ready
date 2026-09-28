@@ -113,6 +113,7 @@ recorder:
   basename: "ID003_GAZETESTLEFT02_logitechc930e_date04sep2026time1500"
   videoStartFrameTime: "16.0"
   videoEndFrameTime: "44.0"
+  crop_xpos: "0"
   ### test03: Gaze Right
   # basename: "ID003_GAZETESTRIGTH03_logitechc930e_date04sep2026time1500"
   # videoStartFrameTime: "10.0"
