@@ -131,9 +131,10 @@ recorder:
   ##PatientID005
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID005"
   ### test01: Gaze Central  
-  # basename: "ID005_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1530"
-  # videoStartFrameTime: ".0"
-  # videoEndFrameTime: ".0"
+  basename: "ID005_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1530"
+  videoStartFrameTime: "30.0"
+  videoEndFrameTime: "50.0"
+  crop_xpos: "150"
   ### test02: Gaze Left
   # basename: "ID005_GAZETESTLEFT02_logitechc930e_date04sep2026time1530"
   # videoStartFrameTime: ".0"
