@@ -73,16 +73,22 @@ bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash ${CON
 bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_entities.bash ${CONFIG_YAML}
 ```
 
-# 3. Replay a recording
+## 3. Replay a recording
 
-## Set postProcessed flag to TRUE
+### Set postProcessed flag to TRUE
 ```bash
 sed -i 's/^\([[:space:]]*\)postProcessed: "FALSE"/\1postProcessed: "TRUE"/g' ${CODEPATH}${CONFIG_YAML} 
 grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to TRUE
 ```
 
-## Replay preprocessed video
+### Replay preprocessed video
 ```bash
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
 bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
 ```
+
+## 4. Replaying videos
+
+* Edit `CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml` by commenting and uncommenting lines for patients and tests.
+
+* Run script `webrtc_ready.bash` with replayer_raw or replayer_inference
