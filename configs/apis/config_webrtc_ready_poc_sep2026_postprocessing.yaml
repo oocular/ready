@@ -15,7 +15,7 @@ recorder:
   loggername: "logger"
   loggerextension: ".log"
   #
-  postProcessed: "FALSE"
+  postProcessed: "TRUE"
   basenamePostProcessed: "_postprocessed"
   #
   videoSensorWidth: "640"
@@ -83,9 +83,9 @@ recorder:
   ##PatientID006
   directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID006"
   ### test01: Gaze Central
-  # basename: "ID006_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1430"
-  # videoStartFrameTime: "15.0"
-  # videoEndFrameTime: "33.0"
+  basename: "ID006_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1430"
+  videoStartFrameTime: "10.0"
+  videoEndFrameTime: "30.0"
   ### test02: Gaze Left
   # basename: "ID006_GAZETESTLEFT02_logitechc930e_date04sep2026time1430"
   # videoStartFrameTime: "15.0"

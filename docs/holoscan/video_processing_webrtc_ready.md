@@ -1,4 +1,4 @@
-# Video Processing API
+# Video Processing Pipeline
 Convert and replay video recordings through the ready pipeline.
 
 ## 1. Convert_video_to_gxf_entities
@@ -7,7 +7,6 @@ Convert and replay video recordings through the ready pipeline.
 ```bash 
 cd $HOME/repositories/oocular/ready/docs/holoscan 
 bash launch_dev_container.bash 
-cd /workspace/volumes/ready
 ```
 
 ### Replay recordings
@@ -78,8 +77,6 @@ bash /workspace/volumes/ready/scripts/video_processing/convert_video_to_gxf_enti
 
 ## Set postProcessed flag to TRUE
 ```bash
-CODEPATH=/workspace/volumes/ready/configs/apis/
-CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
 sed -i 's/^\([[:space:]]*\)postProcessed: "FALSE"/\1postProcessed: "TRUE"/g' ${CODEPATH}${CONFIG_YAML} 
 grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to TRUE
 ```
