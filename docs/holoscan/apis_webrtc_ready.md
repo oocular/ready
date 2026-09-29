@@ -295,3 +295,29 @@ vim src/ready/apis/holoscan/webrtc_ready/webrtc_client.py
 # target the correct one explicitly: docker stop <CONTAINER_ID>
 docker stop $(docker ps -q | head -n 1)
 ```
+
+
+## Debugging
+
+### Launch the development container
+```bash
+cd $HOME/repositories/oocular/ready/docs/holoscan
+bash launch_dev_container.bash
+CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml
+# Setup flag for postprocessing
+CODEPATH=/workspace/volumes/ready/configs/apis/
+# Set postProcessed flag to TRUE
+sed -i 's/^\([[:space:]]*\)postProcessed: "FALSE"/\1postProcessed: "TRUE"/g' ${CODEPATH}${CONFIG_YAML} 
+grep -n 'postProcessed' ${CODEPATH}${CONFIG_YAML} #verify change to TRUE
+```
+
+### Replay preprocessed video
+
+* Edit `CONFIG_YAML=config_webrtc_ready_poc_sep2026_postprocessing.yaml` by commenting and uncommenting lines for patients and tests.
+* Run script `webrtc_ready.bash` with replayer_raw or replayer_inference
+
+```bash
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_raw False
+bash /workspace/volumes/ready/scripts/apis/webrtc_ready.bash ${CONFIG_YAML} LOCAL DEBUG replayer_inference False
+```
+

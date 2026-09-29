@@ -333,7 +333,17 @@ class WebRTCClientOp(Operator):
             exit(-1)
 
     def stop(self):
-        self._receiver.stop()
+        """
+        Schedule on the running loop, or make it fire-and-forget safely
+        """
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.run_coroutine_threadsafe(self._receiver.stop(), loop)
+            else:
+                loop.run_until_complete(self._receiver.stop())
+        except RuntimeError:
+            pass
 
     def compute(self, op_input, op_output, context):
         video_frame = None
@@ -356,6 +366,8 @@ class WebAppThread(Thread):
         self._webrtc_client_op = webrtc_client_op
         self._host = host
         self._port = port
+        self._loop = None
+        self._stop_event = Event()
 
         if cert_file:
             self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -372,7 +384,7 @@ class WebAppThread(Thread):
         self._runner = web.AppRunner(app)
 
     async def _on_shutdown(self, app):
-        self._webrtc_client_op.shutdown()
+        await self._webrtc_client_op.shutdown()
 
     async def _index(self, request):
         content = open(os.path.join(ROOT, "index.html"), "r").read()
@@ -393,14 +405,17 @@ class WebAppThread(Thread):
         )
 
     def run(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self._runner.setup())
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        self._loop.run_until_complete(self._runner.setup())
         site = web.TCPSite(self._runner, self._host, self._port, ssl_context=self._ssl_context)
         logging.info(f"Starting web server at {self._host}:{self._port}")
-        loop.run_until_complete(site.start())
-        loop.run_forever()
+        self._loop.run_until_complete(site.start())
+        self._loop.run_forever()
 
+    def stop(self):
+        if self._loop:
+            self._loop.call_soon_threadsafe(self._loop.stop)
 
 class WebRTCClientApp(Application):
     def __init__(self, cmdline_args):
@@ -518,7 +533,7 @@ class WebRTCClientApp(Application):
             cuda_stream_pool=formatter_cuda_stream_pool,
         )
 
-        self_models_path_map = {
+        models_path_map = {
             "ready_model": os.path.join(self._cmdline_args.models_path_map, self._cmdline_args.model_name),
         }
 
@@ -532,7 +547,7 @@ class WebRTCClientApp(Application):
                 block_size=inference_block_size,
                 num_blocks=inference_num_blocks,
             ),
-            model_path_map=self_models_path_map,
+            model_path_map=models_path_map,
             pre_processor_map={"ready_model": ["out_format_op"]},
             inference_map={"ready_model": "unet_out"},
             enable_fp16=False, #Use 16-bit floating point computations. Optional (default: `False`).
@@ -606,7 +621,7 @@ class WebRTCClientApp(Application):
             self.add_flow(drop_frames_op, visualizer_sink, {("out", "receivers")})
 
 	        ### Branch02
-            self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")})
+            self.add_flow(webrtc_client_op, drop_frames_op, {("output", "in")}) #TODO when recording, remove duplicate #can't fan out the same output port to two drop_frames_op inputs
             self.add_flow(drop_frames_op, pre_info_op, {("out", "in")})
             self.add_flow(pre_info_op, format_op, {("out", "")})
             self.add_flow(format_op, inference_op, {("tensor", "receivers")})
@@ -705,6 +720,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-r",
         "--enable_recording",
+        # action=argparse.BooleanOptionalAction, #TO TEST WITH RECORDING
         default=False,
         help="Enable recording of the video stream (default: False)",
     )
@@ -744,16 +760,16 @@ if __name__ == "__main__":
 
 
     # Experimenting to improve consumer speed with schedulers
-    scheduler = GreedyScheduler(app, name="greedy_scheduler") # Default scheduler for thread = 0 ;
+    # scheduler = GreedyScheduler(app, name="greedy_scheduler") # Default scheduler for thread = 0 ;
     # scheduler_class = EventBasedScheduler
     # scheduler_class = MultiThreadScheduler
-    # scheduler = scheduler_class(
-    #     app,
-    #     worker_thread_number=5,
-    #     stop_on_deadlock=True,
-    #     stop_on_deadlock_timeout=500,
-    #     name="webrtc_scheduler",
-    # )
+    scheduler = MultiThreadScheduler(
+        app,
+        worker_thread_number=4,
+        stop_on_deadlock=True,
+        stop_on_deadlock_timeout=500,
+        name="webrtc_scheduler",
+    )
     app.scheduler(scheduler)
 
     with Tracker(app, filename=logger_filename, num_start_messages_to_skip=2, num_last_messages_to_discard=2) as tracker:
