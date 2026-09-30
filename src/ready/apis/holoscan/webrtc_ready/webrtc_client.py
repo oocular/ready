@@ -229,6 +229,9 @@ class BinaryMaskSplitterOp(Operator):
 
         # Convert Holoscan tensor to numpy (H, W) or (H, W, 1) uint8
         arr = torch.from_dlpack(holoscan_tensor).detach().cpu().numpy()
+        #unique = np.unique(arr)
+        #print(f"unique values in postprocessor output: {unique}")
+        #unique values in postprocessor output: [0 1 2 3]
 
         # Squeeze to (H, W)
         if arr.ndim == 3 and arr.shape[-1] == 1:
@@ -242,13 +245,16 @@ class BinaryMaskSplitterOp(Operator):
 
         # Emit one binary mask per class
         for c in range(self.num_classes):
-            binary = (arr == c).astype(np.uint8) * 255
-            binary = binary[..., None]
-            # Use unique tensor name matching the visualizer's spec
-            op_output.emit(
-                {f"mask_class_{c}": binary},
-                f"mask_class_{c}",  # port name can stay the same
-            )
+            # inactive = 0 (transparent), active = c+1 (distinct LUT index)
+            mask = np.where(arr == c, c + 1, 0).astype(np.uint8)
+            mask = mask[..., None]  # (H, W, 1)
+            op_output.emit({f"mask_class_{c}": mask}, f"mask_class_{c}")
+
+            # print(f"class {c}: mask shape={mask.shape}, unique={np.unique(mask)}")
+            # class 0: mask shape=(400, 640), unique=[0 1]
+            # class 1: mask shape=(400, 640), unique=[0 2]
+            # class 2: mask shape=(400, 640), unique=[0 3]
+            # class 3: mask shape=(400, 640), unique=[0 4]
 
 class DropFramesOp(Operator):
     """Dropping Frames Operator"""
@@ -559,41 +565,48 @@ class WebRTCClientApp(Application):
             width=640,
             height=400,
             tensors=[
-                dict(
-                    name=self.replayer_tensor_name,
-                    type="color",
-                    priority=0,
-                    opacity=1.0,
-                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
-                ),
+                # dict(
+                #     name=self.replayer_tensor_name,
+                #     type="color",
+                #     priority=0,
+                #     opacity=1.0,
+                #     image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                # ),
                 dict(
                     name="mask_class_0",
-                    type="color",
+                    type="color_lut",
                     priority=0,
                     opacity=1.0,
                     image_format="r8_uint",  # single-channel 0/255
                 ),
                 dict(
                     name="mask_class_1",
-                    type="color",
+                    type="color_lut",
                     priority=1,
                     opacity=1.0,
                     image_format="r8_uint",
                 ),
                 dict(
                     name="mask_class_2",
-                    type="color",
+                    type="color_lut",
                     priority=2,
                     opacity=1.0,
                     image_format="r8_uint",
                 ),
                 dict(
                     name="mask_class_3",
-                    type="color",
+                    type="color_lut",
                     priority=3,
                     opacity=1.0,
                     image_format="r8_uint",
                 ),
+            ],
+            color_lut=[
+                [0.0, 0.0, 0.0, 0.0],    # index 0 = background of each mask (transparent)
+                [0.65,0.81,0.89,0.5],    # idx 1: class 0 
+                [0.3, 0.3, 0.9, 0.5],    # idx 2: class 1 #sclera 
+                [0.1, 0.8, 0.2, 0.5],    # idx 3: class 2 #Iris
+                [0.9, 0.9, 0.3, 0.8],    # idx 4: class 3 #Pupil
             ],
             enable_render_buffer_input=False,
             enable_render_buffer_output=False,
