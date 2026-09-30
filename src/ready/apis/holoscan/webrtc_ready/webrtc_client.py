@@ -8,7 +8,10 @@ from datetime import datetime
 from pathlib import Path
 from threading import Condition, Event, Thread
 
+import torch
 import cupy as cp
+import numpy as np
+import cv2
 import holoscan
 import holoscan as hs
 from aiohttp import web
@@ -17,7 +20,7 @@ from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
 from holoscan.conditions import PeriodicCondition
 from holoscan.core import (Application, ConditionType, IOSpec, Operator,
-                           OperatorSpec, Tracker)
+                           OperatorSpec, Tracker, Message)
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,
@@ -77,11 +80,12 @@ class PostInferenceOp(Operator):
         out: 'dynamic_text': array([[ x_coord, y_coord, font_size)  ])
         output_specs: holoscan.operators.holoviz._holoviz.HolovizOp.InputSpec object
     """
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, fragment, width=None, height=None, **kwargs):
         """Initialize Operator"""
-        self.frame_count = 0
-        super().__init__(*args, **kwargs)
+        self.frame_count = 1
+        self.width = width
+        self.height = height
+        super().__init__(fragment, **kwargs)
 
     def setup(self, spec: OperatorSpec):
         """Setting up specifications of Operator"""
@@ -91,28 +95,74 @@ class PostInferenceOp(Operator):
 
     def compute(self, op_input, op_output, context):
         """Computing method to receive input message and emit output message"""
-        # print(f"--START-------- PostInferenceOp  ------------")
+        print(f"--START-------- PostInferenceOp  ------------")
         in_message = op_input.receive("in")
         # print(f"in_message={in_message}")
         # print(f"frame count={self.frame_count}")
         tensor = cp.asarray(in_message.get("unet_out"), dtype=cp.float32)
+        #
+        #
+        holoscan_tensor = in_message['unet_out']
+        torch_tensor = torch.from_dlpack(holoscan_tensor)  # (1, 4, 400, 640) f32
+
+        # --- log to confirm layout ---
+        print(f"dtype={holoscan_tensor.dtype}") #dtype=<DLDataType: code=DLFLOAT, bits=32, lanes=1>
+        print(f"torch_tensor.dtype={torch_tensor.dtype}") #dtype=torch.float32
+        print(f"torch_tensor.shape={torch_tensor.shape}") #torch_tensor.shape=torch.Size([1, 4, 400, 640])
+        print("unet_out shape:", tuple(torch_tensor.shape), torch_tensor.dtype)
+
+
+        # (1,4,H,W) -> argmax over classes -> (H,W) uint8
+        seg = torch_tensor.argmax(dim=1)               # (1, 400, 640) int64
+        seg = seg.squeeze(0)                           # (400, 640)
+        seg_np = seg.detach().cpu().numpy().astype("uint8")  # (400, 640)
+        seg_np = seg_np[..., None]                     # (400, 640, 1)
+
         # print(f"unet_out tensor.shape={tensor.shape}") #tensor.shape=(1, 4, 400, 640)
-        # print(f"tensor.dtype={tensor.dtype}")
+        # print(f"tensor.dtype={tensor.dtype}") #tensor.dtype=float32
         # print(f"tensor.min()={cp.min(tensor)}")
         # print(f"tensor.max()={cp.max(tensor)}")
         # print(f"tensor.mean()={cp.mean(tensor)}")
 
-        dynamic_text_coord = cp.asarray(
+        tensor_1ch_background = tensor[:, 0, :, :]
+        tensor_1ch_sclera = tensor[:, 1, :, :]
+        tensor_1ch_iris = tensor[:, 2, :, :]
+        tensor_1ch_pupil = tensor[:, 3, :, :]  # shape: (H, W)
+
+        tensor_1ch_pupil_sq = cp.squeeze(tensor_1ch_pupil, axis=None)  # dtype float32
+        tensor_1ch_pupil_sq_uint8 = tensor_1ch_pupil_sq.astype(cp.uint8) # dtype uint8
+        mask_pupil_bool = tensor_1ch_pupil_sq_uint8 > 1
+
+        # print(f"shape of tensor_1ch_background: {tensor_1ch_background.shape}")
+        # print(f"shape of tensor_1ch_sclera: {tensor_1ch_sclera.shape}")
+        # print(f"shape of tensor_1ch_iris: {tensor_1ch_iris.shape}")
+        # print(f"tensor_1ch_pupil.shape={tensor_1ch_pupil.shape}")
+        # print(f"tensor_1ch_pupil_sq.shape={tensor_1ch_pupil_sq.shape}")  # tensor.shape=(400, 640)
+
+        # centroid = cp.mean(cp.argwhere(mask_pupil_bool), axis=0)
+        # centroid = cp.nan_to_num(centroid)  # convert float NaN to integer
+        # centroid_x, centroid_y = int(centroid[1]), int(centroid[0])
+        # print(f"centroid: {centroid}")
+
+        # use network_output_type="softmax",
+
+        # # Build the dynamic text coordinate tensor
+        dynamic_text_coord = np.asarray(
             [
-                (0.01, 0.01, 0.035),  # (x, y, font_size)
+                [0.01, 0.01, 0.035],  # (x, y, size)
             ],
+            dtype=np.float32,
         )
+
+        # device_mask = cp.asarray(cleaned_mask.astype(np.uint8))
+        # device_mask = cp.asarray(cleaned_mask.reshape(400, 640, 1).astype(np.uint8))
+
         out_message = {
             "dynamic_text_coord": dynamic_text_coord,
+            "UNETOUT": seg_np,
         }
-        # print(f"out_message: {out_message}")
-        op_output.emit(out_message, "outputs")
-
+        op_output.emit(out_message, "outputs")    
+        
         specs = []
         spec = HolovizOp.InputSpec("dynamic_text_coord", HolovizOp.InputType.TEXT)
         view = HolovizOp.InputSpec.View()
@@ -124,18 +174,20 @@ class PostInferenceOp(Operator):
         spec.text = [
             "Frame "
             + str(self.frame_count)
+            # + " Number of labels"
+            # + f"{num_labels}"
             # + " tensor.min()="
-            # + str(cp.min(tensor))
+            # + f"{float(cp.min(tensor)):.2f}"
             # + " tensor.max()="
-            # + str(cp.max(tensor))
+            # + f"{float(cp.max(tensor)):.2f}"
             # + " tensor.mean()="
-            # + str(cp.mean(tensor))
+            # + f"{float(cp.mean(tensor)):.2f}"
         ]
         spec.color = [
             1,
+            0,
+            0,
             1,
-            1,
-            0.99,
         ]
         spec.priority = 1
 
@@ -145,8 +197,58 @@ class PostInferenceOp(Operator):
         op_output.emit(specs, "output_specs")
 
         self.frame_count += 1
-        # print(f"--END-------- PostInferenceOp  ------------")
+        print(f"--END-------- PostInferenceOp  ------------")
 
+
+
+class BinaryMaskSplitterOp(Operator):
+    """
+    Takes a single-channel uint8 class-index mask (from SegmentationPostprocessorOp)
+    and emits N binary masks, one per class.
+
+    Input:
+        "in"  : dict with key "out_tensor" -> (H, W) or (H, W, 1) uint8 class indices
+
+    Output:
+        "out" : dict with keys like "mask_class_0", "mask_class_1", ...
+                Each is (H, W, 1) uint8 with values 0 or 255.
+    """
+
+    def __init__(self, fragment, *args, num_classes: int = 4, **kwargs):
+        self.num_classes = num_classes
+        super().__init__(fragment, *args, **kwargs)
+
+    def setup(self, spec: OperatorSpec):
+        spec.input("in")
+        for c in range(self.num_classes):
+            spec.output(f"mask_class_{c}")
+
+    def compute(self, op_input, op_output, context):
+        in_message = op_input.receive("in")
+        holoscan_tensor = in_message["out_tensor"]
+
+        # Convert Holoscan tensor to numpy (H, W) or (H, W, 1) uint8
+        arr = torch.from_dlpack(holoscan_tensor).detach().cpu().numpy()
+
+        # Squeeze to (H, W)
+        if arr.ndim == 3 and arr.shape[-1] == 1:
+            arr = arr[..., 0]
+        elif arr.ndim == 3 and arr.shape[0] == 1:
+            arr = arr[0]
+        elif arr.ndim != 2:
+            raise ValueError(f"Unexpected mask shape: {arr.shape}")
+
+        arr = arr.astype(np.uint8)
+
+        # Emit one binary mask per class
+        for c in range(self.num_classes):
+            binary = (arr == c).astype(np.uint8) * 255
+            binary = binary[..., None]
+            # Use unique tensor name matching the visualizer's spec
+            op_output.emit(
+                {f"mask_class_{c}": binary},
+                f"mask_class_{c}",  # port name can stay the same
+            )
 
 class DropFramesOp(Operator):
     """Dropping Frames Operator"""
@@ -443,12 +545,66 @@ class WebRTCClientApp(Application):
         host_allocator = UnboundedAllocator(self, name="host_allocator")
 
         webrtc_client_op = WebRTCClientOp(self, name="WebRTC Client")
+
+        splitter_op = BinaryMaskSplitterOp(
+            self,
+            name="splitter_op",
+            num_classes=4,
+        )
+
+
+        visualizer_splitter = HolovizOp(
+            self,
+            name="visualizer_splitter",
+            width=640,
+            height=400,
+            tensors=[
+                dict(
+                    name=self.replayer_tensor_name,
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
+                dict(
+                    name="mask_class_0",
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8_uint",  # single-channel 0/255
+                ),
+                dict(
+                    name="mask_class_1",
+                    type="color",
+                    priority=1,
+                    opacity=1.0,
+                    image_format="r8_uint",
+                ),
+                dict(
+                    name="mask_class_2",
+                    type="color",
+                    priority=2,
+                    opacity=1.0,
+                    image_format="r8_uint",
+                ),
+                dict(
+                    name="mask_class_3",
+                    type="color",
+                    priority=3,
+                    opacity=1.0,
+                    image_format="r8_uint",
+                ),
+            ],
+            enable_render_buffer_input=False,
+            enable_render_buffer_output=False,
+        )
+
         visualizer_sink = HolovizOp(
             self,
             name="HolovizOp_sink",
             window_title="READY Demo WebRTC Client",
             width=640, #320 #TODO pass this as a width and height from index.html video-resolution
-            height=480, #240
+            height=400, #240
             cuda_stream_pool=cuda_stream_pool,
             tensors=[
                 dict(
@@ -463,6 +619,7 @@ class WebRTCClientApp(Application):
                     type="color_lut",
                     priority=0,
                     opacity=1.0,
+                    image_format="r8_unorm", #r8g8b8_snorm #r8g8b8_srgb
                 ),
             ],
             color_lut=[
@@ -476,6 +633,33 @@ class WebRTCClientApp(Application):
             enable_render_buffer_output=False, #default: `false` #TODO self._cmdline_args.enable_recording
         )
 
+        visualizer_seg_sink = HolovizOp(
+            self,
+            name="HolovizOp_sink",
+            window_title="READY Demo WebRTC Client",
+            width=640,
+            height=400,
+            cuda_stream_pool=cuda_stream_pool,
+            tensors=[
+                 dict(
+                     name="UNETOUT",
+                     type="color_lut",
+                     priority=0,
+                     opacity=1.0,
+                     image_format="r8_uint",
+                 ),
+            ],
+            color_lut=[
+                [0.65, 0.81, 0.89, 0.01], #background #RGB for light blue & alpha=0.1
+                [0.3, 0.3, 0.9, 0.5], #sclera  #RGB for blue & alpha=0.5
+                [0.1, 0.8, 0.2, 0.5], #Iris    #RGB for green & alpha=0.5
+                [0.9, 0.9, 0.3, 0.8], #Pupil   #RGB for yellow & alpha=0.8
+                #https://rgbcolorpicker.com/0-1
+            ],
+            enable_render_buffer_input=False,
+            enable_render_buffer_output=False,
+        )
+
 
         pre_info_op = PreInfoOp(
             self,
@@ -484,9 +668,13 @@ class WebRTCClientApp(Application):
         )
 
 
+        model_width = 640
+        model_height = 400
         post_inference_op = PostInferenceOp(
             self,
             name="post_inference_op",
+            width=model_width,
+            height=model_height,
             allocator=host_allocator,
         )
 
@@ -650,19 +838,31 @@ class WebRTCClientApp(Application):
         ### Replayer Inference Video
         if self._cmdline_args.source == "replayer_inference":
             ### Branch01
-            self.add_flow(replayer_op, visualizer_sink, {("output", "receivers")})
+            # self.add_flow(replayer_op, visualizer_sink, {("output", "receivers")})
+            # self.add_flow(replayer_op, visualizer_seg_sink, {("output", "receivers")})
+            self.add_flow(replayer_op, visualizer_splitter, {("output", "receivers")})
 
             ### Branch02
             self.add_flow(replayer_op, format_op, {("output", "")})
             self.add_flow(format_op, inference_op, {("tensor", "receivers")})
 
-            self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
-            self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
+            #REMOVE connections to visualizer_sink
+            # self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "")})
+            # self.add_flow(segpostprocessor_op, visualizer_sink, {("", "receivers")})
 
-            self.add_flow(inference_op, post_inference_op, {("", "in")})
+            self.add_flow(inference_op, segpostprocessor_op, {("transmitter", "in_tensor")})
+            self.add_flow(segpostprocessor_op, splitter_op,  {("out_tensor", "in")})
 
-            self.add_flow(post_inference_op, visualizer_sink, {("outputs", "receivers")})
-            self.add_flow(post_inference_op, visualizer_sink, {("output_specs", "input_specs")})
+            # One flow per class output
+            for c in range(4):
+                self.add_flow(
+                    splitter_op,
+                    visualizer_splitter,
+                    {(f"mask_class_{c}", "receivers")},   # <-- tuple inside set
+                )
+            # self.add_flow(inference_op, post_inference_op, {("", "in")})
+            # self.add_flow(post_inference_op, visualizer_seg_sink, {("outputs", "receivers")})
+            # self.add_flow(post_inference_op, visualizer_seg_sink, {("output_specs", "input_specs")})
 
         ## REFERENCE
         ## self.add_flow(upstreamOP, downstreamOP, {("output_portname_upstreamOP", "input_portname_downstreamOP")})
