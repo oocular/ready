@@ -132,7 +132,7 @@ recorder:
 
   ##PatientID005
   # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID005"
-  ### test01: Gaze Central  
+  ### test01: Gaze Central
   # basename: "ID005_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1530"
   # videoStartFrameTime: "30.0"
   # videoEndFrameTime: "50.0"
@@ -156,11 +156,11 @@ recorder:
   ### test05: Gaze Down
   # basename: "ID005_GAZETESTDOWN05_logitechc930e_date04sep2026time1530"
   # videoStartFrameTime: "15.0"
-  # videoEndFrameTime: "30.0"  
+  # videoEndFrameTime: "30.0"
 
   ##PatientID004
   # directory: "/workspace/volumes/datasets/ready/webrtc/recordings/ID004"
-  ### test01: Gaze Central  
+  ### test01: Gaze Central
   # basename: "ID004_GAZETESTCENTRAL01_logitechc930e_date04sep2026time1600"
   # videoStartFrameTime: "46.0"
   # videoEndFrameTime: "59.0"

@@ -69,4 +69,3 @@ python "$CONVERTER" \
 log "--------------------------------------"
 log "Converted video: ${BASENAME_VIDEO}"
 log "--------------------------------------"
- 

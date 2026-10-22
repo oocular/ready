@@ -161,8 +161,8 @@ class PostInferenceOp(Operator):
             "dynamic_text_coord": dynamic_text_coord,
             "UNETOUT": seg_np,
         }
-        op_output.emit(out_message, "outputs")    
-        
+        op_output.emit(out_message, "outputs")
+
         specs = []
         spec = HolovizOp.InputSpec("dynamic_text_coord", HolovizOp.InputType.TEXT)
         view = HolovizOp.InputSpec.View()
