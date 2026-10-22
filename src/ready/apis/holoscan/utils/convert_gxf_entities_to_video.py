@@ -5,11 +5,10 @@ SPDX-License-Identifier: Apache-2.0
 """  # noqa: E501
 
 import argparse
+import os
 import sys
 
 from gxf_entity_codec import EntityReader
-
-import os
 
 
 def iter_output_frames(entity_iter):

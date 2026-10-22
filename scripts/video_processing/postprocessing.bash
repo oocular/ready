@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Video scaling and time-frame trimming, cropping and resizing utilites
+# Video scaling and time-frame trimming, cropping and resizing utilities
 #
 # Usage:
 #   bash postprocessing.bash <config_file_name>

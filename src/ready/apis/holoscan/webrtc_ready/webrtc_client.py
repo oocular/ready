@@ -8,19 +8,19 @@ from datetime import datetime
 from pathlib import Path
 from threading import Condition, Event, Thread
 
-import torch
 import cupy as cp
-import numpy as np
 import cv2
 import holoscan
 import holoscan as hs
+import numpy as np
+import torch
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaStreamError, MediaStreamTrack
 from holoscan import as_tensor
 from holoscan.conditions import PeriodicCondition
-from holoscan.core import (Application, ConditionType, IOSpec, Operator,
-                           OperatorSpec, Tracker, Message)
+from holoscan.core import (Application, ConditionType, IOSpec, Message,
+                           Operator, OperatorSpec, Tracker)
 from holoscan.gxf import Entity
 from holoscan.operators import (FormatConverterOp, HolovizOp, InferenceOp,
                                 SegmentationPostprocessorOp,

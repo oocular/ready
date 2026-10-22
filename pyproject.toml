@@ -68,7 +68,7 @@ model_optimisation = [
     "onnxsim==0.7.1",
     "onnxscript==0.7.1",
     "onnx-ir==0.2.1",
-    "onnx_graphsurgeon==0.3.27", # from https://pypi.ngc.nvidia.com
+    "onnx-graphsurgeon>=0.5", #"onnx_graphsurgeon==0.3.27", # from https://pypi.ngc.nvidia.com
 ]
 
 [[tool.uv.index]]
@@ -77,7 +77,7 @@ url = "https://pypi.ngc.nvidia.com/"
 explicit = true
 
 [tool.uv.sources]
-onnx-graphsurgeon = { index = "nvidia-ngc" }
+# onnx-graphsurgeon now comes from PyPI
 
 [tool.setuptools.dynamic]
 version = {attr = "ready.__version__"}
