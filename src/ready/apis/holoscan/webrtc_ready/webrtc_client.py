@@ -565,13 +565,13 @@ class WebRTCClientApp(Application):
             width=640,
             height=400,
             tensors=[
-                # dict(
-                #     name=self.replayer_tensor_name,
-                #     type="color",
-                #     priority=0,
-                #     opacity=1.0,
-                #     image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
-                # ),
+                dict(
+                    name=self.replayer_tensor_name,
+                    type="color",
+                    priority=0,
+                    opacity=1.0,
+                    image_format="r8g8b8_unorm", #r8g8b8_snorm #r8g8b8_srgb
+                ),
                 dict(
                     name="mask_class_0",
                     type="color_lut",
@@ -603,10 +603,10 @@ class WebRTCClientApp(Application):
             ],
             color_lut=[
                 [0.0, 0.0, 0.0, 0.0],    # index 0 = background of each mask (transparent)
-                [0.65,0.81,0.89,0.5],    # idx 1: class 0 
-                [0.3, 0.3, 0.9, 0.5],    # idx 2: class 1 #sclera 
-                [0.1, 0.8, 0.2, 0.5],    # idx 3: class 2 #Iris
-                [0.9, 0.9, 0.3, 0.8],    # idx 4: class 3 #Pupil
+                [0.65,0.81,0.89,0.0],    # idx 1: class 0
+                [0.3, 0.3, 0.9, 0.9],    # idx 2: class 1 #sclera
+                [0.1, 0.8, 0.2, 0.0],    # idx 3: class 2 #Iris
+                [0.9, 0.9, 0.3, 0.0],    # idx 4: class 3 #Pupil
             ],
             enable_render_buffer_input=False,
             enable_render_buffer_output=False,

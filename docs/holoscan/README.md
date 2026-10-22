@@ -15,7 +15,8 @@ sudo apt-get install -y nvidia-container-toolkit #solves 2025-01-04 22:20:45 [FA
 #docker: Error response from daemon: could not select device driver "" with capabilities: [[gpu]].
 sudo apt install -y nvidia-docker2
 sudo systemctl daemon-reload
-sudo systemctl restart dock
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
 
 #REBOOT MACHINE!
 ```

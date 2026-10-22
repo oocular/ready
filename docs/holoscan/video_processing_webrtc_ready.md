@@ -63,7 +63,7 @@ ffplay -vf \
 ```
 
 ### Post process video
-Setup `videoStartFrameTime` and `videoEndFrameTime` in ${CONFIG_YAML} from ffplay
+Setup `videoStartFrameTime`, `videoEndFrameTime`, `crop_xpos` and `crop_ypos` in ${CONFIG_YAML} from ffplay
 ```bash
 bash /workspace/volumes/ready/scripts/video_processing/postprocessing.bash ${CONFIG_YAML}
 ``` 
